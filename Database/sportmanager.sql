@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 30-04-2026 a las 15:16:50
+-- Tiempo de generación: 12-05-2026 a las 18:23:37
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -72,6 +72,17 @@ PARTITION p2027_q4 VALUES LESS THAN (740712) ENGINE=InnoDB,
 PARTITION p_future VALUES LESS THAN MAXVALUE ENGINE=InnoDB
 );
 
+--
+-- Volcado de datos para la tabla `asistencia`
+--
+
+INSERT INTO `asistencia` (`id_asistencia`, `id_deportista`, `fecha`, `estado`, `comentario`) VALUES
+(1, 1015399746, '2026-05-11 00:00:00', 'Presente', NULL),
+(2, 1020304050, '2026-05-11 00:00:00', 'Presente', NULL),
+(3, 1050406020, '2026-05-11 00:00:00', 'Presente', NULL),
+(4, 1015399746, '2026-05-10 00:00:00', 'Presente', NULL),
+(5, 1020304050, '2026-05-10 00:00:00', 'Presente', NULL);
+
 -- --------------------------------------------------------
 
 --
@@ -139,6 +150,7 @@ CREATE TABLE `deportistas` (
 --
 
 INSERT INTO `deportistas` (`id_deportista`, `tipo_documento`, `foto`, `nombres`, `apellidos`, `fecha_nacimiento`, `jornada`, `fecha_registro`, `id_categoria`, `id_usuario`, `id_estado`, `genero`, `id_nivel`) VALUES
+(1015399746, 'CC', 'default.png', 'juan', 'delgado', '2017-02-11', 'Manana', '2026-05-12 03:58:20', 1, 1234567890, 1, 'Masculino', 0),
 (1020304050, 'TI', '1774389537.png', 'Pedro', 'Landa', '2017-06-08', 'Mañana', '2026-03-24 21:58:57', 1, 987456321, 1, 'Masculino', 2),
 (1050406020, 'TI', '1773933481_bc2b2d21734903ebf1319b7a5e5aa6e6.jpg', 'yuli', 'ruiz', '2016-07-05', 'Mañana', '2026-03-19 15:18:01', 3, 321456987, 3, 'Femenino', 0),
 (2147483647, 'TI', '1774450332_320.webp', 'Lola', 'Landa', '2014-06-10', 'Tarde', '2026-03-24 23:48:42', 3, 987456321, 2, 'Femenino', 1);
@@ -213,7 +225,8 @@ CREATE TABLE `eventos` (
 --
 
 INSERT INTO `eventos` (`id_evento`, `titulo`, `fecha`, `id_rol`, `tipo_evento`, `costo`, `cuotas`, `estado`) VALUES
-(0, 'Copa', '2026-03-28', 1, 'Torneo', 40000.00, 2, 0);
+(0, 'Copa', '2026-03-28', 1, 'Torneo', 40000.00, 2, 0),
+(1, 'copa mundo', '2026-05-12', 1, 'mensualidad', 0.00, 0, 0);
 
 -- --------------------------------------------------------
 
@@ -372,6 +385,13 @@ CREATE TABLE `productos` (
   `imagen` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Volcado de datos para la tabla `productos`
+--
+
+INSERT INTO `productos` (`id_producto`, `nombre`, `precio`, `descripcion`, `imagen`) VALUES
+(0, 'balon', 30000.00, 'balon', '');
+
 -- --------------------------------------------------------
 
 --
@@ -488,7 +508,8 @@ INSERT INTO `usuarios` (`id_usuario`, `tipo_documento`, `id_escuela`, `nombres`,
 (321456987, 'CC', 1, 'yuli', 'moris', 'yuli123@gmail.com', '$2y$12$MqjHkRTJY6Cad65L/yzdSOkaU3TDeGXG2mNV9N/tKBBkeaui7j7ky', '5451362587', 1, 1, NULL, NULL, NULL, 1, 0, 'aprobado'),
 (987456321, 'CE', 1, 'lalo', 'landa', 'lalo123@gmail.com', '$2y$12$B1QMliVNkmIRjNktyeC7ieudJjGq.ZxvyOvQ1w/3U/UWupVcPJNTu', '3654258941', 1, 1, NULL, NULL, NULL, 1, 0, 'aprobado'),
 (1010200521, 'CC', 1, 'Daniel', 'Celis', 'dan.3072@hotmail.com', '$2y$10$CAR2J8pqyv8rcqcmDE8qjOQAVnFjZoW2mJH1IS2sLhdPQ5jRIB90K', '3157257392', 1, 3, NULL, NULL, NULL, 0, 0, 'pendiente'),
-(1111111111, 'CC', 1, 'ejemplo', '', 'ejemplo@gmail.com', '$2y$10$PwuEFIlcRkP/r4Uc1mHVoObxnOdH4JrfBWqjfOxNxerqKgm6nLS5e', '3111111111', 0, 2, 1, NULL, NULL, 1, 1, 'aprobado');
+(1111111111, 'CC', 1, 'ejemplo', '', 'ejemplo@gmail.com', '$2y$10$PwuEFIlcRkP/r4Uc1mHVoObxnOdH4JrfBWqjfOxNxerqKgm6nLS5e', '3111111111', 0, 2, 1, NULL, NULL, 1, 1, 'aprobado'),
+(1234567890, 'CC', 1, 'Daniel', 'Delgado', 'termostatosolar2022@gmail.com', '$2y$10$72Q.FxBAcKhBjjsRXE3qreKqOuhEvy/fatPgxtfhJ1Cxs2IgcZGRO', '4214124124', 1, 1, NULL, NULL, NULL, 1, 0, 'aprobado');
 
 --
 -- Índices para tablas volcadas
@@ -650,6 +671,18 @@ ALTER TABLE `usuarios`
 --
 -- AUTO_INCREMENT de las tablas volcadas
 --
+
+--
+-- AUTO_INCREMENT de la tabla `asistencia`
+--
+ALTER TABLE `asistencia`
+  MODIFY `id_asistencia` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
+-- AUTO_INCREMENT de la tabla `escuelas`
+--
+ALTER TABLE `escuelas`
+  MODIFY `id_escuela` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de la tabla `inscripciones`
