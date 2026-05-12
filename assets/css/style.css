@@ -1,0 +1,1559 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    background: #fff;
+    /* Blanco puro */
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Smooth scrolling and anchor offset to account for overlapping navbar */
+html {
+    scroll-behavior: smooth;
+}
+
+/* When an element is targeted by an anchor, offset it so it's visible below the fixed navbar */
+section[id] {
+    scroll-margin-top: calc(var(--navbar-overlap) + 10px);
+}
+
+/* ===== Barra superior ===== */
+.top-bar {
+    font-size: 0.9rem;
+    background: #222;
+    color: #fff;
+}
+
+/* ===== Navbar flotante ===== */
+.custom-navbar {
+    background: #fff;
+    /* Fondo blanco */
+    margin: 0 auto;
+    margin-top: -5px;
+    /* Para que "flote" debajo de la top-bar */
+    width: 90%;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    position: relative;
+}
+
+/* Navbar links */
+.custom-navbar .navbar-brand,
+.custom-navbar .nav-link {
+    color: #000 !important;
+    /* Texto negro */
+    transition: all 0.3s ease;
+}
+
+.custom-navbar .nav-link.active {
+    font-weight: bold;
+}
+
+/* Hover en navbar */
+.custom-navbar .nav-link:hover {
+    color: #007BFF !important;
+    /* Azul Bootstrap */
+    text-decoration: none;
+}
+
+
+/* Logo dentro del navbar */
+.logo-nav {
+    height: 40px;
+    /* Tamaño fijo */
+    width: auto;
+    /* Mantiene proporción */
+    object-fit: contain;
+    /* Evita deformación */
+}
+
+/* ===== Primera sección azul ===== */
+.section-hero {
+    background: #007BFF;
+    /* Azul Bootstrap */
+    color: #fff;
+    text-align: center;
+    /* Reducir padding: el carrusel controla la altura del hero para evitar deformaciones */
+    padding: 20px 20px 0 20px;
+    position: relative;
+    z-index: 1;
+}
+
+.section-hero h1,
+.section-hero p {
+    margin: 0 0 15px 0;
+}
+
+/* Asegurar que el título del hero esté por encima del carrusel y sea legible */
+.section-hero .container h1 {
+    position: relative;
+    z-index: 60;
+    /* por encima del carousel y overlay */
+    color: #fff;
+    font-size: clamp(1.6rem, 4vw, 3rem);
+    margin-bottom: 0.75rem;
+    text-shadow: 0 3px 10px rgba(0, 0, 0, 0.6);
+}
+
+/* Empujar el carrusel ligeramente hacia abajo para despejar el título */
+.section-hero .carousel {
+    margin-top: 0.5rem;
+}
+
+/* ===== Segunda sección (otro color) ===== */
+.section-alt {
+    background: #f4f4f9;
+    color: #333;
+    text-align: center;
+    padding: 80px 20px;
+}
+
+/* ===== tercera sección (otro color) ===== */
+.section-next {
+    background: #c8cbce;
+    /* Gris claro */
+    color: #333;
+    text-align: center;
+    padding: 80px 20px;
+    position: relative;
+    z-index: 1;
+}
+
+/* ===== Sección final / contacto: aplicar mismo estilo que las demás secciones ===== */
+.section-end {
+    background: #f4f4f9;
+    /* mismo tono que section-alt */
+    color: #333;
+    text-align: center;
+    padding: 80px 20px;
+    position: relative;
+    z-index: 1;
+}
+
+/* ===== Divisor en forma de rombo ===== */
+.section-divider {
+    position: relative;
+    width: 20px;
+    /* Tamaño del rombo */
+    height: 20px;
+    background: #000;
+    /* Negro */
+    margin: -10px auto;
+    /* Lo centra y lo superpone */
+    transform: rotate(45deg);
+    /* Rota el cuadrado a rombo */
+    z-index: 10;
+}
+
+/* ===== Divisor en forma de rombos continuos ===== */
+.section-divider-romb-chain {
+    width: 100%;
+    height: 20px;
+    margin: -10px 0;
+    line-height: 0;
+    z-index: 10;
+    display: block;
+    overflow: hidden;
+
+    /* Fondo transparente para que solo se vean los rombos */
+    background-color: transparent;
+
+    /* SVG del rombo puntiagudo en una sola línea */
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'><polygon points='10,0 20,10 10,20 0,10' fill='%23c8cbce'/></svg>");
+
+    background-repeat: repeat-x;
+    background-position: center;
+    background-size: 20px 20px;
+    /* cada rombo mide 20x20 */
+}
+
+/* Divisor con doble patrón: cuando el divisor está entre .section-alt (arriba) y
+   .section-next (abajo) pintamos dos pseudo-elementos con el patrón en colores
+   correspondientes para crear el efecto de 'corte' sobre ambos lados. */
+
+/* Si el divisor precede a .section-end, mostramos el patrón encima (como corte) usando ::before */
+.section-divider-romb-chain+.section-end {
+    position: relative;
+}
+
+.section-divider-romb-chain+.section-end::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 20px;
+    top: -10px;
+    /* superpone hacia arriba */
+    display: block;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'><polygon points='10,0 20,10 10,20 0,10' fill='%23c8cbce'/></svg>");
+    background-repeat: repeat-x;
+    background-position: center;
+    background-size: 20px 20px;
+    z-index: 15;
+    pointer-events: none;
+}
+
+/* Ajuste del contenido */
+main {
+    flex: 1;
+    margin-top: -62px;
+    /* Navbar flotante sobre el azul */
+}
+
+/* ===== Footer al fondo ===== */
+footer {
+    background: #000;
+    color: #fff;
+    text-align: center;
+    padding: 10px 0;
+    margin-top: auto;
+    /* Empuja el footer al fondo */
+    width: 100%;
+}
+
+/* Back to top button (limpio y específico) */
+#backToTop {
+    /* Floating square button */
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    z-index: 99999;
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    max-width: 48px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    background: #007BFF;
+    color: #fff;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+    border: none;
+    opacity: 0;
+    transform: translateY(12px) scale(.95);
+    transition: opacity .28s ease, transform .28s ease, visibility .12s;
+    visibility: hidden;
+    cursor: pointer;
+    pointer-events: none;
+    /* inactivo hasta que sea visible */
+}
+
+#backToTop svg path {
+    stroke: #fff;
+}
+
+#backToTop:hover {
+    background: #0056b3;
+}
+
+/* Estado visible */
+#backToTop.visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    visibility: visible;
+    pointer-events: auto;
+}
+
+/* En móviles reducir tamaño si se desea */
+@media (max-width: 480px) {
+    #backToTop {
+        right: 12px;
+        bottom: 12px;
+        width: 44px;
+        height: 44px;
+    }
+}
+
+/* ===== Dropdown: mostrar al pasar el mouse en escritorio ===== */
+@media (hover: hover) and (min-width: 992px) {
+    .custom-navbar .nav-item.dropdown {
+        position: relative;
+    }
+
+    .custom-navbar .dropdown-menu {
+        display: block;
+        /* permitimos controlar visibilidad con visibility/opacity */
+        position: absolute;
+        top: 100%;
+        left: 0;
+        min-width: 10rem;
+        margin: 0.25rem 0 0 0;
+        visibility: hidden;
+        opacity: 0;
+        transform: translateY(.25rem);
+        transition: opacity .15s ease, transform .15s ease, visibility .15s;
+        box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .15);
+        z-index: 2000;
+    }
+
+    .custom-navbar .nav-item.dropdown:hover>.dropdown-menu {
+        visibility: visible;
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    /* Evitar que el menú rompa el flujo del navbar */
+    .custom-navbar .nav-item.dropdown .dropdown-item {
+        white-space: nowrap;
+    }
+}
+
+/* ===== Pequeño ajuste para móviles: dropdown por defecto gestionado por JS/Bootstrap ===== */
+@media (max-width: 991.98px) {
+    .custom-navbar .dropdown-menu {
+        position: static;
+        transform: none;
+        visibility: visible;
+        opacity: 1;
+        box-shadow: none;
+    }
+}
+
+/* ===== Carrusel / Banner fijo y responsive (variable-driven) ===== */
+:root {
+    --hero-height-mobile: 140px;
+    --hero-height-desktop: 320px;
+    --hero-height-xl: 420px;
+    --control-size: 80px;
+    /* tamaño por defecto de los controles */
+    --control-size-mobile: 56px;
+    --indicator-offset: 56px;
+    /* distancia de los indicadores fuera del banner (aumentada) */
+    --control-arrow-size: 2.5rem;
+    --navbar-overlap: 65px;
+    /* altura del solapamiento de la navbar sobre el hero (coincide con main margin-top) */
+}
+
+/* La sección hero controla la altura del banner para que las imágenes siempre se ajusten */
+.section-hero {
+    /* Permitimos que los controles puedan salir del área de la imagen */
+    overflow: visible;
+    /* Empujar el contenido del hero por debajo de la navbar solapada. Mantener un pequeño padding extra (20px) */
+    padding-top: calc(var(--navbar-overlap) + 20px);
+    padding-bottom: 3.5rem;
+    /* separa visualmente el carrusel de la sección siguiente (aumentado) */
+}
+
+/* Aplicamos la altura al contenedor del carousel */
+.section-hero .carousel,
+.section-hero .carousel-inner,
+.section-hero .carousel-item {
+    height: var(--hero-height-desktop);
+}
+
+/* Asegurar que las imágenes se recorten dentro del contenedor */
+.section-hero .carousel-inner {
+    overflow: hidden;
+}
+
+/* Las imágenes ocupan el 100% del contenedor y se recortan con object-fit */
+.section-hero .carousel-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+
+}
+
+/* Asegurar que los controles y los indicadores estén siempre por encima de las imágenes */
+.section-hero .carousel-indicators {
+    z-index: 40;
+    /* indicadores dentro del área del carousel, con separación interna */
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 12px;
+    /* dentro del banner */
+    display: flex;
+    justify-content: center;
+    gap: .5rem;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+}
+
+.section-hero .carousel-control-prev,
+.section-hero .carousel-control-next {
+    z-index: 35;
+    width: var(--control-size);
+    height: var(--control-size);
+    top: 50%;
+    transform: translateY(-50%);
+    /* colocarlos fuera del área de la imagen */
+    --offset-outside: 80px;
+    /* aumentado para alejar más las flechas */
+    display: block;
+}
+
+/* mover los controles hacia afuera (izquierda/derecha) */
+.section-hero .carousel-control-prev {
+    left: calc(-1 * var(--offset-outside));
+}
+
+.section-hero .carousel-control-next {
+    right: calc(-1 * var(--offset-outside));
+}
+
+/* Hacer los iconos de control más visibles sobre imágenes claras */
+.section-hero .carousel-control-prev-icon,
+.section-hero .carousel-control-next-icon {
+    display: none;
+    /* ocultamos los iconos por defecto de Bootstrap */
+}
+
+/* Estilo para los SVG inline dentro de los controles */
+.section-hero .carousel-control-prev svg,
+.section-hero .carousel-control-next svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.section-hero .carousel-control-prev svg path,
+.section-hero .carousel-control-next svg path {
+    stroke: #333;
+}
+
+/* Hover/active state para controles */
+.section-hero .carousel-control-prev:hover svg path,
+.section-hero .carousel-control-next:hover svg path {
+    stroke: #ffffff;
+    /* color blanco al hover para destacar */
+}
+
+/* Pequeña superposición para mejorar contraste de texto/control sobre la imagen */
+.section-hero .carousel-item::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.08), rgba(0, 0, 0, 0.12));
+    pointer-events: none;
+    z-index: 5;
+    /* por debajo de controles (20) y por encima de la imagen (0) */
+}
+
+/* Mobile: mantener controles dentro del área y ajustar offsets */
+@media (max-width: 767.98px) {
+    .section-hero .carousel-control-prev {
+        left: 8px;
+        right: auto;
+        width: var(--control-size-mobile);
+        height: var(--control-size-mobile);
+        --offset-outside: 0px;
+    }
+
+    .section-hero .carousel-control-next {
+        right: 8px;
+        left: auto;
+        width: var(--control-size-mobile);
+        height: var(--control-size-mobile);
+        --offset-outside: 0px;
+    }
+
+    .section-hero {
+        /* navbar suele ser más pequeña en móvil; reducir el offset */
+        padding-top: calc(45px + 30px);
+        padding-bottom: 1.5rem;
+    }
+
+    /* indicadores dentro en móvil, con separación interna */
+    .section-hero .carousel-indicators {
+        bottom: 10px;
+        position: absolute;
+    }
+}
+
+/* Mobile-first: altura menor en móviles */
+@media (max-width: 767.98px) {
+
+    .section-hero .carousel,
+    .section-hero .carousel-inner,
+    .section-hero .carousel-item {
+        height: var(--hero-height-mobile);
+    }
+}
+
+/* Pantallas muy grandes: más altura */
+@media (min-width: 1200px) {
+
+    .section-hero .carousel,
+    .section-hero .carousel-inner,
+    .section-hero .carousel-item {
+        height: var(--hero-height-xl);
+    }
+}
+
+/* Si el rombo está antes de la sección .section-next queremos también mostrarlo debajo
+   usando un pseudo-elemento en la propia sección. Esto asegura el efecto arriba y abajo. */
+
+.dashboard {
+    background-image: url("../img/the-stadium-in-night-time-with-ai-generated-free-photo.jpg");
+    background-size: cover;
+    background-position: center;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+}
+
+.subtitulo {
+    margin-top: 40px;
+    font-size: 70px;
+    text-transform: uppercase;
+    font-weight: bold;
+    text-align: center;
+
+    width: 100%;
+    padding: 30px;
+
+    background: linear-gradient(to right,
+            rgba(0, 0, 50, 0.6),
+            rgba(0, 0, 120, 0.6),
+            rgba(0, 0, 50, 0.6));
+
+    color: white;
+    letter-spacing: 2px;
+
+}
+
+/* CONTENEDOR DE BOTONES */
+.opciones {
+    margin-top: 30px;
+    display: flex;
+    gap: 40px;
+    justify-content: center;
+}
+
+/* BOTONES */
+.card-dashboard {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 25px;
+    width: 180px;
+    text-align: center;
+    text-decoration: none;
+    color: #333;
+    font-weight: bold;
+    border-radius: 10px;
+    transition: 0.3s;
+}
+
+.card-dashboard:hover {
+    transform: scale(1.05);
+}
+
+.card-header {
+    background: #fff;
+    padding: 20px;
+    border-bottom: 1px solid #ddd;
+}
+
+.form-control {
+    height: 55px;
+    font-size: 18px;
+}
+
+.card-body {
+    padding: 40px;
+}
+
+/* LOGIN */
+
+.login-card {
+    max-width: 900px;
+    width: 100%;
+    margin: auto;
+}
+
+.login-card input {
+    height: 60px;
+    font-size: 20px;
+}
+
+.login-card button {
+    height: 55px;
+    font-size: 20px;
+}
+
+/* TARJETA FIFA */
+.card-fifa {
+    position: relative;
+    width: 320px;
+    height: 480px;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.card-fifa::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+}
+
+/* Fondo */
+.card-bg {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 1;
+    pointer-events: none;
+
+}
+
+/* Imagen jugador */
+.player-img {
+    position: absolute;
+    top: 70px;
+    left: 50%;
+    transform: translateX(-50%);
+    max-height: 160px;
+    width: auto;
+    height: auto;
+    z-index: 5;
+    
+}
+
+/* 🔥 NOMBRE (DEBAJO DE LA IMAGEN) */
+.nombre {
+    position: absolute;
+    top: 210px;
+    width: 100%;
+    text-align: center;
+    color: white;
+    z-index: 10;
+    font-weight: bold;
+    font-size: 35px;
+}
+
+/* 🔥 INFO EXTRA */
+.extra-info {
+    position: absolute;
+    bottom: 110px;
+    width: 100%;
+    text-align: center;
+    color: white;
+    z-index: 15;
+    font-size: 18px;
+}
+
+.media {
+    position: absolute;
+    top: 80px;
+    left: 50px;
+    color: white;
+    font-size: 28px;
+    font-weight: bold;
+    z-index: 10;
+}
+
+.pos {
+    position: absolute;
+    top: 120px;
+    left: 50px;
+    color: white;
+    font-size: 18px;
+    z-index: 50;
+}
+/* 🔥 CAJA DERECHA */
+.eventos-box {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 260px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 10;
+}
+
+/* 🔥 TARJETA EVENTO */
+.evento-card {
+    background: #0d6efd;
+    color: white;
+    padding: 12px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    font-size: 14px;
+}
+
+/* MODAL MENSAJE EVENTO */
+.modal-content {
+    background: #fff !important;
+}
+
+.modal-header h5,
+.modal-body,
+.modal-footer {
+    color: #000 !important;
+}
+
+/* MENSAJE FLOTANTE ARRIBA DERECHA */
+.alert-fijo {
+    position: fixed;
+    top: 200px;
+    right: 20px;
+    z-index: 1030;
+    min-width: 250px;
+    opacity: 0;
+    transform: translateY(-20px);
+    animation: aparecer 0.5s forwards;
+}
+
+.modal {
+    z-index: 1060 !important;
+}
+
+.modal-backdrop {
+    z-index: 1055 !important;
+}
+
+.modal.modal-top-right .modal-dialog {
+    position: fixed !important;
+    top: 16px;
+    right: 16px;
+    left: auto !important;
+    transform: none !important;
+    margin: 0;
+    width: calc(100vw - 32px);
+    max-width: 420px;
+}
+
+.modal.modal-top-right .modal-content {
+    pointer-events: auto;
+}
+
+@media (max-width: 576px) {
+    .modal.modal-top-right .modal-dialog {
+        top: 8px;
+        right: 8px;
+        width: calc(100vw - 16px);
+    }
+}
+
+@keyframes aparecer {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.rol-box {
+    position: absolute;
+    top: 100px;
+    left: 20px;
+    background: rgba(0,0,0,0.7);
+    color: #fff;
+    padding: 10px 18px;
+    border-radius: 10px;
+    font-weight: bold;
+    z-index: 1000;
+    font-size: 30px;
+}
+
+/* ===== Ajuste visual global azul/gris ===== */
+:root {
+    --sm-blue-900: #1d3f5f;
+    --sm-blue-800: #275b86;
+    --sm-blue-700: #2f7fbd;
+    --sm-blue-600: #3a93d8;
+    --sm-gray-950: #17202a;
+    --sm-gray-800: #334155;
+    --sm-gray-700: #526174;
+    --sm-gray-500: #7b8794;
+    --sm-gray-200: #d8dee7;
+    --sm-gray-100: #edf2f7;
+    --sm-gray-50: #f6f8fb;
+    --sm-white: #ffffff;
+    --sm-radius: 8px;
+    --sm-shadow: 0 12px 30px rgba(16, 42, 67, 0.12);
+}
+
+html,
+body {
+    font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: var(--sm-gray-950);
+    background: var(--sm-gray-50);
+}
+
+body.bg-light {
+    background: var(--sm-gray-50) !important;
+}
+
+.top-bar,
+.bg-dark,
+.navbar-dark,
+footer {
+    background: var(--sm-blue-900) !important;
+}
+
+.custom-navbar {
+    background: var(--sm-white);
+    border: 1px solid rgba(31, 95, 153, 0.12);
+    border-radius: var(--sm-radius);
+    box-shadow: var(--sm-shadow);
+}
+
+.custom-navbar .navbar-brand,
+.custom-navbar .nav-link,
+.navbar-brand {
+    color: var(--sm-blue-900) !important;
+    font-weight: 700;
+}
+
+.navbar-dark .navbar-brand {
+    color: var(--sm-white) !important;
+}
+
+.custom-navbar .nav-link:hover {
+    color: var(--sm-blue-600) !important;
+}
+
+.section-hero,
+#backToTop,
+.btn-primary,
+.bg-primary {
+    background: var(--sm-blue-700) !important;
+    border-color: var(--sm-blue-700) !important;
+}
+
+.btn-primary:hover,
+#backToTop:hover {
+    background: var(--sm-blue-800) !important;
+    border-color: var(--sm-blue-800) !important;
+}
+
+.btn-secondary,
+.bg-secondary {
+    background: var(--sm-gray-700) !important;
+    border-color: var(--sm-gray-700) !important;
+    color: var(--sm-white) !important;
+}
+
+.btn-success,
+.bg-success,
+.btn-info,
+.bg-info {
+    background: var(--sm-blue-600) !important;
+    border-color: var(--sm-blue-600) !important;
+    color: var(--sm-white) !important;
+}
+
+.btn-warning,
+.bg-warning {
+    background: var(--sm-gray-500) !important;
+    border-color: var(--sm-gray-500) !important;
+    color: var(--sm-white) !important;
+}
+
+.btn-danger,
+.bg-danger {
+    background: var(--sm-gray-800) !important;
+    border-color: var(--sm-gray-800) !important;
+    color: var(--sm-white) !important;
+}
+
+.btn,
+.card-dashboard,
+.dropdown-item,
+.badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    line-height: 1.2;
+    min-height: 40px;
+}
+
+.btn-sm {
+    min-height: 34px;
+}
+
+/* Uniform button sizing across views */
+.btn:not(.btn-link) {
+    min-width: 140px;
+    min-height: 44px;
+    padding: 0.5rem 1rem;
+}
+
+.btn-sm:not(.btn-link) {
+    min-width: 140px;
+    min-height: 44px;
+    padding: 0.5rem 0.9rem;
+}
+
+.btn-outline-primary {
+    color: var(--sm-blue-700) !important;
+    border-color: var(--sm-blue-700) !important;
+}
+
+.btn-outline-primary:hover {
+    background: var(--sm-blue-700) !important;
+    color: var(--sm-white) !important;
+}
+
+.btn-outline-danger,
+.btn-outline-secondary {
+    color: var(--sm-gray-800) !important;
+    border-color: var(--sm-gray-800) !important;
+}
+
+.btn-outline-danger:hover,
+.btn-outline-secondary:hover {
+    background: var(--sm-gray-800) !important;
+    color: var(--sm-white) !important;
+}
+
+.card {
+    border: 1px solid var(--sm-gray-200);
+    border-radius: var(--sm-radius);
+    box-shadow: var(--sm-shadow);
+    overflow: hidden;
+}
+
+.card-header {
+    background: var(--sm-blue-800) !important;
+    color: var(--sm-white) !important;
+    border-bottom: 0;
+}
+
+.card-header h1,
+.card-header h2,
+.card-header h3,
+.card-header h4,
+.card-header h5,
+.card-header h6 {
+    color: inherit;
+}
+
+.table {
+    color: var(--sm-gray-950);
+    vertical-align: middle;
+}
+
+.table thead,
+.table-dark,
+.table-secondary {
+    background: var(--sm-blue-900) !important;
+    color: var(--sm-white) !important;
+}
+
+.table th,
+.table td {
+    vertical-align: middle;
+    text-align: center;
+    overflow-wrap: anywhere;
+}
+
+.table .btn-group {
+    display: inline-flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+}
+
+.table .btn-group .btn {
+    border-radius: var(--sm-radius) !important;
+}
+
+.table td:first-child,
+.table th:first-child {
+    text-align: center;
+}
+
+.form-control,
+.form-select {
+    min-height: 46px;
+    border-color: var(--sm-gray-200);
+    border-radius: var(--sm-radius);
+    color: var(--sm-gray-950);
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--sm-blue-600);
+    box-shadow: 0 0 0 0.2rem rgba(37, 111, 174, 0.18);
+}
+
+.text-primary {
+    color: var(--sm-blue-700) !important;
+}
+
+.text-muted {
+    color: var(--sm-gray-500) !important;
+}
+
+.section-alt,
+.section-end {
+    background: var(--sm-gray-50);
+    color: var(--sm-gray-950);
+}
+
+.section-next {
+    background: var(--sm-gray-100);
+    color: var(--sm-gray-950);
+}
+
+.dashboard {
+    background-image:
+        radial-gradient(circle at 50% 25%, rgba(246, 248, 251, 0.10), transparent 34%),
+        linear-gradient(110deg, rgba(29, 63, 95, 0.45), rgba(51, 65, 85, 0.32)),
+        url("../img/the-stadium-in-night-time-with-ai-generated-free-photo.jpg");
+    padding: 120px 24px 64px;
+    gap: 24px;
+    justify-content: flex-start;
+    align-items: stretch;
+}
+
+.dashboard::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+        linear-gradient(90deg, transparent 0 48%, rgba(255, 255, 255, 0.18) 49% 51%, transparent 52% 100%),
+        radial-gradient(circle at 50% 54%, transparent 0 105px, rgba(255, 255, 255, 0.14) 107px 109px, transparent 111px);
+    opacity: 0.42;
+}
+
+.dashboard > :not(.modal):not(.alert-fijo) {
+    position: relative;
+    z-index: 1;
+}
+
+.subtitulo {
+    width: min(100%, 980px);
+    margin-top: 0;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 24px;
+    border-radius: var(--sm-radius);
+    background: rgba(246, 248, 251, 0.88);
+    border: 1px solid rgba(255, 255, 255, 0.72);
+    box-shadow: 0 18px 40px rgba(23, 32, 42, 0.20);
+    letter-spacing: 0;
+    color: var(--sm-blue-900);
+}
+
+.subtitulo h2 {
+    margin: 0;
+    font-size: clamp(1.7rem, 4vw, 3.4rem);
+    line-height: 1.15;
+    overflow-wrap: anywhere;
+    color: var(--sm-blue-900);
+}
+
+.opciones {
+    width: min(100%, 1050px);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 18px;
+    align-items: stretch;
+    margin-top: 0;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.card-dashboard {
+    width: 100%;
+    min-height: 112px;
+    padding: 18px;
+    background: rgba(255, 255, 255, 0.92);
+    color: var(--sm-blue-900);
+    border: 1px solid var(--sm-gray-200);
+    border-radius: var(--sm-radius);
+    box-shadow: var(--sm-shadow);
+    font-size: 1rem;
+    font-weight: 700;
+    text-transform: none;
+    backdrop-filter: blur(4px);
+}
+
+.card-dashboard:hover {
+    transform: translateY(-3px);
+    background: var(--sm-blue-700);
+    color: var(--sm-white);
+}
+
+.rol-box {
+    position: fixed !important;
+    top: 78px !important;
+    left: 28px !important;
+    right: auto !important;
+    z-index: 1040 !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 46px;
+    background: rgba(255, 255, 255, 0.90);
+    color: var(--sm-blue-900);
+    border: 1px solid rgba(255, 255, 255, 0.76);
+    border-left: 6px solid var(--sm-blue-600);
+    border-radius: var(--sm-radius);
+    box-shadow: 0 12px 28px rgba(23, 32, 42, 0.20);
+    font-size: clamp(1rem, 2vw, 1.4rem);
+    text-transform: uppercase;
+    letter-spacing: 0;
+    backdrop-filter: blur(6px);
+}
+
+.rol-box::before {
+    content: "ROL";
+    margin-right: 10px;
+    padding: 4px 8px;
+    border-radius: 999px;
+    background: var(--sm-blue-600);
+    color: var(--sm-white);
+    font-size: 0.72em;
+    line-height: 1;
+}
+
+.alert-fijo {
+    background: var(--sm-white);
+    color: var(--sm-blue-900);
+    border: 1px solid var(--sm-gray-200);
+    box-shadow: var(--sm-shadow);
+}
+
+.sm-error-alert {
+    border: 0;
+    border-radius: 12px;
+    box-shadow: 0 12px 24px rgba(23, 32, 42, 0.14);
+}
+
+.alert-danger.sm-error-alert {
+    border-left: 6px solid #dc3545;
+    background: linear-gradient(135deg, #fff6f6 0%, #ffe9e9 100%);
+    color: #7a1018;
+}
+
+.alert-warning.sm-error-alert {
+    border-left: 6px solid #f59f00;
+    background: linear-gradient(135deg, #fff9e8 0%, #fff1cc 100%);
+    color: #7a5400;
+}
+
+.sm-error-icon {
+    width: 34px;
+    height: 34px;
+    min-width: 34px;
+    border-radius: 50%;
+    background: #dc3545;
+    color: #fff;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    font-size: 1rem;
+}
+
+.alert-warning.sm-error-alert .sm-error-icon {
+    background: #f59f00;
+}
+
+.sm-error-alert .btn-close {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+}
+
+.sm-404-card {
+    background: linear-gradient(160deg, #f8fbff 0%, #eef4fb 100%);
+    border-radius: 14px;
+    box-shadow: 0 20px 40px rgba(23, 32, 42, 0.12);
+}
+
+.sm-404-code {
+    font-size: clamp(3.4rem, 12vw, 7.5rem);
+    font-weight: 800;
+    line-height: 1;
+    color: var(--sm-blue-900);
+    letter-spacing: 2px;
+}
+
+.needs-validation .form-control:invalid,
+.needs-validation .form-select:invalid {
+    border-color: #dc3545;
+    padding-right: calc(1.5em + 0.75rem);
+    background-image: none;
+}
+
+.invalid-feedback {
+    margin-top: 0.4rem;
+    padding: 0.45rem 0.6rem;
+    border-radius: 8px;
+    background: #fff3f3;
+    color: #a71d2a;
+    font-weight: 600;
+    border-left: 4px solid #dc3545;
+}
+
+@media (max-width: 768px) {
+    main {
+        margin-top: 0;
+    }
+
+    .dashboard {
+        padding: 96px 16px 40px;
+    }
+
+    .rol-box {
+        position: fixed !important;
+        top: 78px !important;
+        left: 12px !important;
+        right: auto !important;
+        margin: 0 !important;
+        z-index: 1040 !important;
+    }
+
+    .opciones {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ===== Home Redesign ===== */
+.home-page .home-kicker {
+    display: inline-block;
+    padding: 0.35rem 0.8rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    color: #e5f0ff;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+}
+
+.home-page .home-hero {
+    padding-top: calc(var(--navbar-overlap) + 44px);
+    padding-bottom: 4.5rem;
+    background:
+        radial-gradient(circle at 10% 20%, rgba(78, 155, 230, 0.35), transparent 38%),
+        radial-gradient(circle at 90% 75%, rgba(17, 46, 76, 0.6), transparent 44%),
+        linear-gradient(120deg, #1c4264, #245c89 45%, #1b3651 100%);
+}
+
+.home-page .home-hero-grid {
+    display: grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: 2rem;
+    align-items: center;
+}
+
+.home-page .home-hero-copy h1 {
+    margin-top: 0.9rem;
+    margin-bottom: 1rem;
+    font-size: clamp(2rem, 4vw, 3.4rem);
+    line-height: 1.08;
+}
+
+.home-page .home-hero-copy p {
+    margin: 0;
+    color: rgba(239, 246, 255, 0.9);
+    max-width: 62ch;
+    font-size: 1.05rem;
+}
+
+.home-page .home-hero-actions {
+    margin-top: 1.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+}
+
+.home-page .home-btn-outline {
+    background: transparent;
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.55);
+}
+
+.home-page .home-btn-outline:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+}
+
+.home-page .home-hero-stats {
+    margin-top: 1.35rem;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.85rem;
+}
+
+.home-page .home-stat-card {
+    padding: 0.75rem;
+    border-radius: 12px;
+    background: rgba(12, 33, 52, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(4px);
+}
+
+.home-page .home-stat-card strong {
+    display: block;
+    color: #fff;
+    font-size: 1.28rem;
+}
+
+.home-page .home-stat-card span {
+    display: block;
+    margin-top: 0.15rem;
+    color: rgba(233, 243, 255, 0.88);
+    font-size: 0.82rem;
+}
+
+.home-page .home-hero-media {
+    position: relative;
+}
+
+.home-page .home-carousel {
+    border-radius: 18px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    box-shadow: 0 18px 40px rgba(12, 28, 43, 0.42);
+}
+
+.home-page .home-carousel .carousel-inner,
+.home-page .home-carousel .carousel-item {
+    height: clamp(260px, 42vw, 460px);
+}
+
+.home-page .home-carousel .carousel-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.home-page .home-section-head {
+    max-width: 760px;
+    margin: 0 auto 2rem;
+    text-align: center;
+}
+
+.home-page .home-section-head .home-kicker,
+.home-page .home-contact-card .home-kicker {
+    background: rgba(47, 127, 189, 0.12);
+    border-color: rgba(47, 127, 189, 0.3);
+    color: var(--sm-blue-800);
+}
+
+.home-page .home-section-head h2 {
+    margin-top: 0.75rem;
+    margin-bottom: 0.8rem;
+    color: var(--sm-blue-900);
+    font-size: clamp(1.6rem, 3vw, 2.45rem);
+}
+
+.home-page .home-section-head p {
+    color: var(--sm-gray-700);
+    margin: 0;
+}
+
+.home-page .home-plans,
+.home-page .home-benefits,
+.home-page .home-contact {
+    padding-top: 5rem;
+    padding-bottom: 5rem;
+}
+
+.home-page .home-plan-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.2rem;
+}
+
+.home-page .home-plan-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.95rem;
+    padding: 1.35rem;
+    border-radius: 14px;
+    background: #fff;
+    border: 1px solid var(--sm-gray-200);
+    box-shadow: 0 15px 30px rgba(19, 44, 66, 0.08);
+}
+
+.home-page .home-plan-card h3 {
+    margin: 0;
+    color: var(--sm-blue-900);
+    font-size: 1.25rem;
+}
+
+.home-page .home-plan-price {
+    margin: 0;
+    color: var(--sm-blue-800);
+    font-size: 1.9rem;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.home-page .home-plan-price small {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--sm-gray-500);
+}
+
+.home-page .home-plan-card ul {
+    margin: 0;
+    padding-left: 1.1rem;
+    color: var(--sm-gray-700);
+    flex: 1;
+}
+
+.home-page .home-plan-card ul li + li {
+    margin-top: 0.25rem;
+}
+
+.home-page .home-plan-card-featured {
+    background: linear-gradient(140deg, #ffffff 0%, #f2f8ff 100%);
+    border: 2px solid rgba(58, 147, 216, 0.36);
+    transform: translateY(-8px);
+}
+
+.home-page .home-badge {
+    position: absolute;
+    top: -10px;
+    right: 14px;
+    padding: 0.35rem 0.7rem;
+    border-radius: 999px;
+    background: var(--sm-blue-700);
+    color: #fff;
+    font-size: 0.74rem;
+    font-weight: 700;
+}
+
+.home-page .home-benefit-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.2rem;
+}
+
+.home-page .home-benefit-card {
+    padding: 1.2rem;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(46, 114, 168, 0.15);
+    box-shadow: 0 12px 24px rgba(20, 46, 68, 0.08);
+    text-align: left;
+}
+
+.home-page .home-benefit-card img {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 0.9rem;
+    border: 1px solid rgba(37, 78, 114, 0.1);
+}
+
+.home-page .home-benefit-card h3 {
+    margin: 0 0 0.45rem;
+    color: var(--sm-blue-900);
+    font-size: 1.15rem;
+}
+
+.home-page .home-benefit-card p {
+    margin: 0;
+    color: var(--sm-gray-700);
+}
+
+.home-page .home-contact-card {
+    display: flex;
+    gap: 1.2rem;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.4rem;
+    border-radius: 14px;
+    background: #fff;
+    border: 1px solid var(--sm-gray-200);
+    box-shadow: 0 18px 35px rgba(20, 45, 66, 0.1);
+}
+
+.home-page .home-contact-card h2 {
+    margin: 0.6rem 0 0.45rem;
+    color: var(--sm-blue-900);
+    font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+}
+
+.home-page .home-contact-card p {
+    margin: 0;
+    color: var(--sm-gray-700);
+}
+
+.home-page .home-contact-actions {
+    display: flex;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.home-page .home-contact .home-btn-outline {
+    color: var(--sm-blue-800);
+    border-color: rgba(47, 127, 189, 0.45);
+}
+
+.home-page .home-contact .home-btn-outline:hover {
+    background: rgba(47, 127, 189, 0.12);
+    color: var(--sm-blue-900);
+}
+
+@media (max-width: 991.98px) {
+    .home-page .home-hero-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .home-page .home-hero-copy {
+        text-align: left;
+    }
+
+    .home-page .home-plan-grid,
+    .home-page .home-benefit-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .home-page .home-contact-card {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .home-page .home-hero {
+        padding-top: 96px;
+        padding-bottom: 3rem;
+    }
+
+    .home-page .home-hero-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .home-page .home-hero-stats,
+    .home-page .home-plan-grid,
+    .home-page .home-benefit-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .home-page .home-plan-card-featured {
+        transform: none;
+    }
+
+    .home-page .home-contact-actions {
+        width: 100%;
+    }
+}

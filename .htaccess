@@ -1,0 +1,31 @@
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteBase /sportmanagerv3mayo/
+
+# 0) Bloquear acceso directo a codigo interno y datos sensibles
+RewriteRule ^(?:app/(?:views|models|core|helpers|Services)|config|storage|vendor|libs|Database)(?:/|$) - [F,L,NC]
+RewriteCond %{THE_REQUEST} \s/+sportmanagerv3mayo/app/controllers/ [NC]
+RewriteRule ^app/controllers/ - [F,L,NC]
+
+# 1) Canonicalizar index.php?url=ruta -> /ruta
+RewriteCond %{THE_REQUEST} \s/+sportmanagerv3mayo/index\.php\?url=([^&\s]+) [NC]
+RewriteRule ^index\.php$ %1? [R=302,L,NE]
+
+# 2) Canonicalizar /archivo.php -> /archivo (excepto index.php y endpoints heredados)
+RewriteCond %{THE_REQUEST} \s/+sportmanagerv3mayo/([^.\/\s]+)\.php(?:[\s?]|$) [NC]
+RewriteCond %1 !^(index|controllers|app|assets|config|vendor|storage|libs|database|fotos)$ [NC]
+RewriteRule ^([^.\/]+)\.php$ $1 [R=302,L]
+
+# 3) Mantener endpoints heredados de formularios
+RewriteRule ^controllers/([^/]+\.php)$ app/controllers/$1 [L]
+
+# 4) Servir archivos/carpetas reales directamente
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# 5) Front controller para rutas amigables
+RewriteRule ^(.+)$ index.php?url=$1 [QSA,L]
+</IfModule>
