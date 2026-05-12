@@ -64,10 +64,65 @@ class PagesModel
         return $this->db->query('SELECT * FROM nivel')->fetchAll(PDO::FETCH_OBJ);
     }
 
+    public function categoryExists(string $id): bool
+    {
+        if ($id === '' || !ctype_digit($id)) {
+            return false;
+        }
+
+        $stmt = $this->db->prepare('SELECT 1 FROM categoria WHERE id_categoria = ?');
+        $stmt->execute([$id]);
+        return (bool)$stmt->fetchColumn();
+    }
+
+    public function levelExists(string $id): bool
+    {
+        if ($id === '' || !ctype_digit($id)) {
+            return false;
+        }
+
+        $stmt = $this->db->prepare('SELECT 1 FROM nivel WHERE id_nivel = ?');
+        $stmt->execute([$id]);
+        return (bool)$stmt->fetchColumn();
+    }
+
+    public function athleteExists(string $id): bool
+    {
+        if ($id === '' || !ctype_digit($id)) {
+            return false;
+        }
+
+        $stmt = $this->db->prepare('SELECT 1 FROM deportistas WHERE id_deportista = ?');
+        $stmt->execute([$id]);
+        return (bool)$stmt->fetchColumn();
+    }
+
     public function schools(): array
     {
         $stmt = $this->db->query('SELECT id_escuela, nombre, disciplina FROM escuelas ORDER BY nombre ASC');
         return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+
+    public function allSchools(): array
+    {
+        $stmt = $this->db->query("
+            SELECT e.*,
+                   (SELECT COUNT(*) FROM usuarios u WHERE u.id_escuela = e.id_escuela) AS total_usuarios
+            FROM escuelas e
+            ORDER BY e.nombre ASC
+        ");
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+
+    public function schoolById(string $id): ?object
+    {
+        if ($id === '' || !ctype_digit($id)) {
+            return null;
+        }
+
+        $stmt = $this->db->prepare('SELECT * FROM escuelas WHERE id_escuela = ?');
+        $stmt->execute([$id]);
+        return $stmt->fetch(PDO::FETCH_OBJ) ?: null;
     }
 
     /**
@@ -116,6 +171,87 @@ class PagesModel
             $this->lastError = $this->mapSchoolDbError($sqlState, '', $e->getMessage());
             return false;
         }
+    }
+
+    /**
+     * @param array<string,mixed> $data
+     */
+    public function updateSchool(string $id, array $data): bool
+    {
+        try {
+            $stmt = $this->db->prepare("
+                UPDATE escuelas
+                SET nombre = :nombre,
+                    disciplina = :disciplina,
+                    dia_pago = :dia_pago,
+                    valor_inscripcion = :valor_inscripcion,
+                    valor_mensualidad = :valor_mensualidad,
+                    correo = :correo,
+                    pass_app = :pass_app,
+                    telefono = :telefono,
+                    direccion = :direccion,
+                    escudo_path = :escudo_path,
+                    firma_path = :firma_path
+                WHERE id_escuela = :id_escuela
+            ");
+
+            $ok = $stmt->execute([
+                ':id_escuela' => $id,
+                ':nombre' => $data['nombre'],
+                ':disciplina' => $data['disciplina'],
+                ':dia_pago' => $data['dia_pago'],
+                ':valor_inscripcion' => $data['valor_inscripcion'],
+                ':valor_mensualidad' => $data['valor_mensualidad'],
+                ':correo' => $data['correo'],
+                ':pass_app' => $data['pass_app'],
+                ':telefono' => $data['telefono'],
+                ':direccion' => $data['direccion'],
+                ':escudo_path' => $data['escudo_path'],
+                ':firma_path' => $data['firma_path'],
+            ]);
+
+            if (!$ok) {
+                $info = $stmt->errorInfo();
+                $this->lastError = $this->mapSchoolDbError(
+                    isset($info[0]) ? (string)$info[0] : '',
+                    isset($info[1]) ? (string)$info[1] : '',
+                    isset($info[2]) ? (string)$info[2] : ''
+                );
+                return false;
+            }
+
+            $this->lastError = '';
+            return true;
+        } catch (Throwable $e) {
+            $sqlState = $e instanceof PDOException ? (string)$e->getCode() : '';
+            $this->lastError = $this->mapSchoolDbError($sqlState, '', $e->getMessage());
+            return false;
+        }
+    }
+
+    public function deleteSchool(string $id): bool
+    {
+        try {
+            if ($this->countSchoolUsers($id) > 0) {
+                $this->lastError = 'No puedes eliminar una escuela con usuarios inscritos.';
+                return false;
+            }
+
+            $stmt = $this->db->prepare('DELETE FROM escuelas WHERE id_escuela = ?');
+            $ok = $stmt->execute([$id]);
+            $this->lastError = $ok ? '' : 'No se pudo eliminar la escuela.';
+            return $ok;
+        } catch (Throwable $e) {
+            $this->lastError = $this->mapSchoolDbError($e instanceof PDOException ? (string)$e->getCode() : '', '', $e->getMessage());
+            return false;
+        }
+    }
+
+    public function countSchoolUsers(string $id): int
+    {
+        $stmt = $this->db->prepare('SELECT COUNT(*) FROM usuarios WHERE id_escuela = ?');
+        $stmt->execute([$id]);
+        return (int)$stmt->fetchColumn();
     }
 
     private function mapSchoolDbError(string $sqlState, string $driverCode, string $rawMessage): string

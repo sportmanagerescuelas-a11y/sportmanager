@@ -38,10 +38,34 @@ if (isset($_POST["register"])) {
 
     $usuarioModel = new Usuario($conexion);
 
+    if (!preg_match('/^\d{7,11}$/', $telefono)) {
+        header("Location: ../index.php?url=register&error=phone");
+        exit();
+    }
+
+    if (!preg_match('/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&._-]).{8,}$/', $password)) {
+        header("Location: ../index.php?url=register&error=password");
+        exit();
+    }
+
+    $stmtUserId = $conexion->prepare("SELECT 1 FROM usuarios WHERE id_usuario = ? LIMIT 1");
+    $stmtUserId->execute([$id_usuario]);
+    if ($stmtUserId->fetchColumn()) {
+        header("Location: ../index.php?url=register&error=duplicateid");
+        exit();
+    }
+
+    $stmtEmail = $conexion->prepare("SELECT 1 FROM usuarios WHERE email = ? LIMIT 1");
+    $stmtEmail->execute([$email]);
+    if ($stmtEmail->fetchColumn()) {
+        header("Location: ../index.php?url=register&error=duplicateemail");
+        exit();
+    }
+
     $stmtEscuelas = $conexion->query("SELECT COUNT(*) FROM escuelas");
     $totalEscuelas = (int)$stmtEscuelas->fetchColumn();
     if ($totalEscuelas <= 0) {
-        header("Location: ../index.php?url=crear_escuela&required=1");
+        header("Location: ../index.php?url=register&error=schoolnone");
         exit();
     }
 

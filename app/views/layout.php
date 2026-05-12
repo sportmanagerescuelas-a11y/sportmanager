@@ -5,9 +5,11 @@ $content = (string)($viewData['content'] ?? '');
 $appCssPath = __DIR__ . '/../../assets/css/app.css';
 $styleCssPath = __DIR__ . '/../../assets/css/style.css';
 $appJsPath = __DIR__ . '/../../assets/js/app.js';
+$passwordTogglePath = __DIR__ . '/../../assets/js/password-toggle.js';
 $appCssVersion = is_file($appCssPath) ? (string)filemtime($appCssPath) : (string)time();
 $styleCssVersion = is_file($styleCssPath) ? (string)filemtime($styleCssPath) : (string)time();
 $appJsVersion = is_file($appJsPath) ? (string)filemtime($appJsPath) : (string)time();
+$passwordToggleVersion = is_file($passwordTogglePath) ? (string)filemtime($passwordTogglePath) : (string)time();
 ?>
 <!doctype html>
 <html lang="es">
@@ -42,6 +44,7 @@ $appJsVersion = is_file($appJsPath) ? (string)filemtime($appJsPath) : (string)ti
     <?php endif; ?>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/password-toggle.js?v=<?= urlencode($passwordToggleVersion) ?>" defer></script>
     <script src="assets/js/app.js?v=<?= urlencode($appJsVersion) ?>" defer></script>
 </body>
 </html>

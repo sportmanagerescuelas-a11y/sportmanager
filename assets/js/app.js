@@ -56,7 +56,7 @@
         });
     }
 
-    const rows = table.querySelectorAll('tbody tr[data-id]');
+    const rows = table.querySelectorAll('[data-id]');
     const selectedId = sessionStorage.getItem('deportistas_selected_id');
     if (selectedId) {
         rows.forEach((row) => {
@@ -182,7 +182,7 @@
     if (clearBtn) {
         clearBtn.addEventListener('click', function () {
             sessionStorage.clear();
-            window.location.href = 'index.php?url=registrar-asistencia';
+            window.location.href = window.location.pathname + window.location.search;
         });
     }
 

@@ -57,4 +57,50 @@ class Asistencia
 
         $pdo->commit();
     }
+
+    /**
+     * @return array<int,string>
+     */
+    public static function datesForGuardian(int $userId): array
+    {
+        $stmt = Database::pdo()->prepare(
+            "SELECT DISTINCT DATE(a.fecha) AS fecha
+             FROM asistencia a
+             INNER JOIN deportistas d ON d.id_deportista = a.id_deportista
+             WHERE d.id_usuario = :id_usuario
+             ORDER BY fecha DESC"
+        );
+        $stmt->execute([':id_usuario' => $userId]);
+        return $stmt->fetchAll(PDO::FETCH_COLUMN);
+    }
+
+    /**
+     * @return array<int,array<string,mixed>>
+     */
+    public static function forGuardianByDate(int $userId, string $fecha): array
+    {
+        $stmt = Database::pdo()->prepare(
+            "SELECT d.id_deportista,
+                    d.nombres,
+                    d.apellidos,
+                    d.jornada,
+                    c.nombre_cat AS categoria,
+                    n.nombre AS nivel,
+                    a.estado,
+                    a.comentario,
+                    DATE(a.fecha) AS fecha
+             FROM asistencia a
+             INNER JOIN deportistas d ON d.id_deportista = a.id_deportista
+             LEFT JOIN categoria c ON c.id_categoria = d.id_categoria
+             LEFT JOIN nivel n ON n.id_nivel = d.id_nivel
+             WHERE d.id_usuario = :id_usuario
+               AND DATE(a.fecha) = :fecha
+             ORDER BY d.nombres ASC, d.apellidos ASC"
+        );
+        $stmt->execute([
+            ':id_usuario' => $userId,
+            ':fecha' => $fecha,
+        ]);
+        return $stmt->fetchAll();
+    }
 }

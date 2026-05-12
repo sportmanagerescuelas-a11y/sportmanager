@@ -4,6 +4,11 @@
 $viewData = get_defined_vars();
 $formData = is_array($viewData['formData'] ?? null) ? $viewData['formData'] : [];
 $errorDetails = is_array($viewData['errorDetails'] ?? null) ? $viewData['errorDetails'] : [];
+$isEdit = !empty($viewData['isEdit']);
+$schoolId = (string)($viewData['schoolId'] ?? '');
+$formAction = $isEdit ? ('index.php?url=editar_escuela&id=' . urlencode($schoolId)) : 'index.php?url=crear_escuela';
+$title = $isEdit ? 'Editar Escuela' : 'Crear Escuela';
+$buttonText = $isEdit ? 'Actualizar escuela' : 'Crear escuela';
 $formData = array_merge([
     'nombre' => '',
     'disciplina' => '',
@@ -23,15 +28,11 @@ $formData = array_merge([
         <div class="col-md-8">
             <div class="card shadow-sm">
                 <div class="card-header">
-                    <h2 class="text-center mb-0">Crear Escuela</h2>
+                    <h2 class="text-center mb-0"><?= htmlspecialchars($title, ENT_QUOTES, 'UTF-8') ?></h2>
                 </div>
                 <div class="card-body">
-                    <?php if (isset($_GET['required']) && $_GET['required'] === '1'): ?>
-                        <?php sm_render_alert('Primero debes crear una escuela. Luego podras registrar usuarios y elegir su escuela.', 'Paso obligatorio', 'warning', true); ?>
-                    <?php endif; ?>
-
                     <?php if (!empty($error)): ?>
-                        <?php sm_render_alert((string)$error, 'No se pudo crear', 'danger', true); ?>
+                        <?php sm_render_alert((string)$error, 'No se pudo guardar', 'danger', true); ?>
                     <?php endif; ?>
                     <?php if (!empty($errorDetails)): ?>
                         <div class="alert alert-warning">
@@ -44,7 +45,7 @@ $formData = array_merge([
                         </div>
                     <?php endif; ?>
 
-                    <form action="index.php?url=crear_escuela" method="POST" class="needs-validation" novalidate>
+                    <form action="<?= htmlspecialchars($formAction, ENT_QUOTES, 'UTF-8') ?>" method="POST" class="needs-validation" novalidate>
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <label class="form-label" for="nombre">Nombre de escuela</label>
@@ -92,8 +93,8 @@ $formData = array_merge([
                             </div>
                         </div>
                         <div class="mt-4 d-flex gap-2">
-                            <button type="submit" class="btn btn-primary">Crear escuela</button>
-                            <a href="index.php?url=register" class="btn btn-secondary">Volver a registro</a>
+                            <button type="submit" class="btn btn-primary"><?= htmlspecialchars($buttonText, ENT_QUOTES, 'UTF-8') ?></button>
+                            <a href="index.php?url=gestion_escuelas" class="btn btn-secondary">Volver</a>
                         </div>
                     </form>
                 </div>

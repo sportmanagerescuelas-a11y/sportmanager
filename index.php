@@ -73,6 +73,9 @@ switch ($route) {
     case 'login':
     case 'register':
     case 'crear_escuela':
+    case 'gestion_escuelas':
+    case 'editar_escuela':
+    case 'eliminar_escuela':
     case 'logout':
     case 'dashboard':
     case 'admin_usuarios':
@@ -97,6 +100,9 @@ switch ($route) {
             'login' => 'login',
             'register' => 'register',
             'crear_escuela' => 'createSchool',
+            'gestion_escuelas' => 'manageSchools',
+            'editar_escuela' => 'editSchool',
+            'eliminar_escuela' => 'deleteSchool',
             'logout' => 'logout',
             'dashboard' => 'dashboard',
             'admin_usuarios' => 'adminUsers',
@@ -176,6 +182,10 @@ switch ($route) {
     case 'registrar-asistencia':
         require_once __DIR__ . '/app/controllers/DeportistasController.php';
         (new DeportistasController())->index();
+        break;
+    case 'asistencia-hijos':
+        require_once __DIR__ . '/app/controllers/DeportistasController.php';
+        (new DeportistasController())->asistenciaHijos();
         break;
     case 'guardar-asistencia':
         require_once __DIR__ . '/app/controllers/DeportistasController.php';

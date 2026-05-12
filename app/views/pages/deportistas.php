@@ -48,7 +48,7 @@ $rol = (int)($viewData['rol'] ?? ($_SESSION['rol'] ?? 0));
                         </td>
                         <td><?= htmlspecialchars((string)$row->nombre_usuario) ?></td>
                         <td>
-                            <a href="editar_deportista.php?id=<?= urlencode((string)$row->id_deportista) ?>" class="btn btn-warning btn-sm">Editar</a>
+                            <a href="index.php?url=editar_deportista&id=<?= urlencode((string)$row->id_deportista) ?>" class="btn btn-warning btn-sm">Editar</a>
                             <?php if ($rol === 3): ?>
                                 <form action="controllers/cambiarEstadoDeportista.php" method="POST" class="d-inline-block">
                                     <input type="hidden" name="id_deportista" value="<?= htmlspecialchars((string)$row->id_deportista) ?>">

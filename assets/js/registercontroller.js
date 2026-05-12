@@ -1,26 +1,5 @@
 document.addEventListener("DOMContentLoaded", function() {
-    const togglePassword = document.getElementById('togglePassword');
     const password = document.getElementById('password');
-
-    if (togglePassword && password) {
-        togglePassword.addEventListener('click', function() {
-            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
-            password.setAttribute('type', type);
-
-            const iconSvg = this.querySelector('svg');
-            if (iconSvg) {
-                if (type === 'password') {
-                    iconSvg.innerHTML = '<path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/><path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/>';
-                    iconSvg.classList.remove('bi-eye-slash-fill');
-                    iconSvg.classList.add('bi-eye-fill');
-                } else {
-                    iconSvg.innerHTML = '<path d="m10.79 12.912-1.614-1.614a3.573 3.573 0 0 1-4.387-4.387L1.447 2.82A.5.5 0 0 1 2.12 2.146L14.854 14.854a.5.5 0 0 1-.678.678l-1.614-1.614zM14.414 5.914a.5.5 0 0 1 .096.707L12.12 9.12a3.5 3.5 0 0 1-4.387 4.387L5.914 14.414a.5.5 0 0 1-.707-.096L2.146 12.12a.5.5 0 0 1 .096-.707L4.88 9.12a3.5 3.5 0 0 1 4.387-4.387L12.12 2.146a.5.5 0 0 1 .707.096L14.414 5.914zM11.5 8a3.5 3.5 0 0 0-3.5-3.5c-.989 0-1.895.44-2.512 1.1A3.5 3.5 0 0 0 4.5 8c0 .989.44 1.895 1.1 2.512A3.5 3.5 0 0 0 8 11.5c.989 0 1.895-.44 2.512-1.1A3.5 3.5 0 0 0 11.5 8z"/>';
-                    iconSvg.classList.remove('bi-eye-fill');
-                    iconSvg.classList.add('bi-eye-slash-fill');
-                }
-            }
-        });
-    }
 
     const idInput = document.getElementById('id_usuario');
     const idFeedback = document.getElementById('documentFeedback');

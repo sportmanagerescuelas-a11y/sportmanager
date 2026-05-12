@@ -3,6 +3,7 @@ $viewData = get_defined_vars();
 $categorias = is_array($viewData['categorias'] ?? null) ? $viewData['categorias'] : [];
 $niveles = is_array($viewData['niveles'] ?? null) ? $viewData['niveles'] : [];
 $error = $viewData['error'] ?? null;
+$errorDetails = is_array($viewData['errorDetails'] ?? null) ? $viewData['errorDetails'] : [];
 ?>
 <br>
 <br>
@@ -10,6 +11,16 @@ $error = $viewData['error'] ?? null;
 <div class="container mt-4">
     <h2>Registrar Deportista</h2>
     <?php if (!empty($error)): ?><div class="alert alert-danger"><?= htmlspecialchars($error) ?></div><?php endif; ?>
+    <?php if (!empty($errorDetails)): ?>
+        <div class="alert alert-warning">
+            <strong>Detalle de errores:</strong>
+            <ul class="mb-0 mt-2">
+                <?php foreach ($errorDetails as $detail): ?>
+                    <li><?= htmlspecialchars((string)$detail, ENT_QUOTES, 'UTF-8') ?></li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
+    <?php endif; ?>
     <form method="POST" action="index.php?url=crear_deportista" enctype="multipart/form-data">
         <div class="row">
             <div class="col-md-5 d-flex justify-content-center align-items-center mb-4">
@@ -67,12 +78,11 @@ $error = $viewData['error'] ?? null;
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Categoria</label>
-                        <select id="categoria" class="form-control">
+                        <select name="id_categoria" id="categoria" class="form-control" required>
                             <?php foreach ($categorias as $c): ?>
                                 <option value="<?= (int)$c->id_categoria ?>"><?= htmlspecialchars((string)$c->nombre_cat) ?></option>
                             <?php endforeach; ?>
                         </select>
-                        <input type="hidden" name="id_categoria" id="categoria_hidden">
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Nivel</label>
@@ -100,7 +110,6 @@ document.addEventListener("DOMContentLoaded", function() {
     const nombres = document.getElementById("nombres");
     const apellidos = document.getElementById("apellidos");
     const categoria = document.getElementById("categoria");
-    const categoriaHidden = document.getElementById("categoria_hidden");
     const nivel = document.getElementById("nivel");
     const genero = document.getElementById("genero");
     const previewNombre = document.getElementById("previewNombre");
@@ -111,7 +120,6 @@ document.addEventListener("DOMContentLoaded", function() {
     function sync() {
         previewNombre.innerText = (nombres.value + " " + apellidos.value).trim() || "Tu nombre";
         previewCategoria.innerText = categoria.options[categoria.selectedIndex].text;
-        categoriaHidden.value = categoria.value;
         previewNivel.innerText = nivel.options[nivel.selectedIndex].text;
         previewGenero.innerText = genero.value;
     }

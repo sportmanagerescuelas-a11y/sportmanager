@@ -1,7 +1,9 @@
 </main>
 <?php
 $indexControllerPath = __DIR__ . '/../../../assets/js/indexcontroller.js';
+$passwordTogglePath = __DIR__ . '/../../../assets/js/password-toggle.js';
 $indexControllerVersion = is_file($indexControllerPath) ? (string)filemtime($indexControllerPath) : (string)time();
+$passwordToggleVersion = is_file($passwordTogglePath) ? (string)filemtime($passwordTogglePath) : (string)time();
 ?>
 <footer>
     <p> 2026 Proyecto SM. All rights reserved &copy.</p>
@@ -26,6 +28,7 @@ $indexControllerVersion = is_file($indexControllerPath) ? (string)filemtime($ind
     <!-- Bootstrap JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Tu JS personalizado -->
+    <script src="assets/js/password-toggle.js?v=<?= urlencode($passwordToggleVersion) ?>"></script>
     <script src="assets/js/indexcontroller.js?v=<?= urlencode($indexControllerVersion) ?>"></script>
 </body>
 </html>

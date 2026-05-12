@@ -1,6 +1,6 @@
 <?php
 $viewData = get_defined_vars();
-$data = is_object($viewData['data'] ?? null) ? $viewData['data'] : (object)[
+$data = is_object($viewData['athlete'] ?? null) ? $viewData['athlete'] : (object)[
     'foto' => 'default.png',
     'nombres' => '',
     'apellidos' => '',
@@ -19,7 +19,7 @@ $niveles = is_array($viewData['niveles'] ?? null) ? $viewData['niveles'] : [];
 <br>
 <div class="container mt-5">
     <h2>Editar Deportista</h2>
-    <form method="POST" enctype="multipart/form-data">
+    <form method="POST" action="index.php?url=editar_deportista&id=<?= urlencode((string)$data->id_deportista) ?>" enctype="multipart/form-data">
         <div class="row">
             <div class="col-md-5 d-flex justify-content-center align-items-center mb-4">
                 <div class="card-fifa">
@@ -100,7 +100,7 @@ $niveles = is_array($viewData['niveles'] ?? null) ? $viewData['niveles'] : [];
                     </div>
                     <div class="col-12 mt-3">
                         <button type="submit" class="btn btn-primary">Actualizar</button>
-                        <a href="deportistas.php" class="btn btn-secondary">Cancelar</a>
+                        <a href="index.php?url=deportistas" class="btn btn-secondary">Cancelar</a>
                     </div>
                 </div>
             </div>

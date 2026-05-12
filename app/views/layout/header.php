@@ -66,6 +66,7 @@
                         ],
                         3 => [
                             ['label' => 'Mi panel', 'href' => 'index.php?url=dashboard'],
+                            ['label' => 'Gestionar escuelas', 'href' => 'index.php?url=gestion_escuelas'],
                             ['label' => 'Gestionar usuarios', 'href' => 'index.php?url=admin_usuarios'],
                             ['label' => 'Gestionar deportistas', 'href' => 'index.php?url=deportistas'],
                             ['label' => 'Gestionar eventos', 'href' => 'index.php?url=gestion_eventos'],
@@ -114,8 +115,6 @@
                                     Iniciar
                                 </a>
                                 <ul class="dropdown-menu" aria-labelledby="startDropdown">
-                                    <li><a class="dropdown-item" href="index.php?url=crear_escuela">Crear escuela</a></li>
-                                    <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item" href="index.php?url=login">Iniciar sesion</a></li>
                                     <li><a class="dropdown-item" href="index.php?url=register">Registrarse</a></li>
                                 </ul>

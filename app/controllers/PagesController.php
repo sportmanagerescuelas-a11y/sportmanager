@@ -29,7 +29,8 @@ class PagesController
         }
 
         if (count($schools) === 0) {
-            $this->redirect('index.php?url=crear_escuela&required=1');
+            $this->render('register', ['schools' => $schools]);
+            return;
         }
 
         $this->render('register', ['schools' => $schools]);
@@ -37,84 +38,15 @@ class PagesController
 
     public function createSchool(): void
     {
-        $this->guestOnly();
+        $this->requireSuperAdmin();
         $error = null;
         $errorDetails = [];
-        $formData = [
-            'nombre' => '',
-            'disciplina' => '',
-            'dia_pago' => '',
-            'valor_inscripcion' => '',
-            'valor_mensualidad' => '',
-            'correo' => '',
-            'pass_app' => '',
-            'telefono' => '',
-            'direccion' => '',
-            'escudo_path' => '',
-            'firma_path' => '',
-        ];
+        $formData = $this->emptySchoolFormData();
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $payload = [
-                'nombre' => trim((string)($_POST['nombre'] ?? '')),
-                'disciplina' => trim((string)($_POST['disciplina'] ?? '')),
-                'dia_pago' => (int)($_POST['dia_pago'] ?? 0),
-                'valor_inscripcion' => trim((string)($_POST['valor_inscripcion'] ?? '0')),
-                'valor_mensualidad' => trim((string)($_POST['valor_mensualidad'] ?? '0')),
-                'correo' => trim((string)($_POST['correo'] ?? '')),
-                'pass_app' => trim((string)($_POST['pass_app'] ?? '')),
-                'telefono' => trim((string)($_POST['telefono'] ?? '')),
-                'direccion' => trim((string)($_POST['direccion'] ?? '')),
-                'escudo_path' => trim((string)($_POST['escudo_path'] ?? '')) ?: null,
-                'firma_path' => trim((string)($_POST['firma_path'] ?? '')) ?: null,
-            ];
-            $formData = [
-                'nombre' => $payload['nombre'],
-                'disciplina' => $payload['disciplina'],
-                'dia_pago' => (string)$payload['dia_pago'],
-                'valor_inscripcion' => (string)$payload['valor_inscripcion'],
-                'valor_mensualidad' => (string)$payload['valor_mensualidad'],
-                'correo' => $payload['correo'],
-                'pass_app' => $payload['pass_app'],
-                'telefono' => $payload['telefono'],
-                'direccion' => $payload['direccion'],
-                'escudo_path' => (string)($payload['escudo_path'] ?? ''),
-                'firma_path' => (string)($payload['firma_path'] ?? ''),
-            ];
-
-            $emailValido = filter_var($payload['correo'], FILTER_VALIDATE_EMAIL) !== false;
-            $diaPagoValido = $payload['dia_pago'] >= 1 && $payload['dia_pago'] <= 31;
-            $inscripcionValida = is_numeric($payload['valor_inscripcion']) && (float)$payload['valor_inscripcion'] >= 0;
-            $mensualidadValida = is_numeric($payload['valor_mensualidad']) && (float)$payload['valor_mensualidad'] >= 0;
-            $telefonoValido = preg_match('/^\d{7,11}$/', $payload['telefono']) === 1;
-
-            if ($payload['nombre'] === '') {
-                $errorDetails[] = 'El nombre de la escuela es obligatorio.';
-            }
-            if ($payload['disciplina'] === '') {
-                $errorDetails[] = 'La disciplina es obligatoria.';
-            }
-            if (!$emailValido) {
-                $errorDetails[] = 'El correo oficial no tiene un formato valido.';
-            }
-            if (!$diaPagoValido) {
-                $errorDetails[] = 'El dia de pago debe estar entre 1 y 31.';
-            }
-            if (!$inscripcionValida) {
-                $errorDetails[] = 'El valor de inscripcion debe ser un numero mayor o igual a 0.';
-            }
-            if (!$mensualidadValida) {
-                $errorDetails[] = 'El valor de mensualidad debe ser un numero mayor o igual a 0.';
-            }
-            if ($payload['pass_app'] === '') {
-                $errorDetails[] = 'La clave de app/correo es obligatoria.';
-            }
-            if (!$telefonoValido) {
-                $errorDetails[] = 'El telefono debe tener entre 7 y 11 digitos numericos.';
-            }
-            if ($payload['direccion'] === '') {
-                $errorDetails[] = 'La direccion es obligatoria.';
-            }
+            $payload = $this->schoolPayload();
+            $formData = $this->schoolFormData($payload);
+            $errorDetails = $this->validateSchoolPayload($payload);
 
             if (!empty($errorDetails)) {
                 $error = 'Corrige los siguientes errores para crear la escuela.';
@@ -122,7 +54,7 @@ class PagesController
                 try {
                     $schoolId = $this->model()->createSchool($payload);
                     if ($schoolId !== false) {
-                        $this->redirect('index.php?url=register&school_created=1&id_escuela=' . urlencode((string)$schoolId));
+                        $this->redirect('index.php?url=gestion_escuelas&created=1');
                     }
                     $dbError = $this->model()->lastError();
                     $error = $dbError !== '' ? ('No se pudo crear la escuela: ' . $dbError) : 'No se pudo crear la escuela.';
@@ -134,6 +66,67 @@ class PagesController
         }
 
         $this->render('crear_escuela', ['error' => $error, 'errorDetails' => $errorDetails, 'formData' => $formData]);
+    }
+
+    public function manageSchools(): void
+    {
+        $this->requireSuperAdmin();
+        $this->render('gestion_escuelas', [
+            'escuelas' => $this->model()->allSchools(),
+            'error' => isset($_GET['error']) ? $this->schoolActionError((string)$_GET['error']) : '',
+        ]);
+    }
+
+    public function editSchool(): void
+    {
+        $this->requireSuperAdmin();
+        $id = (string)($_GET['id'] ?? '');
+        $school = $this->model()->schoolById($id);
+        if (!$school) {
+            $this->redirect('index.php?url=gestion_escuelas&error=notfound');
+        }
+
+        $error = null;
+        $errorDetails = [];
+        $formData = $this->schoolFormData((array)$school);
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $payload = $this->schoolPayload();
+            $formData = $this->schoolFormData($payload);
+            $errorDetails = $this->validateSchoolPayload($payload);
+
+            if (!empty($errorDetails)) {
+                $error = 'Corrige los siguientes errores para actualizar la escuela.';
+            } elseif ($this->model()->updateSchool($id, $payload)) {
+                $this->redirect('index.php?url=gestion_escuelas&updated=1');
+            } else {
+                $dbError = $this->model()->lastError();
+                $error = $dbError !== '' ? ('No se pudo actualizar la escuela: ' . $dbError) : 'No se pudo actualizar la escuela.';
+            }
+        }
+
+        $this->render('crear_escuela', [
+            'error' => $error,
+            'errorDetails' => $errorDetails,
+            'formData' => $formData,
+            'isEdit' => true,
+            'schoolId' => $id,
+        ]);
+    }
+
+    public function deleteSchool(): void
+    {
+        $this->requireSuperAdmin();
+        $id = (string)($_GET['id'] ?? '');
+        if ($id === '' || !$this->model()->schoolById($id)) {
+            $this->redirect('index.php?url=gestion_escuelas&error=notfound');
+        }
+
+        if (!$this->model()->deleteSchool($id)) {
+            $this->redirect('index.php?url=gestion_escuelas&error=delete');
+        }
+
+        $this->redirect('index.php?url=gestion_escuelas&deleted=1');
     }
 
     public function logout(): void
@@ -197,23 +190,50 @@ class PagesController
     {
         $this->requireLogin();
         $error = null;
+        $errorDetails = [];
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $payload = $this->athletePayload('default.png');
             $payload['id_usuario'] = (int)$_SESSION['id_usuario'];
             $payload['foto'] = $this->storeUploadedPhoto('default.png');
 
-            if ($this->model()->createAthlete($payload)) {
-                $this->redirect('deportistas.php');
+            if (!preg_match('/^\d+$/', $payload['id_deportista'])) {
+                $errorDetails[] = 'El numero de documento del deportista debe ser numerico.';
             }
-            $dbError = $this->model()->lastError();
-            $error = $dbError !== '' ? ('No se pudo registrar el deportista: ' . $dbError) : 'No se pudo registrar el deportista.';
+            if ($payload['nombres'] === '') {
+                $errorDetails[] = 'Los nombres del deportista son obligatorios.';
+            }
+            if ($payload['apellidos'] === '') {
+                $errorDetails[] = 'Los apellidos del deportista son obligatorios.';
+            }
+            if ($payload['fecha_nacimiento'] === '' || DateTime::createFromFormat('Y-m-d', $payload['fecha_nacimiento']) === false) {
+                $errorDetails[] = 'La fecha de nacimiento no es valida.';
+            }
+            if (!$this->model()->categoryExists((string)$payload['id_categoria'])) {
+                $errorDetails[] = 'Debes seleccionar una categoria valida.';
+            }
+            if (!$this->model()->levelExists((string)$payload['id_nivel'])) {
+                $errorDetails[] = 'Debes seleccionar un nivel valido.';
+            }
+            if ($this->model()->athleteExists((string)$payload['id_deportista'])) {
+                $errorDetails[] = 'Ya existe un deportista con ese numero de documento.';
+            }
+
+            if (!empty($errorDetails)) {
+                $error = 'Corrige los siguientes datos para registrar el deportista.';
+            } elseif ($this->model()->createAthlete($payload)) {
+                $this->redirect('index.php?url=deportistas');
+            } else {
+                $dbError = $this->model()->lastError();
+                $error = $dbError !== '' ? ('No se pudo registrar el deportista: ' . $dbError) : 'No se pudo registrar el deportista.';
+            }
         }
 
         $this->render('crear_deportista', [
             'categorias' => $this->model()->categories(),
             'niveles' => $this->model()->levels(),
             'error' => $error,
+            'errorDetails' => $errorDetails,
         ]);
     }
 
@@ -223,7 +243,7 @@ class PagesController
         $id = (string)($_GET['id'] ?? '');
         $athlete = $this->model()->athleteById($id);
         if (!$athlete) {
-            $this->redirect('deportistas.php');
+            $this->redirect('index.php?url=deportistas');
         }
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -233,11 +253,11 @@ class PagesController
                 $this->deleteOldPhoto($athlete->foto);
             }
             $this->model()->updateAthlete($id, $payload);
-            $this->redirect('deportistas.php');
+            $this->redirect('index.php?url=deportistas');
         }
 
         $this->render('editar_deportista', [
-            'data' => $athlete,
+            'athlete' => $athlete,
             'categorias' => $this->model()->categories(),
             'niveles' => $this->model()->levels(),
         ]);
@@ -252,7 +272,7 @@ class PagesController
         if ($athlete && ((int)$_SESSION['rol'] === 3 || $isOwner)) {
             $this->model()->deleteAthlete($id);
         }
-        $this->redirect('deportistas.php');
+        $this->redirect('index.php?url=deportistas');
     }
 
     public function userAthletes(): void
@@ -425,6 +445,11 @@ class PagesController
         }
     }
 
+    private function requireSuperAdmin(): void
+    {
+        $this->requireAdmin();
+    }
+
     private function requireReportAccess(): void
     {
         if (!isset($_SESSION['rol']) || !in_array((int)$_SESSION['rol'], [2, 3], true)) {
@@ -494,6 +519,105 @@ class PagesController
             'costo' => (string)($_POST['costo'] ?? '0'),
             'cuotas' => (string)($_POST['cuotas'] ?? '0'),
         ];
+    }
+
+    private function emptySchoolFormData(): array
+    {
+        return [
+            'nombre' => '',
+            'disciplina' => '',
+            'dia_pago' => '',
+            'valor_inscripcion' => '',
+            'valor_mensualidad' => '',
+            'correo' => '',
+            'pass_app' => '',
+            'telefono' => '',
+            'direccion' => '',
+            'escudo_path' => '',
+            'firma_path' => '',
+        ];
+    }
+
+    private function schoolPayload(): array
+    {
+        return [
+            'nombre' => trim((string)($_POST['nombre'] ?? '')),
+            'disciplina' => trim((string)($_POST['disciplina'] ?? '')),
+            'dia_pago' => (int)($_POST['dia_pago'] ?? 0),
+            'valor_inscripcion' => trim((string)($_POST['valor_inscripcion'] ?? '0')),
+            'valor_mensualidad' => trim((string)($_POST['valor_mensualidad'] ?? '0')),
+            'correo' => trim((string)($_POST['correo'] ?? '')),
+            'pass_app' => trim((string)($_POST['pass_app'] ?? '')),
+            'telefono' => trim((string)($_POST['telefono'] ?? '')),
+            'direccion' => trim((string)($_POST['direccion'] ?? '')),
+            'escudo_path' => trim((string)($_POST['escudo_path'] ?? '')) ?: null,
+            'firma_path' => trim((string)($_POST['firma_path'] ?? '')) ?: null,
+        ];
+    }
+
+    private function schoolFormData(array $payload): array
+    {
+        return array_merge($this->emptySchoolFormData(), [
+            'nombre' => (string)($payload['nombre'] ?? ''),
+            'disciplina' => (string)($payload['disciplina'] ?? ''),
+            'dia_pago' => (string)($payload['dia_pago'] ?? ''),
+            'valor_inscripcion' => (string)($payload['valor_inscripcion'] ?? ''),
+            'valor_mensualidad' => (string)($payload['valor_mensualidad'] ?? ''),
+            'correo' => (string)($payload['correo'] ?? ''),
+            'pass_app' => (string)($payload['pass_app'] ?? ''),
+            'telefono' => (string)($payload['telefono'] ?? ''),
+            'direccion' => (string)($payload['direccion'] ?? ''),
+            'escudo_path' => (string)($payload['escudo_path'] ?? ''),
+            'firma_path' => (string)($payload['firma_path'] ?? ''),
+        ]);
+    }
+
+    private function validateSchoolPayload(array $payload): array
+    {
+        $errors = [];
+        $emailValido = filter_var($payload['correo'], FILTER_VALIDATE_EMAIL) !== false;
+        $diaPagoValido = (int)$payload['dia_pago'] >= 1 && (int)$payload['dia_pago'] <= 31;
+        $inscripcionValida = is_numeric($payload['valor_inscripcion']) && (float)$payload['valor_inscripcion'] >= 0;
+        $mensualidadValida = is_numeric($payload['valor_mensualidad']) && (float)$payload['valor_mensualidad'] >= 0;
+        $telefonoValido = preg_match('/^\d{7,11}$/', (string)$payload['telefono']) === 1;
+
+        if ($payload['nombre'] === '') {
+            $errors[] = 'El nombre de la escuela es obligatorio.';
+        }
+        if ($payload['disciplina'] === '') {
+            $errors[] = 'La disciplina es obligatoria.';
+        }
+        if (!$emailValido) {
+            $errors[] = 'El correo oficial no tiene un formato valido.';
+        }
+        if (!$diaPagoValido) {
+            $errors[] = 'El dia de pago debe estar entre 1 y 31.';
+        }
+        if (!$inscripcionValida) {
+            $errors[] = 'El valor de inscripcion debe ser un numero mayor o igual a 0.';
+        }
+        if (!$mensualidadValida) {
+            $errors[] = 'El valor de mensualidad debe ser un numero mayor o igual a 0.';
+        }
+        if ($payload['pass_app'] === '') {
+            $errors[] = 'La clave de app/correo es obligatoria.';
+        }
+        if (!$telefonoValido) {
+            $errors[] = 'El telefono debe tener entre 7 y 11 digitos numericos.';
+        }
+        if ($payload['direccion'] === '') {
+            $errors[] = 'La direccion es obligatoria.';
+        }
+
+        return $errors;
+    }
+
+    private function schoolActionError(string $code): string
+    {
+        return [
+            'notfound' => 'La escuela solicitada no existe.',
+            'delete' => 'No se pudo eliminar la escuela. Verifica que no tenga usuarios inscritos.',
+        ][$code] ?? '';
     }
 
     private function storeUploadedPhoto(string $fallback): string

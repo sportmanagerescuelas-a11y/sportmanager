@@ -11,7 +11,12 @@ $registerErrorMap = [
     '404' => 'La pÃ¡gina solicitada no existe o fue movida.',
     'empty' => 'Debes completar todos los campos del formulario.',
     'invalidemail' => 'El correo electrÃ³nico no tiene un formato vÃ¡lido.',
-    'school' => 'La escuela seleccionada no existe. Crea una nueva o elige una valida.',
+    'phone' => 'El telefono debe tener entre 7 y 11 digitos.',
+    'password' => 'La contrasena no cumple los requisitos minimos.',
+    'duplicateid' => 'Ya existe un usuario con ese numero de documento.',
+    'duplicateemail' => 'Ya existe un usuario con ese correo electronico.',
+    'schoolnone' => 'Aun no hay escuelas disponibles para inscripcion.',
+    'school' => 'La escuela seleccionada no existe. Elige una escuela valida.',
     'db' => 'No se pudo crear la cuenta en este momento. IntÃ©ntalo nuevamente.',
 ];
 $registerErrorText = sm_error_text($registerErrorCode, $registerErrorMap);
@@ -24,15 +29,8 @@ $registerErrorText = sm_error_text($registerErrorCode, $registerErrorMap);
                     <h2 class="text-center">Crear cuenta</h2>
                 </div>
                 <div class="card-body">
-                    <?php if (isset($_GET['school_created']) && $_GET['school_created'] === '1'): ?>
-                        <?php sm_render_alert('Escuela creada correctamente. Ahora puedes registrar usuarios para esa escuela.', 'Escuela creada', 'warning', true); ?>
-                    <?php endif; ?>
-
                     <?php if (empty($schools)): ?>
-                        <?php sm_render_alert('Aun no hay escuelas registradas. Crea una escuela antes de crear usuarios.', 'Escuela requerida', 'warning', true); ?>
-                        <div class="mb-3">
-                            <a href="index.php?url=crear_escuela" class="btn btn-primary">Crear escuela</a>
-                        </div>
+                        <?php sm_render_alert('Aun no hay escuelas registradas. Un superadmin debe crear una escuela antes de que los usuarios puedan registrarse.', 'Escuela requerida', 'warning', true); ?>
                     <?php endif; ?>
 
                     <form action="controllers/registerController.php" method="POST" class="needs-validation" novalidate>
@@ -55,18 +53,15 @@ $registerErrorText = sm_error_text($registerErrorCode, $registerErrorMap);
                         </div>
                         <div class="mb-3">
                             <label for="id_escuela" class="form-label">Escuela</label>
-                            <div class="d-flex gap-2">
-                                <select class="form-select" id="id_escuela" name="id_escuela" required>
-                                    <option value="" selected disabled>Selecciona tu escuela...</option>
-                                    <?php foreach ($schools as $school): ?>
-                                        <?php $value = (string)($school->id_escuela ?? ''); ?>
-                                        <option value="<?= htmlspecialchars($value, ENT_QUOTES, 'UTF-8') ?>" <?= $selectedSchool === $value ? 'selected' : '' ?>>
-                                            <?= htmlspecialchars((string)(($school->nombre ?? '') . ' - ' . ($school->disciplina ?? '')), ENT_QUOTES, 'UTF-8') ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
-                                <a href="index.php?url=crear_escuela" class="btn btn-outline-primary">Nueva escuela</a>
-                            </div>
+                            <select class="form-select" id="id_escuela" name="id_escuela" required>
+                                <option value="" selected disabled>Selecciona tu escuela...</option>
+                                <?php foreach ($schools as $school): ?>
+                                    <?php $value = (string)($school->id_escuela ?? ''); ?>
+                                    <option value="<?= htmlspecialchars($value, ENT_QUOTES, 'UTF-8') ?>" <?= $selectedSchool === $value ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars((string)(($school->nombre ?? '') . ' - ' . ($school->disciplina ?? '')), ENT_QUOTES, 'UTF-8') ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
                             <div class="invalid-feedback">Debes seleccionar una escuela.</div>
                         </div>
                         <div class="mb-3">

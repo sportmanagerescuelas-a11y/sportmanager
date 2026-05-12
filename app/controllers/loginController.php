@@ -59,7 +59,7 @@ if (isset($_POST["login"])) {
         // Guardar en sesi??n
         $_SESSION["nombre_rol"] = $rolData["nombre_rol"];
 
-        header("Location: ../dashboard.php");
+        header("Location: ../index.php?url=dashboard");
         exit();
     } else {
         header("Location: ../index.php?url=login&error=invalid");

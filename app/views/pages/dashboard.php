@@ -80,19 +80,20 @@ if ($rolLabel === '') {
 
     <div class="opciones">
         <?php if ($rol === 3): ?>
-            <a href="admin_usuarios.php" class="card-dashboard">Gestionar Usuarios</a>
-            <a href="deportistas.php" class="card-dashboard">Gestionar Deportistas</a>
+            <a href="index.php?url=admin_usuarios" class="card-dashboard">Gestionar Usuarios</a>
+            <a href="index.php?url=deportistas" class="card-dashboard">Gestionar Deportistas</a>
             <a href="index.php?action=listar" class="card-dashboard">Reporte de Facturas</a>
-            <a href="productos.php" class="card-dashboard">Productos</a>
-            <a href="reportes.php" class="card-dashboard">Reportes Generales</a>
-            <a href="gestion_eventos.php" class="card-dashboard">Eventos</a>
+            <a href="index.php?url=productos" class="card-dashboard">Productos</a>
+            <a href="index.php?url=reportes" class="card-dashboard">Reportes Generales</a>
+            <a href="index.php?url=gestion_eventos" class="card-dashboard">Eventos</a>
         <?php elseif ($rol === 2): ?>
-            <a href="deportistas.php" class="card-dashboard">Ver Deportistas</a>
+            <a href="index.php?url=deportistas" class="card-dashboard">Ver Deportistas</a>
             <a href="index.php?url=registrar-asistencia" class="card-dashboard">Registrar Asistencia</a>
-            <a href="reportes.php" class="card-dashboard">Reportes</a>
+            <a href="index.php?url=reportes" class="card-dashboard">Reportes</a>
         <?php else: ?>
-            <a href="deportistas.php" class="card-dashboard">Registrar Deportista</a>
-            <a href="pagos.php" class="card-dashboard">Mis Pagos</a>
+            <a href="index.php?url=deportistas" class="card-dashboard">Registrar Deportista</a>
+            <a href="index.php?url=asistencia-hijos" class="card-dashboard">Ver Asistencias</a>
+            <a href="index.php?url=pagos" class="card-dashboard">Mis Pagos</a>
         <?php endif; ?>
     </div>
 </div>

@@ -27,8 +27,13 @@ class DeportistasController extends Controller
 
         $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
         $perPage = isset($_GET['per_page']) ? (int)$_GET['per_page'] : 10;
+        $filters = [
+            'search' => trim((string)($_GET['search'] ?? '')),
+            'categoria' => trim((string)($_GET['categoria'] ?? '')),
+            'jornada' => trim((string)($_GET['jornada'] ?? '')),
+        ];
 
-        $data = Deportista::paginate($page, $perPage);
+        $data = Deportista::paginate($page, $perPage, $filters);
         $totalPages = (int)ceil($data['total'] / max(1, $perPage));
 
         $this->render('deportistas/registrar_asistencia', [
@@ -38,10 +43,42 @@ class DeportistasController extends Controller
             'page' => max(1, $page),
             'perPage' => max(1, $perPage),
             'totalPages' => max(1, $totalPages),
+            'filters' => $filters,
+            'categorias' => Deportista::categories(),
+            'jornadas' => Deportista::jornadas(),
             'ok' => isset($_GET['ok']),
             'error' => $_GET['error'] ?? null,
             'errorCount' => isset($_GET['count']) ? (int)$_GET['count'] : 0,
             'errorFecha' => $_GET['fecha'] ?? null,
+        ]);
+    }
+
+    public function asistenciaHijos(): void
+    {
+        if (!isset($_SESSION['usuario']) || !isset($_SESSION['id_usuario'])) {
+            header('Location: index.php?url=login');
+            exit();
+        }
+
+        if ((int)($_SESSION['rol'] ?? 0) !== 1) {
+            header('Location: index.php?url=dashboard');
+            exit();
+        }
+
+        $userId = (int)$_SESSION['id_usuario'];
+        $fechas = Asistencia::datesForGuardian($userId);
+        $fecha = trim((string)($_GET['fecha'] ?? ''));
+        if ($fecha === '' || !in_array($fecha, $fechas, true)) {
+            $fecha = $fechas[0] ?? '';
+        }
+
+        $rows = $fecha !== '' ? Asistencia::forGuardianByDate($userId, $fecha) : [];
+
+        $this->render('deportistas/asistencia_hijos', [
+            'title' => 'Asistencias de mis hijos',
+            'fechas' => $fechas,
+            'fecha' => $fecha,
+            'rows' => $rows,
         ]);
     }
 

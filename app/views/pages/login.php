@@ -40,7 +40,7 @@ $loginErrorText = sm_error_text($loginErrorCode, $loginErrorMap);
                         <?php sm_render_alert($loginErrorText, 'No fue posible iniciar', 'danger', true); ?>
                     <?php endif; ?>
                     <div class="mt-3 text-center">
-                        <p>&iquest;No tienes cuenta? <a href="register.php">Reg&iacute;strate aqu&iacute;</a></p>
+                        <p>&iquest;No tienes cuenta? <a href="index.php?url=register">Reg&iacute;strate aqu&iacute;</a></p>
                     </div>
                 </div>
             </div>
