@@ -70,6 +70,21 @@ switch ($route) {
         require_once __DIR__ . '/app/controllers/ConfirmacionController.php';
         (new App\Controllers\ConfirmacionController())->pagoIsn();
         break;
+    case 'uniformes':
+    case 'crear_uniforme':
+    case 'editar_uniforme':
+    case 'eliminar_uniforme':
+        require_once __DIR__ . '/app/bootstrap.php';
+        require_once __DIR__ . '/app/controllers/UniformesController.php';
+        $controller = new App\Controllers\UniformesController();
+        $uniformActions = [
+            'uniformes' => 'index',
+            'crear_uniforme' => 'create',
+            'editar_uniforme' => 'edit',
+            'eliminar_uniforme' => 'delete',
+        ];
+        $controller->{$uniformActions[$route]}();
+        break;
     case 'login':
     case 'register':
     case 'crear_escuela':

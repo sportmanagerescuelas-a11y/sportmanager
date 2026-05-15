@@ -56,6 +56,7 @@
                             ['label' => 'Mis deportistas', 'href' => 'index.php?url=deportistas'],
                             ['label' => 'Eventos', 'href' => 'index.php?url=eventos'],
                             ['label' => 'Mis pagos', 'href' => 'index.php?url=pagos'],
+                            ['label' => 'Uniformes', 'href' => 'index.php?url=uniformes'],
                         ],
                         2 => [
                             ['label' => 'Mi panel', 'href' => 'index.php?url=dashboard'],
@@ -63,6 +64,7 @@
                             ['label' => 'Registrar asistencia', 'href' => 'index.php?url=registrar-asistencia'],
                             ['label' => 'Reportes', 'href' => 'index.php?url=reportes'],
                             ['label' => 'Eventos', 'href' => 'index.php?url=eventos'],
+                            ['label' => 'Uniformes', 'href' => 'index.php?url=uniformes'],
                         ],
                         3 => [
                             ['label' => 'Mi panel', 'href' => 'index.php?url=dashboard'],
@@ -74,6 +76,7 @@
                             ['label' => 'Productos', 'href' => 'index.php?url=productos'],
                             ['label' => 'Reportes generales', 'href' => 'index.php?url=reportes'],
                             ['label' => 'Facturas', 'href' => 'index.php?action=listar'],
+                            ['label' => 'Uniformes', 'href' => 'index.php?url=uniformes'],
                         ],
                     ];
                     $opcionesMenu = $menuPorRol[$rolUsuario] ?? [['label' => 'Mi panel', 'href' => 'index.php?url=dashboard']];

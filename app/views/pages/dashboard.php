@@ -86,14 +86,17 @@ if ($rolLabel === '') {
             <a href="index.php?url=productos" class="card-dashboard">Productos</a>
             <a href="index.php?url=reportes" class="card-dashboard">Reportes Generales</a>
             <a href="index.php?url=gestion_eventos" class="card-dashboard">Eventos</a>
+            <a href="index.php?url=uniformes" class="card-dashboard">Uniformes</a>
         <?php elseif ($rol === 2): ?>
             <a href="index.php?url=deportistas" class="card-dashboard">Ver Deportistas</a>
             <a href="index.php?url=registrar-asistencia" class="card-dashboard">Registrar Asistencia</a>
             <a href="index.php?url=reportes" class="card-dashboard">Reportes</a>
+            <a href="index.php?url=uniformes" class="card-dashboard">Uniformes</a>
         <?php else: ?>
             <a href="index.php?url=deportistas" class="card-dashboard">Registrar Deportista</a>
             <a href="index.php?url=asistencia-hijos" class="card-dashboard">Ver Asistencias</a>
             <a href="index.php?url=pagos" class="card-dashboard">Mis Pagos</a>
+            <a href="index.php?url=uniformes" class="card-dashboard">Uniformes</a>
         <?php endif; ?>
     </div>
 </div>
