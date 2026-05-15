@@ -18,9 +18,15 @@ final class IniciarController
         }
 
         $idEvento = isset($_GET['id_evento']) ? (int)$_GET['id_evento'] : 0;
+        $idDeportista = isset($_GET['id_deportista']) ? (int)$_GET['id_deportista'] : 0;
         $eventoTitulo = (string)($_GET['evento'] ?? 'Pago');
         $monto = isset($_GET['monto']) ? (float)$_GET['monto'] : 0.0;
         $cantidad = isset($_GET['cantidad']) ? max(1, (int)$_GET['cantidad']) : 1;
+        $returnTo = trim((string)($_GET['return_to'] ?? 'index.php?url=iniciar'));
+        if ($returnTo === '' || preg_match('/^(https?:)?\/\//i', $returnTo)) {
+            $returnTo = 'index.php?url=iniciar';
+        }
+        $returnTo = ltrim($returnTo, '/');
 
         // Si no llega el monto/titulo por URL y hay id_evento, traer datos reales del evento.
         if ($idEvento > 0 && ($monto <= 0 || $eventoTitulo === 'Pago')) {
@@ -56,11 +62,12 @@ final class IniciarController
 
         $payuContext = [
             'id_evento' => $idEvento,
+            'id_deportista' => $idDeportista > 0 ? $idDeportista : null,
             'evento_titulo' => $eventoTitulo,
             'monto' => $monto,
             'cantidad' => $cantidad,
             'action' => 'index.php?url=procesar_pago',
-            'return_to' => 'index.php?url=iniciar',
+            'return_to' => $returnTo,
             'error' => $_SESSION['error'] ?? '',
             'prefill' => [
                 'nombre' => $nombreUsuario,

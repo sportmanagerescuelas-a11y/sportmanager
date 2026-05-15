@@ -2,12 +2,12 @@
 
 return [
     // Credenciales sandbox/produccion de PayU.
-    'apiKey' => 'CHANGE_ME_API_KEY',
-    'apiLogin' => 'CHANGE_ME_API_LOGIN',
-    'merchantId' => 'CHANGE_ME_MERCHANT_ID',
-    'accountId' => 'CHANGE_ME_ACCOUNT_ID',
+    'apiKey' => '4Vj8eK4rloUd272L48hsrarnUA',
+    'apiLogin' => 'pRRXKOl8ikMmt9u',
+    'merchantId' => '508029',
+    'accountId' => '512321',
     'isTest' => true,
-    'returnUrlBase' => 'http://localhost/sportmanagerv3mayo',
+    'returnUrlBase' => 'http://localhost/sportmanager',
     // Opcional para forzar banco en sandbox.
     'pseTestBankCode' => '',
     'pseTestBankName' => 'Banco de pruebas',

@@ -129,4 +129,24 @@ final class PayUService
             throw $e;
         }
     }
+
+    /**
+     * Consulta el estado de una orden por referencia.
+     *
+     * @return mixed
+     */
+    public function getOrderDetailByReferenceCode(string $referenceCode)
+    {
+        $this->init();
+
+        $parameters = [
+            \PayUParameters::REFERENCE_CODE => $referenceCode,
+        ];
+
+        try {
+            return \PayUReports::getOrderDetailByReferenceCode($parameters);
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
 }

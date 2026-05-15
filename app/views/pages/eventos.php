@@ -18,6 +18,16 @@ $rol = (int)($_SESSION['rol'] ?? 0);
         </thead>
         <tbody>
             <?php foreach ($eventos as $e): ?>
+                <?php
+                $idEvento = (int)($e['id_evento'] ?? 0);
+                $tituloEvento = (string)($e['titulo'] ?? 'Pago');
+                $costoEvento = (float)($e['costo'] ?? 0);
+                $urlPagar = 'index.php?url=iniciar'
+                    . '&id_evento=' . urlencode((string)$idEvento)
+                    . '&evento=' . urlencode($tituloEvento)
+                    . '&monto=' . urlencode((string)$costoEvento)
+                    . '&cantidad=1';
+                ?>
                 <tr>
                     <td><?= htmlspecialchars((string)$e['titulo']) ?></td>
                     <td><?= htmlspecialchars((string)$e['fecha']) ?></td>
@@ -26,6 +36,12 @@ $rol = (int)($_SESSION['rol'] ?? 0);
                     <td>
                         <?php if ($rol === 3): ?>
                             <a href="editar_evento.php?id=<?= urlencode((string)$e['id_evento']) ?>" class="btn btn-warning btn-sm">Editar</a>
+                        <?php else: ?>
+                            <?php if ($costoEvento > 0): ?>
+                                <a href="<?= htmlspecialchars($urlPagar, ENT_QUOTES, 'UTF-8') ?>" class="btn btn-success btn-sm">Pagar</a>
+                            <?php else: ?>
+                                <span class="badge text-bg-secondary">Gratis</span>
+                            <?php endif; ?>
                         <?php endif; ?>
                     </td>
                 </tr>

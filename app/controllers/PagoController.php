@@ -5,11 +5,21 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Services\PayUService;
+use App\Services\PaymentTransactionService;
 use Exception;
 use PDO;
 
 final class PagoController
 {
+    /**
+     * @param array<string,mixed> $params
+     */
+    private function buildConfirmationUrl(string $returnUrlBase, array $params): string
+    {
+        $qs = http_build_query($params, '', '&', PHP_QUERY_RFC3986);
+        return rtrim($returnUrlBase, '/') . '/confirmacion-pago-isn' . ($qs !== '' ? ('?' . $qs) : '');
+    }
+
     private function resolveReturnTo(): string
     {
         $default = 'pagos.php';
@@ -116,6 +126,27 @@ final class PagoController
         $referenceCode = 'PAGO_' . uniqid();
         $signature = md5($config['apiKey'] . '~' . $config['merchantId'] . '~' . $referenceCode . '~' . $total . '~COP');
         $returnUrlBase = (string)$config['returnUrlBase'];
+        $idUsuarioSesion = (int)($_SESSION['id_usuario'] ?? ($_SESSION['usuario']['id_usuario'] ?? 0));
+        $idEscuelaSesion = (int)($_SESSION['usuario']['id_escuela'] ?? 1);
+        $idDeportista = isset($_POST['id_deportista']) ? (int)$_POST['id_deportista'] : 0;
+
+        $paymentFlow = new PaymentTransactionService();
+        $paymentContext = [
+            'id_usuario' => $idUsuarioSesion,
+            'id_escuela' => $idEscuelaSesion,
+            'id_evento' => $idEvento > 0 ? $idEvento : null,
+            'id_deportista' => $idDeportista > 0 ? $idDeportista : null,
+            'monto' => $total,
+            'concepto' => $concepto,
+            'metodo_pago' => $metodoPago,
+            'cantidad' => $cantidad,
+        ];
+        $encodedContext = $paymentFlow->encodeContext($paymentContext);
+        $paymentFlow->storeContext($referenceCode, $paymentContext);
+        $responseUrl = $this->buildConfirmationUrl($returnUrlBase, [
+            'cantidad' => $cantidad,
+            'ctx' => $encodedContext,
+        ]);
 
         $parameters = [
             \PayUParameters::ACCOUNT_ID => $config['accountId'],
@@ -132,7 +163,7 @@ final class PagoController
             \PayUParameters::BUYER_STATE => $departamento,
             \PayUParameters::BUYER_COUNTRY => $pais,
             \PayUParameters::BUYER_POSTAL_CODE => $codigoPostal,
-            \PayUParameters::RESPONSE_URL => $returnUrlBase . "/confirmacion-pago-isn?cantidad={$cantidad}",
+            \PayUParameters::RESPONSE_URL => $responseUrl,
             \PayUParameters::PAYMENT_METHOD => $metodoPago,
             \PayUParameters::COUNTRY => \PayUCountries::CO,
             \PayUParameters::IP_ADDRESS => $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1',
@@ -176,8 +207,15 @@ final class PagoController
                 $responseCode = $response->transactionResponse->responseCode ?? null;
 
                 if ($transactionState === 'APPROVED') {
-                    $usuarioEncoded = base64_encode(json_encode($usuario));
-                    header("Location: {$returnUrlBase}/confirmacion-pago-isn?transactionState=4&referenceCode={$referenceCode}&transactionId={$transactionId}&cantidad={$cantidad}&userData={$usuarioEncoded}");
+                    $successUrl = $this->buildConfirmationUrl($returnUrlBase, [
+                        'transactionState' => 4,
+                        'referenceCode' => $referenceCode,
+                        'transactionId' => (string)$transactionId,
+                        'responseCode' => (string)$responseCode,
+                        'cantidad' => $cantidad,
+                        'ctx' => $encodedContext,
+                    ]);
+                    header('Location: ' . $successUrl);
                     exit();
                 }
 
@@ -187,9 +225,28 @@ final class PagoController
                         header("Location: {$redirectUrl}");
                         exit();
                     }
+
+                    $pendingUrl = $this->buildConfirmationUrl($returnUrlBase, [
+                        'transactionState' => 7,
+                        'referenceCode' => $referenceCode,
+                        'transactionId' => (string)$transactionId,
+                        'responseCode' => (string)$responseCode,
+                        'cantidad' => $cantidad,
+                        'ctx' => $encodedContext,
+                    ]);
+                    header('Location: ' . $pendingUrl);
+                    exit();
                 }
 
-                header("Location: {$returnUrlBase}/confirmacion-pago-isn?transactionState=6&referenceCode={$referenceCode}&responseCode={$responseCode}&cantidad={$cantidad}");
+                $failUrl = $this->buildConfirmationUrl($returnUrlBase, [
+                    'transactionState' => 6,
+                    'referenceCode' => $referenceCode,
+                    'transactionId' => (string)$transactionId,
+                    'responseCode' => (string)$responseCode,
+                    'cantidad' => $cantidad,
+                    'ctx' => $encodedContext,
+                ]);
+                header('Location: ' . $failUrl);
                 exit();
             }
 

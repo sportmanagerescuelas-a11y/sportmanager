@@ -15,9 +15,9 @@ class FacturaModel {
                          m.nombre_entidad AS metodo_pago_texto
                   FROM facturas f
                   INNER JOIN usuarios u ON f.id = u.id_usuario
-                  INNER JOIN deportistas d ON f.id_deportista = d.id_deportista
-                  INNER JOIN eventos e ON f.id_evento = e.id_evento
-                  INNER JOIN metodos_pago m ON f.tipo_pago = m.id_metodo
+                  LEFT JOIN deportistas d ON f.id_deportista = d.id_deportista
+                  LEFT JOIN eventos e ON f.id_evento = e.id_evento
+                  LEFT JOIN metodos_pago m ON f.tipo_pago = m.id_metodo
                   ORDER BY f.id_factura DESC";
                   
         $stmt = $this->db->prepare($query);
@@ -33,9 +33,9 @@ class FacturaModel {
                          m.nombre_entidad AS metodo_pago_texto
                   FROM facturas f
                   INNER JOIN usuarios u ON f.id = u.id_usuario
-                  INNER JOIN deportistas d ON f.id_deportista = d.id_deportista
-                  INNER JOIN eventos e ON f.id_evento = e.id_evento
-                  INNER JOIN metodos_pago m ON f.tipo_pago = m.id_metodo
+                  LEFT JOIN deportistas d ON f.id_deportista = d.id_deportista
+                  LEFT JOIN eventos e ON f.id_evento = e.id_evento
+                  LEFT JOIN metodos_pago m ON f.tipo_pago = m.id_metodo
                   WHERE f.id_factura = :id_factura";
                   
         $stmt = $this->db->prepare($query);
@@ -51,9 +51,9 @@ class FacturaModel {
                          m.nombre_entidad AS metodo_pago_texto
                   FROM facturas f
                   INNER JOIN usuarios u ON f.id = u.id_usuario
-                  INNER JOIN deportistas d ON f.id_deportista = d.id_deportista
-                  INNER JOIN eventos e ON f.id_evento = e.id_evento
-                  INNER JOIN metodos_pago m ON f.tipo_pago = m.id_metodo
+                  LEFT JOIN deportistas d ON f.id_deportista = d.id_deportista
+                  LEFT JOIN eventos e ON f.id_evento = e.id_evento
+                  LEFT JOIN metodos_pago m ON f.tipo_pago = m.id_metodo
                   WHERE f.id_factura = :id_factura
                     AND f.id = :id_usuario";
 
