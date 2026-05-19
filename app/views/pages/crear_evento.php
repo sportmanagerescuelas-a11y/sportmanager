@@ -27,10 +27,7 @@ $error = $viewData['error'] ?? null;
                 <label>Costo</label>
                 <input type="number" name="costo" class="form-control">
             </div>
-            <div class="col-md-6">
-                <label>Cuotas</label>
-                <input type="number" name="cuotas" class="form-control">
-            </div>
+           
             <div class="col-md-6">
                 <label>Dirigido a (Rol)</label>
                 <select name="id_rol" class="form-control">
