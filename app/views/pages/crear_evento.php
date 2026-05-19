@@ -21,7 +21,7 @@ $error = $viewData['error'] ?? null;
             </div>
             <div class="col-md-6">
                 <label>Tipo Evento</label>
-                <input type="text" name="tipo_evento" class="form-control" value="mensualidad">
+                <input type="text" name="tipo_evento" class="form-control" value="">
             </div>
             <div class="col-md-6">
                 <label>Costo</label>
