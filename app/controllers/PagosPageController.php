@@ -30,7 +30,14 @@ final class PagosPageController
         require APP_BASE_PATH . '/config/conexion.php';
         if (!isset($conexion) || !($conexion instanceof PDO)) {
             http_response_code(500);
-            echo 'Conexion no disponible.';
+            $code = '500';
+            $title = 'Error interno';
+            $message = 'No fue posible establecer conexion para cargar los pagos.';
+            $backUrl = 'index.php';
+            $backLabel = 'Volver al inicio';
+            require APP_PATH . '/views/layout/header.php';
+            require APP_PATH . '/views/pages/error_status.php';
+            require APP_PATH . '/views/layout/footer.php';
             return;
         }
 

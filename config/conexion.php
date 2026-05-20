@@ -66,13 +66,27 @@ class Database {
                     font-weight: 800;
                     color: #1d3f5f;
                     margin-bottom: 0.5rem;
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 0.12em;
+                }
+                .error-ball {
+                    width: 0.88em;
+                    height: 0.88em;
+                    object-fit: contain;
+                    vertical-align: middle;
                 }
             </style>
         </head>
         <body>
             <div class="card error-card">
                 <div class="card-body p-4 p-md-5 text-center">
-                    <p class="error-code">503</p>
+                    <p class="error-code" aria-label="Error 503">
+                        <span>5</span>
+                        <img src="/sportmanager/assets/img/balonfutbol.png" alt="0" class="error-ball">
+                        <span>3</span>
+                    </p>
                     <h1 class="h2 fw-bold mb-3">Fuera de juego</h1>
                     <p class="text-muted mb-4">
                         No pudimos conectar con la base de datos en este momento.

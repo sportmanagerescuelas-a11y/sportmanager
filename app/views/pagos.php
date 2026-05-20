@@ -3,6 +3,8 @@ $viewData = get_defined_vars();
 $facturasUsuario = is_array($viewData['facturasUsuario'] ?? null) ? $viewData['facturasUsuario'] : [];
 $idEvento = (int)($viewData['idEvento'] ?? 0);
 ?>
+<br>
+<br>
 <section class="container py-5">
     <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
         <div>

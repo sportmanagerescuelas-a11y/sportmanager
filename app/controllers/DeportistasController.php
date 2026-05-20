@@ -7,6 +7,16 @@ require_once __DIR__ . '/../core/Database.php';
 
 class DeportistasController extends Controller
 {
+    private function renderStatusCard(string $code, string $message, string $title = 'Fuera de juego'): void
+    {
+        http_response_code((int)$code);
+        $backUrl = 'index.php';
+        $backLabel = 'Volver al inicio';
+        require __DIR__ . '/../views/layout/header.php';
+        require __DIR__ . '/../views/pages/error_status.php';
+        require __DIR__ . '/../views/layout/footer.php';
+    }
+
     private function requireTrainerSession(): void
     {
         if (!isset($_SESSION['usuario']) || !isset($_SESSION['id_usuario'])) {
@@ -87,24 +97,21 @@ class DeportistasController extends Controller
         $this->requireTrainerSession();
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            http_response_code(405);
-            echo 'Metodo no permitido.';
+            $this->renderStatusCard('405', 'Metodo no permitido para esta accion.', 'Accion no permitida');
             return;
         }
 
         $fecha = isset($_POST['fecha']) ? trim((string)$_POST['fecha']) : '';
         $fechaValida = DateTime::createFromFormat('Y-m-d', $fecha);
         if (!$fechaValida || $fechaValida->format('Y-m-d') !== $fecha) {
-            http_response_code(400);
-            echo 'Fecha invalida.';
+            $this->renderStatusCard('400', 'La fecha enviada no es valida.', 'Solicitud invalida');
             return;
         }
 
         $payload = $_POST['payload'] ?? '';
         $rows = json_decode($payload, true);
         if (!is_array($rows) || empty($rows)) {
-            http_response_code(400);
-            echo 'Datos invalidos.';
+            $this->renderStatusCard('400', 'Los datos enviados no son validos.', 'Solicitud invalida');
             return;
         }
 
@@ -126,8 +133,7 @@ class DeportistasController extends Controller
         }
 
         if (empty($clean)) {
-            http_response_code(400);
-            echo 'No hay datos para guardar.';
+            $this->renderStatusCard('400', 'No hay datos para guardar.', 'Solicitud invalida');
             return;
         }
 

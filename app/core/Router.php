@@ -18,8 +18,7 @@ class Router
 
         require_once $file;
         if (!class_exists($className)) {
-            http_response_code(500);
-            echo 'Clase de controlador inválida.';
+            $this->renderServerError('Clase de controlador invalida.');
             return;
         }
 
@@ -37,6 +36,18 @@ class Router
         http_response_code(404);
         require __DIR__ . '/../views/layout/header.php';
         require __DIR__ . '/../views/pages/error404.php';
+        require __DIR__ . '/../views/layout/footer.php';
+    }
+
+    private function renderServerError(string $message): void
+    {
+        http_response_code(500);
+        $code = '500';
+        $title = 'Error interno';
+        $backUrl = 'index.php';
+        $backLabel = 'Volver al inicio';
+        require __DIR__ . '/../views/layout/header.php';
+        require __DIR__ . '/../views/pages/error_status.php';
         require __DIR__ . '/../views/layout/footer.php';
     }
 }
