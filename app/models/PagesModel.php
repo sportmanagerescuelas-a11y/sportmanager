@@ -293,7 +293,8 @@ class PagesModel
 
         foreach ($events as $event) {
             $event->total_inscritos = $this->countEventRegistrations((int)$event->id_evento);
-            $event->inscrito = $this->isUserRegisteredInEvent((int)$event->id_evento, $userId);
+            $event->user_registered_athlete_ids = $this->userRegisteredAthleteIdsInEvent((int)$event->id_evento, $userId);
+            $event->inscrito = $this->areAllUserAthletesRegisteredInEvent((int)$event->id_evento, $userId);
         }
 
         return [
@@ -554,10 +555,44 @@ class PagesModel
         return (int)$stmt->fetchColumn();
     }
 
-    private function isUserRegisteredInEvent(int $eventId, int $userId): bool
+    private function areAllUserAthletesRegisteredInEvent(int $eventId, int $userId): bool
     {
-        $stmt = $this->db->prepare('SELECT 1 FROM inscripciones WHERE id_evento = ? AND id_usuario = ?');
+        $totalAthletesStmt = $this->db->prepare('SELECT COUNT(*) FROM deportistas WHERE id_usuario = ?');
+        $totalAthletesStmt->execute([$userId]);
+        $totalAthletes = (int)$totalAthletesStmt->fetchColumn();
+
+        if ($totalAthletes <= 0) {
+            return false;
+        }
+
+        $registeredAthletesStmt = $this->db->prepare("
+            SELECT COUNT(DISTINCT i.id_deportista)
+            FROM inscripciones i
+            INNER JOIN deportistas d ON d.id_deportista = i.id_deportista
+            WHERE i.id_evento = ?
+              AND d.id_usuario = ?
+        ");
+        $registeredAthletesStmt->execute([$eventId, $userId]);
+        $registeredAthletes = (int)$registeredAthletesStmt->fetchColumn();
+
+        return $registeredAthletes >= $totalAthletes;
+    }
+
+    /**
+     * @return array<int,string>
+     */
+    private function userRegisteredAthleteIdsInEvent(int $eventId, int $userId): array
+    {
+        $stmt = $this->db->prepare("
+            SELECT DISTINCT i.id_deportista
+            FROM inscripciones i
+            INNER JOIN deportistas d ON d.id_deportista = i.id_deportista
+            WHERE i.id_evento = ?
+              AND d.id_usuario = ?
+        ");
         $stmt->execute([$eventId, $userId]);
-        return (bool)$stmt->fetchColumn();
+        $rows = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+        return array_map('strval', is_array($rows) ? $rows : []);
     }
 }

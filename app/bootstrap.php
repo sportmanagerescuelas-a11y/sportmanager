@@ -23,9 +23,16 @@ if ($basePath === '.' || $basePath === '/') {
 define('BASE_PATH', $basePath);
 
 $vendorAutoload = APP_BASE_PATH . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
+$composerAutoloadAvailable = false;
 if (is_file($vendorAutoload)) {
-    require_once $vendorAutoload;
+    try {
+        require_once $vendorAutoload;
+        $composerAutoloadAvailable = true;
+    } catch (Throwable $e) {
+        error_log('No se pudo cargar Composer autoload: ' . $e->getMessage());
+    }
 }
+define('COMPOSER_AUTOLOAD_AVAILABLE', $composerAutoloadAvailable);
 
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'autoload.php';
 

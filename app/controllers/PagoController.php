@@ -108,7 +108,8 @@ final class PagoController
                 $stmtEvento->execute([':id_evento' => $idEvento]);
                 $evento = $stmtEvento->fetch(PDO::FETCH_ASSOC) ?: null;
                 if ($evento) {
-                    $total = (float)($evento['costo'] ?? 0);
+                    $costoUnitario = (float)($evento['costo'] ?? 0);
+                    $total = $costoUnitario * $cantidad;
                     if ($concepto === 'Pago de inscripcion' && !empty($evento['titulo'])) {
                         $concepto = (string)$evento['titulo'];
                     }

@@ -1057,7 +1057,7 @@ footer {
         radial-gradient(circle at 50% 25%, rgba(246, 248, 251, 0.10), transparent 34%),
         linear-gradient(110deg, rgba(29, 63, 95, 0.45), rgba(51, 65, 85, 0.32)),
         url("../img/the-stadium-in-night-time-with-ai-generated-free-photo.jpg");
-    padding: 120px 24px 64px;
+    padding: 220px 24px 64px;
     gap: 24px;
     justify-content: flex-start;
     align-items: stretch;
@@ -1082,7 +1082,7 @@ footer {
 
 .subtitulo {
     width: min(100%, 980px);
-    margin-top: 0;
+    margin-top: 16px;
     margin-left: auto;
     margin-right: auto;
     padding: 24px;
@@ -1108,7 +1108,7 @@ footer {
     grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
     gap: 18px;
     align-items: stretch;
-    margin-top: 0;
+    margin-top: 12px;
     margin-left: auto;
     margin-right: auto;
 }
@@ -1136,7 +1136,7 @@ footer {
 
 .rol-box {
     position: fixed !important;
-    top: 78px !important;
+    top: 130px !important;
     left: 28px !important;
     right: auto !important;
     z-index: 1040 !important;
@@ -1168,6 +1168,8 @@ footer {
 }
 
 .alert-fijo {
+    top: 130px;
+    right: 28px;
     background: var(--sm-white);
     color: var(--sm-blue-900);
     border: 1px solid var(--sm-gray-200);
@@ -1254,12 +1256,12 @@ footer {
     }
 
     .dashboard {
-        padding: 96px 16px 40px;
+        padding: 160px 16px 40px;
     }
 
     .rol-box {
         position: fixed !important;
-        top: 78px !important;
+        top: 130px !important;
         left: 12px !important;
         right: auto !important;
         margin: 0 !important;
@@ -1614,4 +1616,20 @@ footer {
 .attendance-actions .btn,
 .attendance-filter-buttons .btn {
     min-width: 0;
+}
+
+/* Keep header dropdowns above dashboard alerts/modals/cards */
+header {
+    position: relative;
+    z-index: 3000;
+}
+
+.custom-navbar {
+    position: relative;
+    z-index: 3100 !important;
+    overflow: visible;
+}
+
+.custom-navbar .dropdown-menu {
+    z-index: 3200 !important;
 }

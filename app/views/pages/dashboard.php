@@ -8,17 +8,53 @@ if ($rolLabel === '') {
     $rolLabel = [1 => 'Acudiente', 2 => 'Entrenador', 3 => 'Administrador'][$rol] ?? 'Usuario';
 }
 ?>
-<br>
-<br>
 <div class="dashboard position-relative">
     <div class="rol-box"><?= htmlspecialchars($rolLabel) ?></div>
 
-    <?php foreach ($events as $e): ?>
-        <div class="alert alert-success alert-fijo" id="eventoAlert<?= (int)$e->id_evento ?>">
-            <span><?= htmlspecialchars($e->titulo . ' - ' . $e->fecha) ?></span>
-            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#evento<?= (int)$e->id_evento ?>">Ver</button>
+    <?php if (count($events) > 0): ?>
+        <div class="alert alert-success alert-fijo" id="eventosAlert">
+            <span>Tienes <?= count($events) ?> evento(s) disponible(s)</span>
+            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#seleccionarEventoModal">Ver</button>
         </div>
 
+        <div class="modal fade modal-top-right" id="seleccionarEventoModal" tabindex="-1" data-bs-backdrop="false">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Selecciona un evento</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="d-grid gap-2">
+                            <?php foreach ($events as $e): ?>
+                                <button
+                                    type="button"
+                                    class="btn btn-outline-primary btnSeleccionarEvento"
+                                    data-evento-id="<?= (int)$e->id_evento ?>"
+                                    data-bs-dismiss="modal"
+                                >
+                                    <?= htmlspecialchars((string)$e->titulo) ?> - <?= htmlspecialchars((string)$e->fecha) ?>
+                                </button>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <?php endif; ?>
+
+    <?php foreach ($events as $e): ?>
+        <?php
+        $registeredAthleteIds = array_map('strval', is_array($e->user_registered_athlete_ids ?? null) ? $e->user_registered_athlete_ids : []);
+        $availableAthletes = array_values(array_filter($athletes, static function ($athlete) use ($registeredAthleteIds): bool {
+            $athleteId = (string)($athlete->id_deportista ?? '');
+            return $athleteId !== '' && !in_array($athleteId, $registeredAthleteIds, true);
+        }));
+        $availableAthletesCount = count($availableAthletes);
+        ?>
         <div class="modal fade modal-top-right" id="evento<?= (int)$e->id_evento ?>" tabindex="-1" data-bs-backdrop="false">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -37,7 +73,7 @@ if ($rolLabel === '') {
                         <?php if ($e->inscrito): ?>
                             <button class="btn btn-success" disabled>Ya inscrito</button>
                         <?php else: ?>
-                            <button class="btn btn-primary btnInscribirseEvento" data-evento="<?= (int)$e->id_evento ?>" data-athletes-count="<?= count($athletes) ?>">Inscribirse</button>
+                            <button class="btn btn-primary btnInscribirseEvento" data-evento="<?= (int)$e->id_evento ?>" data-athletes-count="<?= $availableAthletesCount ?>">Inscribirse</button>
                         <?php endif; ?>
                         <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                     </div>
@@ -53,15 +89,15 @@ if ($rolLabel === '') {
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
-                        <?php if (count($athletes) > 0): ?>
+                        <?php if ($availableAthletesCount > 0): ?>
                             <select class="form-control selectDeportista" data-evento="<?= (int)$e->id_evento ?>">
                                 <option value="">Seleccione...</option>
-                                <?php foreach ($athletes as $d): ?>
+                                <?php foreach ($availableAthletes as $d): ?>
                                     <option value="<?= htmlspecialchars((string)$d->id_deportista, ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($d->nombres . ' ' . $d->apellidos) ?></option>
                                 <?php endforeach; ?>
                             </select>
                         <?php else: ?>
-                            <p>No tienes deportistas registrados</p>
+                            <p>Todos tus deportistas ya estan inscritos en este evento.</p>
                         <?php endif; ?>
                     </div>
                     <div class="modal-footer">
@@ -74,7 +110,7 @@ if ($rolLabel === '') {
     <?php endforeach; ?>
 
     <div class="subtitulo">
-        <h2>BIENVENIDO, <?= htmlspecialchars(($_SESSION['usuario']['nombres'] ?? '') . ' ' . ($_SESSION['usuario']['apellidos'] ?? '')) ?></h2>
+        <h2>BIENVENID@, <?= htmlspecialchars(($_SESSION['usuario']['nombres'] ?? '') . ' ' . ($_SESSION['usuario']['apellidos'] ?? '')) ?></h2>
     </div>
     <br>
 
@@ -231,6 +267,23 @@ if ($rolLabel === '') {
                     return;
                 }
                 registrarInscripcion(id_evento, id_deportista);
+            });
+        });
+
+        document.querySelectorAll(".btnSeleccionarEvento").forEach(btn => {
+            btn.addEventListener("click", function() {
+                const eventId = normalizarIdNumerico(this.dataset.eventoId || "");
+                if (eventId === "" || eventId === "0") {
+                    alert("No se pudo identificar el evento seleccionado.");
+                    return;
+                }
+                const modalEl = document.getElementById(`evento${eventId}`);
+                if (!modalEl) {
+                    alert("No se encontro la informacion del evento.");
+                    return;
+                }
+                const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+                modal.show();
             });
         });
     });

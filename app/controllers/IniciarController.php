@@ -22,26 +22,44 @@ final class IniciarController
         $eventoTitulo = (string)($_GET['evento'] ?? 'Pago');
         $monto = isset($_GET['monto']) ? (float)$_GET['monto'] : 0.0;
         $cantidad = isset($_GET['cantidad']) ? max(1, (int)$_GET['cantidad']) : 1;
+        $idUsuarioSesion = (int)($_SESSION['id_usuario'] ?? ($_SESSION['usuario']['id_usuario'] ?? 0));
         $returnTo = trim((string)($_GET['return_to'] ?? 'index.php?url=iniciar'));
         if ($returnTo === '' || preg_match('/^(https?:)?\/\//i', $returnTo)) {
             $returnTo = 'index.php?url=iniciar';
         }
         $returnTo = ltrim($returnTo, '/');
 
-        // Si no llega el monto/titulo por URL y hay id_evento, traer datos reales del evento.
-        if ($idEvento > 0 && ($monto <= 0 || $eventoTitulo === 'Pago')) {
+        // Si hay id_evento, traer siempre datos reales del evento y recalcular
+        // cantidad/monto segun los deportistas inscritos del usuario.
+        if ($idEvento > 0) {
             require APP_BASE_PATH . '/config/conexion.php';
             if (isset($conexion) && $conexion instanceof PDO) {
                 $stmt = $conexion->prepare('SELECT titulo, costo FROM eventos WHERE id_evento = :id_evento LIMIT 1');
                 $stmt->execute([':id_evento' => $idEvento]);
                 $evento = $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+                if ($idUsuarioSesion > 0) {
+                    $countStmt = $conexion->prepare("
+                        SELECT COUNT(DISTINCT i.id_deportista)
+                        FROM inscripciones i
+                        INNER JOIN deportistas d ON d.id_deportista = i.id_deportista
+                        WHERE i.id_evento = :id_evento
+                          AND d.id_usuario = :id_usuario
+                    ");
+                    $countStmt->execute([
+                        ':id_evento' => $idEvento,
+                        ':id_usuario' => $idUsuarioSesion,
+                    ]);
+                    $inscritosUsuario = (int)$countStmt->fetchColumn();
+                    if ($inscritosUsuario > 0) {
+                        $cantidad = $inscritosUsuario;
+                    }
+                }
                 if ($evento) {
-                    if ($eventoTitulo === 'Pago' && !empty($evento['titulo'])) {
+                    if (!empty($evento['titulo'])) {
                         $eventoTitulo = (string)$evento['titulo'];
                     }
-                    if ($monto <= 0) {
-                        $monto = (float)($evento['costo'] ?? 0);
-                    }
+                    $costoUnitario = (float)($evento['costo'] ?? 0);
+                    $monto = $costoUnitario > 0 ? ($costoUnitario * $cantidad) : $monto;
                 }
             }
         }
