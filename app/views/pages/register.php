@@ -17,6 +17,8 @@ $registerErrorMap = [
     'duplicateemail' => 'Ya existe un usuario con ese correo electronico.',
     'schoolnone' => 'Aun no hay escuelas disponibles para inscripcion.',
     'school' => 'La escuela seleccionada no existe. Elige una escuela valida.',
+    'comprobante' => 'Para registrarte como administrador debes adjuntar un comprobante de pago.',
+    'comprobante_upload' => 'No se pudo guardar el comprobante. Intentalo de nuevo.',
     'db' => 'No se pudo crear la cuenta en este momento. IntÃ©ntalo nuevamente.',
 ];
 $registerErrorText = sm_error_text($registerErrorCode, $registerErrorMap);
@@ -30,10 +32,10 @@ $registerErrorText = sm_error_text($registerErrorCode, $registerErrorMap);
                 </div>
                 <div class="card-body">
                     <?php if (empty($schools)): ?>
-                        <?php sm_render_alert('Aun no hay escuelas registradas. Un superadmin debe crear una escuela antes de que los usuarios puedan registrarse.', 'Escuela requerida', 'warning', true); ?>
+                        <?php sm_render_alert('Aun no hay escuelas registradas. Puedes registrarte como administrador para que, tras aprobacion, crees la primera escuela.', 'Sin escuelas', 'warning', true); ?>
                     <?php endif; ?>
 
-                    <form action="controllers/registerController.php" method="POST" class="needs-validation" novalidate>
+                    <form action="controllers/registerController.php" method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
                         <div class="mb-3">
                             <label for="id_usuario" class="form-label">Numero de Documento</label>
                             <input type="number" class="form-control" id="id_usuario" name="id_usuario" placeholder="Tu numero de documento" required>
@@ -51,7 +53,7 @@ $registerErrorText = sm_error_text($registerErrorCode, $registerErrorMap);
                             </select>
                             <div class="invalid-feedback">Seleccione un tipo de documento.</div>
                         </div>
-                        <div class="mb-3">
+                        <div class="mb-3" id="schoolWrap">
                             <label for="id_escuela" class="form-label">Escuela</label>
                             <select class="form-select" id="id_escuela" name="id_escuela" required>
                                 <option value="" selected disabled>Selecciona tu escuela...</option>
@@ -100,10 +102,14 @@ $registerErrorText = sm_error_text($registerErrorCode, $registerErrorMap);
                             <select class="form-select" id="id_rol" name="id_rol" required>
                                 <option value="1">Acudiente</option>
                                 <option value="2">Formador (requiere aprobacion)</option>
-                                <option value="3">Administrador (requiere aprobacion)</option>
+                                <option value="3">Administrador de escuela (requiere validacion de pago)</option>
                             </select>
                         </div>
-                        <button type="submit" name="register" class="btn btn-primary w-100" <?= empty($schools) ? 'disabled' : '' ?>>Registrarse</button>
+                        <div class="mb-3" id="comprobantePagoWrap" style="display:none;">
+                            <label for="comprobante_pago" class="form-label">Comprobante de pago (solo administrador)</label>
+                            <input type="file" class="form-control" id="comprobante_pago" name="comprobante_pago" accept=".jpg,.jpeg,.png,.pdf">
+                        </div>
+                        <button type="submit" name="register" class="btn btn-primary w-100">Registrarse</button>
                     </form>
 
                     <?php if ($registerErrorText !== ''): ?>
@@ -112,7 +118,7 @@ $registerErrorText = sm_error_text($registerErrorCode, $registerErrorMap);
 
                     <?php if (isset($_GET['success'])): ?>
                         <div class="mt-3 alert alert-success text-center">
-                            <?= $_GET['success'] === '1' ? 'Registro exitoso.' : 'Registro exitoso. Tu cuenta esta pendiente de aprobacion.' ?>
+                            <?= $_GET['success'] === '1' ? 'Registro exitoso.' : ($_GET['success'] === 'payment_pending' ? 'Registro exitoso. Tu pago sera revisado por el superadmin antes de aprobar tu cuenta.' : 'Registro exitoso. Tu cuenta esta pendiente de aprobacion.') ?>
                             <div class="mt-2"><a href="index.php?url=login" class="btn btn-success btn-sm">Aceptar</a></div>
                         </div>
                     <?php endif; ?>
@@ -122,5 +128,30 @@ $registerErrorText = sm_error_text($registerErrorCode, $registerErrorMap);
     </div>
 </div>
 <script src="assets/js/registercontroller.js?v=<?= urlencode($registerControllerVersion) ?>"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const roleSelect = document.getElementById('id_rol');
+    const wrap = document.getElementById('comprobantePagoWrap');
+    const input = document.getElementById('comprobante_pago');
+    const schoolWrap = document.getElementById('schoolWrap');
+    const schoolSelect = document.getElementById('id_escuela');
+
+    if (!roleSelect || !wrap || !input || !schoolWrap || !schoolSelect) return;
+
+    const sync = function () {
+        const isAdmin = roleSelect.value === '3';
+        wrap.style.display = isAdmin ? '' : 'none';
+        input.required = isAdmin;
+        schoolWrap.style.display = isAdmin ? 'none' : '';
+        schoolSelect.required = !isAdmin;
+        if (isAdmin) {
+            schoolSelect.value = '';
+        }
+    };
+
+    roleSelect.addEventListener('change', sync);
+    sync();
+});
+</script>
 
 

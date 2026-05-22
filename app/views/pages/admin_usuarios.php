@@ -6,7 +6,7 @@ $usuariosAprobados = is_array($viewData['usuariosAprobados'] ?? null) ? $viewDat
 if (!function_exists('rol_nombre')) {
 function rol_nombre(int $rol): string
 {
-    return [1 => 'Acudiente', 2 => 'Entrenador', 3 => 'Administrador'][$rol] ?? 'Desconocido';
+    return [1 => 'Acudiente', 2 => 'Entrenador', 3 => 'Administrador', 4 => 'Superadmin'][$rol] ?? 'Desconocido';
 }
 }
 ?>
@@ -16,7 +16,7 @@ function rol_nombre(int $rol): string
     <h2 class="text-center mb-4">Usuarios Pendientes</h2>
     <table class="table table-bordered text-center">
         <thead>
-            <tr><th>ID</th><th>Nombre</th><th>Email</th><th>Escuela</th><th>Rol solicitado</th><th>Acciones</th></tr>
+            <tr><th>ID</th><th>Nombre</th><th>Email</th><th>Escuela</th><th>Rol solicitado</th><th>Pago admin</th><th>Acciones</th></tr>
         </thead>
         <tbody>
             <?php foreach ($usuariosPendientes as $user): ?>
@@ -27,6 +27,24 @@ function rol_nombre(int $rol): string
                     <td><?= htmlspecialchars((string)($user['nombre_escuela'] ?? 'Sin escuela')) ?></td>
                     <td><?= htmlspecialchars(rol_nombre((int)$user['id_rol'])) ?></td>
                     <td>
+                        <?php if ((int)$user['id_rol'] === 3): ?>
+                            <?php if (!empty($user['comprobante_path'])): ?>
+                                <a href="<?= htmlspecialchars((string)$user['comprobante_path']) ?>" target="_blank" class="btn btn-outline-secondary btn-sm">Ver comprobante</a>
+                            <?php endif; ?>
+                            <span class="badge <?= ($user['estado_pago_admin'] ?? '') === 'verificado' ? 'bg-success' : 'bg-warning text-dark' ?>">
+                                <?= htmlspecialchars((string)($user['estado_pago_admin'] ?? 'pendiente')) ?>
+                            </span>
+                        <?php else: ?>
+                            N/A
+                        <?php endif; ?>
+                    </td>
+                    <td>
+                        <?php if ((int)$user['id_rol'] === 3 && ($user['estado_pago_admin'] ?? '') !== 'verificado'): ?>
+                            <form action="controllers/adminUsuarioController.php" method="POST" style="display:inline;">
+                                <input type="hidden" name="id_usuario" value="<?= htmlspecialchars((string)$user['id_usuario']) ?>">
+                                <button name="verificar_pago" class="btn btn-warning btn-sm">Verificar pago</button>
+                            </form>
+                        <?php endif; ?>
                         <form action="controllers/adminUsuarioController.php" method="POST" style="display:inline;">
                             <input type="hidden" name="id_usuario" value="<?= htmlspecialchars((string)$user['id_usuario']) ?>">
                             <button name="aprobar" class="btn btn-success btn-sm">Aprobar</button>
@@ -58,13 +76,13 @@ function rol_nombre(int $rol): string
                     <td><?= (int)$user['total_deportistas'] ?></td>
                     <td><?= htmlspecialchars((string)$user['estado']) ?></td>
                     <td>
-                        <a href="editar_usuario.php?id=<?= urlencode((string)$user['id_usuario']) ?>" class="btn btn-primary btn-sm">Editar</a>
-                        <a href="ver_deportistas_usuario.php?id=<?= urlencode((string)$user['id_usuario']) ?>" class="btn btn-info btn-sm">Ver Deportistas</a>
+                        <a href="index.php?url=editar_usuario&id=<?= urlencode((string)$user['id_usuario']) ?>" class="btn btn-primary btn-sm">Editar</a>
+                        <a href="index.php?url=ver_deportistas_usuario&id=<?= urlencode((string)$user['id_usuario']) ?>" class="btn btn-info btn-sm">Ver Deportistas</a>
                     </td>
                 </tr>
             <?php endforeach; ?>
         </tbody>
     </table>
-    <a href="dashboard.php" class="btn btn-primary mt-3">Volver</a>
+    <a href="index.php?url=dashboard" class="btn btn-primary mt-3">Volver</a>
 </div>
 <br>

@@ -740,3 +740,46 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+-- --------------------------------------------------------
+-- MIGRACION: superadmin + validacion de pago para administradores
+-- Ejecutar este bloque una sola vez en la BD existente.
+
+INSERT IGNORE INTO roles (id_rol, nombre_rol) VALUES (4, 'superadmin');
+
+CREATE TABLE IF NOT EXISTS admin_payment_requests (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  id_usuario int(11) NOT NULL,
+  comprobante_path varchar(255) NOT NULL,
+  estado enum('pendiente','verificado','rechazado') NOT NULL DEFAULT 'pendiente',
+  verificado_por int(11) DEFAULT NULL,
+  fecha_verificacion datetime DEFAULT NULL,
+  created_at datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (id),
+  KEY idx_admin_payment_user (id_usuario),
+  KEY idx_admin_payment_status (estado),
+  CONSTRAINT fk_admin_payment_user FOREIGN KEY (id_usuario) REFERENCES usuarios (id_usuario) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+-- SCRIPT RAPIDO: promover usuario existente a superadmin
+-- Reemplaza @superadmin_id por el documento/id_usuario que quieras promover.
+
+SET @superadmin_id := 22222222;
+
+START TRANSACTION;
+
+INSERT IGNORE INTO roles (id_rol, nombre_rol) VALUES (4, 'superadmin');
+
+UPDATE usuarios
+SET id_rol = 4,
+    estado = 'aprobado',
+    habilitado = 1
+WHERE id_usuario = @superadmin_id;
+
+COMMIT;
+
+-- Validacion:
+-- SELECT id_usuario, nombres, apellidos, email, id_rol, estado, habilitado
+-- FROM usuarios
+-- WHERE id_usuario = @superadmin_id;

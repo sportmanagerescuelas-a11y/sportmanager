@@ -38,7 +38,8 @@ class PagesController
 
     public function createSchool(): void
     {
-        $this->requireSuperAdmin();
+        $this->requireSchoolCreationAccess();
+        $isAdminOnboarding = $this->isAdminPendingSchoolCreation();
         $error = null;
         $errorDetails = [];
         $formData = $this->emptySchoolFormData();
@@ -54,6 +55,12 @@ class PagesController
                 try {
                     $schoolId = $this->model()->createSchool($payload);
                     if ($schoolId !== false) {
+                        if ($isAdminOnboarding) {
+                            $this->model()->assignSchoolToUser((int)$_SESSION['id_usuario'], (int)$schoolId);
+                            $_SESSION['usuario']['id_escuela'] = (int)$schoolId;
+                            $_SESSION['usuario']['estado'] = 'aprobado';
+                            $this->redirect('index.php?url=dashboard');
+                        }
                         $this->redirect('index.php?url=gestion_escuelas&created=1');
                     }
                     $dbError = $this->model()->lastError();
@@ -160,7 +167,7 @@ class PagesController
 
     public function adminUsers(): void
     {
-        $this->requireAdmin();
+        $this->requireSuperAdmin();
         $this->render('admin_usuarios', [
             'usuariosPendientes' => $this->model()->pendingUsers(),
             'usuariosAprobados' => $this->model()->approvedUsers(),
@@ -169,7 +176,7 @@ class PagesController
 
     public function editUser(): void
     {
-        $this->requireAdmin();
+        $this->requireSuperAdmin();
         $user = $this->model()->userById((string)($_GET['id'] ?? ''));
         if (!$user) {
             $this->redirect('admin_usuarios.php');
@@ -277,7 +284,7 @@ class PagesController
 
     public function userAthletes(): void
     {
-        $this->requireAdmin();
+        $this->requireSuperAdmin();
         $this->render('ver_deportistas_usuario', [
             'deportistas' => $this->model()->athletesByUser((string)($_GET['id'] ?? '')),
         ]);
@@ -447,7 +454,36 @@ class PagesController
 
     private function requireSuperAdmin(): void
     {
-        $this->requireAdmin();
+        if (!isset($_SESSION['rol']) || (int)$_SESSION['rol'] !== 4) {
+            $this->redirect('dashboard.php');
+        }
+    }
+
+    private function requireSchoolCreationAccess(): void
+    {
+        if (!isset($_SESSION['rol'], $_SESSION['id_usuario'])) {
+            $this->redirect('index.php?url=login');
+        }
+
+        $rol = (int)$_SESSION['rol'];
+        if ($rol === 4) {
+            return;
+        }
+
+        if ($rol === 3 && $this->model()->userNeedsSchoolCreation((int)$_SESSION['id_usuario'])) {
+            return;
+        }
+
+        $this->redirect('dashboard.php');
+    }
+
+    private function isAdminPendingSchoolCreation(): bool
+    {
+        if (!isset($_SESSION['rol'], $_SESSION['id_usuario'])) {
+            return false;
+        }
+
+        return (int)$_SESSION['rol'] === 3 && $this->model()->userNeedsSchoolCreation((int)$_SESSION['id_usuario']);
     }
 
     private function requireReportAccess(): void

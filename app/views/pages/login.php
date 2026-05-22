@@ -5,6 +5,7 @@ $loginErrorCode = isset($_GET['error']) ? (string)$_GET['error'] : '';
 $loginErrorMap = [
     'invalid' => 'Usuario o contrasena incorrectos.',
     'pending' => 'Tu cuenta esta pendiente de aprobacion por un administrador.',
+    'payment_pending' => 'Tu pago esta pendiente de verificacion por el superadmin.',
     'disabled' => 'Tu cuenta esta deshabilitada.',
     '404' => 'La pagina solicitada no existe o fue movida.',
 ];

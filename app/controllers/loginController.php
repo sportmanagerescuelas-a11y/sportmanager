@@ -38,6 +38,10 @@ if (isset($_POST["login"])) {
             header("Location: ../index.php?url=login&error=pending");
             exit();
         }
+        if ($usuario['estado'] == 'pago_pendiente') {
+            header("Location: ../index.php?url=login&error=payment_pending");
+            exit();
+        }
 
         // ???? Opcional: usuario deshabilitado
         if ($usuario['habilitado'] == 0) {
@@ -58,6 +62,11 @@ if (isset($_POST["login"])) {
 
         // Guardar en sesi??n
         $_SESSION["nombre_rol"] = $rolData["nombre_rol"];
+
+        if ($usuario['estado'] === 'crear_escuela' && (int)$usuario['id_rol'] === 3) {
+            header("Location: ../index.php?url=crear_escuela");
+            exit();
+        }
 
         header("Location: ../index.php?url=dashboard");
         exit();

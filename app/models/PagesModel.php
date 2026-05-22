@@ -26,10 +26,12 @@ class PagesModel
     public function pendingUsers(): array
     {
         $stmt = $this->db->query("
-            SELECT u.*, e.nombre AS nombre_escuela
+            SELECT u.*, e.nombre AS nombre_escuela, apr.estado AS estado_pago_admin, apr.comprobante_path
             FROM usuarios u
             LEFT JOIN escuelas e ON e.id_escuela = u.id_escuela
-            WHERE u.estado = 'pendiente'
+            LEFT JOIN admin_payment_requests apr ON apr.id_usuario = u.id_usuario
+            WHERE u.id_rol = 3
+              AND u.estado IN ('pendiente', 'pago_pendiente')
         ");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -42,6 +44,7 @@ class PagesModel
             LEFT JOIN escuelas e ON e.id_escuela = u.id_escuela
             LEFT JOIN deportistas d ON d.id_usuario = u.id_usuario
             WHERE u.estado IN ('aprobado', 'deshabilitado')
+              AND u.id_rol IN (1, 2, 3)
             GROUP BY u.id_usuario
         ");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -52,6 +55,19 @@ class PagesModel
         $stmt = $this->db->prepare('SELECT * FROM usuarios WHERE id_usuario = :id');
         $stmt->execute([':id' => $id]);
         return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+    }
+
+    public function userNeedsSchoolCreation(int $userId): bool
+    {
+        $stmt = $this->db->prepare("SELECT 1 FROM usuarios WHERE id_usuario = ? AND id_rol = 3 AND estado = 'crear_escuela' LIMIT 1");
+        $stmt->execute([$userId]);
+        return (bool)$stmt->fetchColumn();
+    }
+
+    public function assignSchoolToUser(int $userId, int $schoolId): bool
+    {
+        $stmt = $this->db->prepare("UPDATE usuarios SET id_escuela = ?, estado = 'aprobado' WHERE id_usuario = ? AND id_rol = 3");
+        return $stmt->execute([$schoolId, $userId]);
     }
 
     public function categories(): array

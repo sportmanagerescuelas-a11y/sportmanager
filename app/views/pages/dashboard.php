@@ -5,7 +5,7 @@ $athletes = is_array($viewData['athletes'] ?? null) ? $viewData['athletes'] : []
 $rol = (int)($viewData['rol'] ?? ($_SESSION['rol'] ?? 0));
 $rolLabel = (string)($_SESSION['nombre_rol'] ?? '');
 if ($rolLabel === '') {
-    $rolLabel = [1 => 'Acudiente', 2 => 'Entrenador', 3 => 'Administrador'][$rol] ?? 'Usuario';
+    $rolLabel = [1 => 'Acudiente', 2 => 'Entrenador', 3 => 'Administrador', 4 => 'Superadmin'][$rol] ?? 'Usuario';
 }
 ?>
 <div class="dashboard position-relative">
@@ -115,8 +115,10 @@ if ($rolLabel === '') {
     <br>
 
     <div class="opciones">
-        <?php if ($rol === 3): ?>
-            <a href="index.php?url=admin_usuarios" class="card-dashboard">Gestionar Usuarios</a>
+        <?php if ($rol === 4): ?>
+            <a href="index.php?url=admin_usuarios" class="card-dashboard">Validar Pagos Admin</a>
+            <a href="index.php?url=gestion_escuelas" class="card-dashboard">Gestionar Escuelas</a>
+        <?php elseif ($rol === 3): ?>
             <a href="index.php?url=deportistas" class="card-dashboard">Gestionar Deportistas</a>
             <a href="index.php?action=listar" class="card-dashboard">Reporte de Facturas</a>
             <a href="index.php?url=productos" class="card-dashboard">Productos</a>
