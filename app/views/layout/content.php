@@ -38,13 +38,13 @@
                     </div>
                     <div class="carousel-inner">
                         <div class="carousel-item active">
-                            <img src="assets/img/icoaner.jpeg" class="d-block w-100" alt="Entrenamiento 1" loading="lazy">
+                            <img src="assets/img/125148621-equipos-de-entrenamiento-deportivo-de-fútbol-en-el-campo-de-entrenamiento-de-fútbol-al-aire-libre.jpg" class="d-block w-100" alt="Entrenamiento 1" loading="lazy">
                         </div>
                         <div class="carousel-item">
-                            <img src="assets/img/the-stadium-in-night-time-with-ai-generated-free-photo.jpg" class="d-block w-100" alt="Entrenamiento 2" loading="lazy">
+                            <img src="assets/img/UXINXTZHNNEOVMXLCMURUTHGXY.jpg" class="d-block w-100" alt="Entrenamiento 2" loading="lazy">
                         </div>
                         <div class="carousel-item">
-                            <img src="assets/img/logo_icoaner.jpg" class="d-block w-100" alt="Entrenamiento 3" loading="lazy">
+                            <img src="assets/img/images.jpg" class="d-block w-100" alt="Entrenamiento 3" loading="lazy">
                         </div>
                     </div>
                     <button class="carousel-control-prev" type="button" data-bs-target="#homeHeroCarousel" data-bs-slide="prev" aria-label="Anterior">
