@@ -6,9 +6,12 @@ document.addEventListener("DOMContentLoaded", function() {
 
     const emailInput = document.getElementById('email');
     const emailFeedback = document.getElementById('emailFeedback');
+    const emailHelp = document.getElementById('emailHelp');
     const idSpinner = document.getElementById('idSpinner');
     const emailSpinner = document.getElementById('emailSpinner');
     const submitBtn = document.querySelector('button[name="register"]');
+    let emailValidationInProgress = false;
+    let emailTimer = null;
 
     const validatePasswordRequirements = (val) => {
         return {
@@ -29,8 +32,14 @@ document.addEventListener("DOMContentLoaded", function() {
         const passwordIsValid = req.length && req.upper && req.lower && req.number && req.special;
 
         if (submitBtn) {
-            submitBtn.disabled = emailIsInvalid || idIsInvalid || !passwordIsValid;
+            submitBtn.disabled = emailIsInvalid || idIsInvalid || !passwordIsValid || emailValidationInProgress;
         }
+    };
+
+    const setEmailHelp = (text, isSuccess) => {
+        if (!emailHelp) return;
+        emailHelp.textContent = text;
+        emailHelp.className = isSuccess ? 'form-text text-success' : 'form-text text-danger';
     };
 
     const updateReq = (id, passed, text) => {
@@ -116,40 +125,81 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    if (emailInput) {
-        emailInput.addEventListener('blur', function() {
-            const email = this.value;
-            if (email.length > 0 && email.includes('@')) {
-                if (emailSpinner) emailSpinner.style.display = 'inline-block';
+    const validateEmailRealtime = () => {
+        if (!emailInput) return;
+        const email = emailInput.value.trim();
 
-                const formData = new FormData();
-                formData.append('email', email);
+        if (email === '') {
+            emailInput.classList.remove('is-invalid', 'is-valid');
+            if (emailFeedback) emailFeedback.textContent = 'Este correo ya esta registrado.';
+            if (emailHelp) emailHelp.textContent = '';
+            if (emailSpinner) emailSpinner.style.display = 'none';
+            emailValidationInProgress = false;
+            checkFormValidity();
+            return;
+        }
 
-                fetch('controller/checkEmailController.php', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (emailSpinner) emailSpinner.style.display = 'none';
+        const basicEmailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!basicEmailRegex.test(email)) {
+            emailInput.classList.add('is-invalid');
+            emailInput.classList.remove('is-valid');
+            if (emailFeedback) emailFeedback.textContent = 'El formato del correo no es valido.';
+            setEmailHelp('', false);
+            if (emailSpinner) emailSpinner.style.display = 'none';
+            emailValidationInProgress = false;
+            checkFormValidity();
+            return;
+        }
 
+        emailValidationInProgress = true;
+        checkFormValidity();
+        if (emailSpinner) emailSpinner.style.display = 'inline-block';
+
+        const formData = new FormData();
+        formData.append('email', email);
+
+        fetch('app/controllers/checkEmailController.php', {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.valid && data.exists === false) {
+                    emailInput.classList.remove('is-invalid');
+                    emailInput.classList.add('is-valid');
+                    if (emailFeedback) emailFeedback.textContent = 'Este correo ya esta registrado.';
+                    setEmailHelp('Correo valido y disponible.', true);
+                } else {
+                    emailInput.classList.add('is-invalid');
+                    emailInput.classList.remove('is-valid');
                     if (emailFeedback) {
-                        if (data.exists) {
-                            emailFeedback.style.display = 'block';
-                            emailInput.classList.add('is-invalid');
-                        } else {
-                            emailFeedback.style.display = 'none';
-                            emailInput.classList.remove('is-invalid');
-                        }
+                        emailFeedback.textContent = (data && data.message) ? data.message : 'No se pudo validar el correo.';
                     }
-                    checkFormValidity();
-                })
-                .catch(error => {
-                    if (emailSpinner) emailSpinner.style.display = 'none';
-                    console.error('Error:', error);
-                });
+                    setEmailHelp('', false);
+                }
+            })
+            .catch(() => {
+                emailInput.classList.add('is-invalid');
+                emailInput.classList.remove('is-valid');
+                if (emailFeedback) emailFeedback.textContent = 'No se pudo validar el correo. Intenta de nuevo.';
+                setEmailHelp('', false);
+            })
+            .finally(() => {
+                emailValidationInProgress = false;
+                if (emailSpinner) emailSpinner.style.display = 'none';
+                checkFormValidity();
+            });
+    };
+
+    if (emailInput) {
+        emailInput.addEventListener('input', function() {
+            if (emailTimer) {
+                clearTimeout(emailTimer);
             }
+            emailTimer = setTimeout(validateEmailRealtime, 350);
         });
+
+        emailInput.addEventListener('blur', validateEmailRealtime);
     }
 
     const registrationForm = document.querySelector('.needs-validation');

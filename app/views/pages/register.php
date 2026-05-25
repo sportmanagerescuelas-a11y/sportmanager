@@ -22,6 +22,33 @@ $registerErrorMap = [
     'db' => 'No se pudo crear la cuenta en este momento. IntÃ©ntalo nuevamente.',
 ];
 $registerErrorText = sm_error_text($registerErrorCode, $registerErrorMap);
+$registerSuccessCode = isset($_GET['success']) ? (string)$_GET['success'] : '';
+$registerSuccessText = '';
+if ($registerSuccessCode !== '') {
+    $registerSuccessText = $registerSuccessCode === '1'
+        ? 'Registro exitoso.'
+        : ($registerSuccessCode === 'payment_pending'
+            ? 'Registro exitoso. Tu pago sera revisado por el superadmin antes de aprobar tu cuenta.'
+            : 'Registro exitoso. Tu cuenta esta pendiente de aprobacion.');
+}
+
+$modalTitle = '';
+$modalMessage = '';
+$modalType = '';
+
+if ($registerErrorText !== '') {
+    $modalTitle = 'Fuera de juego';
+    $modalMessage = $registerErrorText;
+    $modalType = 'danger';
+} elseif ($registerSuccessText !== '') {
+    $modalTitle = 'Registro completado';
+    $modalMessage = $registerSuccessText;
+    $modalType = 'success';
+} elseif (empty($schools)) {
+    $modalTitle = 'Sin escuelas';
+    $modalMessage = 'Aun no hay escuelas registradas. Puedes registrarte como administrador para que, tras aprobacion, crees la primera escuela.';
+    $modalType = 'warning';
+}
 ?>
 <div class="container mt-5 mb-5">
     <div class="row justify-content-center">
@@ -31,10 +58,6 @@ $registerErrorText = sm_error_text($registerErrorCode, $registerErrorMap);
                     <h2 class="text-center">Crear cuenta</h2>
                 </div>
                 <div class="card-body">
-                    <?php if (empty($schools)): ?>
-                        <?php sm_render_alert('Aun no hay escuelas registradas. Puedes registrarte como administrador para que, tras aprobacion, crees la primera escuela.', 'Sin escuelas', 'warning', true); ?>
-                    <?php endif; ?>
-
                     <form action="controllers/registerController.php" method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
                         <div class="mb-3">
                             <label for="id_usuario" class="form-label">Numero de Documento</label>
@@ -76,7 +99,12 @@ $registerErrorText = sm_error_text($registerErrorCode, $registerErrorMap);
                         </div>
                         <div class="mb-3">
                             <label for="email" class="form-label">Correo Electronico</label>
-                            <input type="email" class="form-control" id="email" name="email" placeholder="tu@correo.com" required>
+                            <div class="position-relative">
+                                <input type="email" class="form-control" id="email" name="email" placeholder="tu@correo.com" required>
+                                <span id="emailSpinner" class="spinner-border spinner-border-sm text-primary position-absolute top-50 end-0 translate-middle-y me-3" style="display:none;" role="status" aria-hidden="true"></span>
+                            </div>
+                            <div id="emailFeedback" class="invalid-feedback">Este correo ya esta registrado.</div>
+                            <div id="emailHelp" class="form-text"></div>
                         </div>
                         <div class="mb-3">
                             <label for="password" class="form-label">Contrasena</label>
@@ -111,22 +139,20 @@ $registerErrorText = sm_error_text($registerErrorCode, $registerErrorMap);
                         </div>
                         <button type="submit" name="register" class="btn btn-primary w-100">Registrarse</button>
                     </form>
-
-                    <?php if ($registerErrorText !== ''): ?>
-                        <?php sm_render_alert($registerErrorText, 'Fuera de juego', 'danger', true); ?>
-                    <?php endif; ?>
-
-                    <?php if (isset($_GET['success'])): ?>
-                        <div class="mt-3 alert alert-success text-center">
-                            <?= $_GET['success'] === '1' ? 'Registro exitoso.' : ($_GET['success'] === 'payment_pending' ? 'Registro exitoso. Tu pago sera revisado por el superadmin antes de aprobar tu cuenta.' : 'Registro exitoso. Tu cuenta esta pendiente de aprobacion.') ?>
-                            <div class="mt-2"><a href="index.php?url=login" class="btn btn-success btn-sm">Aceptar</a></div>
-                        </div>
-                    <?php endif; ?>
                 </div>
             </div>
         </div>
     </div>
 </div>
+<?php if ($modalMessage !== ''): ?>
+    <?php
+    $actions = [];
+    if ($registerSuccessText !== '') {
+        $actions[] = '<a href="index.php?url=login" class="btn btn-success">Ir a iniciar sesion</a>';
+    }
+    sm_render_modal_message('registerMessageModal', $modalTitle, $modalMessage, $modalType, $actions);
+    ?>
+<?php endif; ?>
 <script src="assets/js/registercontroller.js?v=<?= urlencode($registerControllerVersion) ?>"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {

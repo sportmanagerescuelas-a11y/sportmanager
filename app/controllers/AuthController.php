@@ -1,6 +1,7 @@
 <?php
 $projectRoot = dirname(__DIR__, 2);
 require_once $projectRoot . "/app/models/User.php";
+require_once $projectRoot . "/app/helpers/ui.php";
 
 $autoloadPath = $projectRoot . "/vendor/autoload.php";
 if (file_exists($autoloadPath)) {

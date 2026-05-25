@@ -10,6 +10,20 @@ $loginErrorMap = [
     '404' => 'La pagina solicitada no existe o fue movida.',
 ];
 $loginErrorText = sm_error_text($loginErrorCode, $loginErrorMap);
+$loginModalTitle = '';
+$loginModalMessage = '';
+$loginModalType = '';
+
+if (!empty($_SESSION['flash_session_expired'])) {
+    $loginModalTitle = 'Sesion finalizada';
+    $loginModalMessage = 'Tu sesion expiro por inactividad. Inicia sesion de nuevo.';
+    $loginModalType = 'warning';
+    unset($_SESSION['flash_session_expired']);
+} elseif ($loginErrorText !== '') {
+    $loginModalTitle = 'No fue posible iniciar';
+    $loginModalMessage = $loginErrorText;
+    $loginModalType = 'danger';
+}
 ?>
 <div class="container-fluid mt-5 mb-5">
     <div class="row justify-content-center">
@@ -33,13 +47,6 @@ $loginErrorText = sm_error_text($loginErrorCode, $loginErrorMap);
                     <div class="text-end mt-2">
                         <a href="index.php?url=recuperar" class="btn btn-link p-0">&iquest;Olvidaste tu contrase&ntilde;a?</a>
                     </div>
-                    <?php if (!empty($_SESSION['flash_session_expired'])): ?>
-                        <?php sm_render_alert('Tu sesion expiro por inactividad. Inicia sesion de nuevo.', 'Sesion finalizada', 'warning', true); ?>
-                        <?php unset($_SESSION['flash_session_expired']); ?>
-                    <?php endif; ?>
-                    <?php if ($loginErrorText !== ''): ?>
-                        <?php sm_render_alert($loginErrorText, 'No fue posible iniciar', 'danger', true); ?>
-                    <?php endif; ?>
                     <div class="mt-3 text-center">
                         <p>&iquest;No tienes cuenta? <a href="index.php?url=register">Reg&iacute;strate aqu&iacute;</a></p>
                     </div>
@@ -48,3 +55,6 @@ $loginErrorText = sm_error_text($loginErrorCode, $loginErrorMap);
         </div>
     </div>
 </div>
+<?php if ($loginModalMessage !== ''): ?>
+    <?php sm_render_modal_message('loginMessageModal', $loginModalTitle, $loginModalMessage, $loginModalType); ?>
+<?php endif; ?>
