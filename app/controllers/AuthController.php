@@ -4,8 +4,29 @@ require_once $projectRoot . "/app/models/User.php";
 require_once $projectRoot . "/app/helpers/ui.php";
 
 $autoloadPath = $projectRoot . "/vendor/autoload.php";
+$phpMailerLoaded = false;
 if (file_exists($autoloadPath)) {
-    require_once $autoloadPath;
+    try {
+        require_once $autoloadPath;
+        $phpMailerLoaded = class_exists('PHPMailer\\PHPMailer\\PHPMailer');
+    } catch (Throwable $e) {
+        error_log('No se pudo cargar Composer autoload en AuthController: ' . $e->getMessage());
+    }
+}
+
+if (!$phpMailerLoaded) {
+    $phpMailerBasePath = $projectRoot . '/vendor/phpmailer/phpmailer/src/';
+    $phpMailerFiles = [
+        'Exception.php',
+        'PHPMailer.php',
+        'SMTP.php',
+    ];
+    foreach ($phpMailerFiles as $file) {
+        $fullPath = $phpMailerBasePath . $file;
+        if (is_file($fullPath)) {
+            require_once $fullPath;
+        }
+    }
 }
 
 use PHPMailer\PHPMailer\PHPMailer;
@@ -28,7 +49,17 @@ class AuthController
 
     public function enviarReset(): void
     {
-        $email = $_POST['email'] ?? '';
+        $emailRaw = $_POST['email'] ?? '';
+        $email = trim((string)$emailRaw);
+        if ($email === '') {
+            header('Location: index.php?url=recuperar&error=empty');
+            exit;
+        }
+        if (filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
+            header('Location: index.php?url=recuperar&error=invalidemail');
+            exit;
+        }
+
         $user = $this->user->findByEmail($email);
 
         if ($user) {

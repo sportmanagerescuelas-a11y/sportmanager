@@ -53,6 +53,7 @@ class PagesController
                 $error = 'Corrige los siguientes errores para crear la escuela.';
             } else {
                 try {
+                    $payload['escudo_path'] = $this->storeSchoolShield((string)($payload['escudo_path'] ?? ''));
                     $schoolId = $this->model()->createSchool($payload);
                     if ($schoolId !== false) {
                         if ($isAdminOnboarding) {
@@ -104,9 +105,11 @@ class PagesController
 
             if (!empty($errorDetails)) {
                 $error = 'Corrige los siguientes errores para actualizar la escuela.';
-            } elseif ($this->model()->updateSchool($id, $payload)) {
-                $this->redirect('index.php?url=gestion_escuelas&updated=1');
             } else {
+                $payload['escudo_path'] = $this->storeSchoolShield((string)($payload['escudo_path'] ?? ''));
+                if ($this->model()->updateSchool($id, $payload)) {
+                    $this->redirect('index.php?url=gestion_escuelas&updated=1');
+                }
                 $dbError = $this->model()->lastError();
                 $error = $dbError !== '' ? ('No se pudo actualizar la escuela: ' . $dbError) : 'No se pudo actualizar la escuela.';
             }
@@ -571,6 +574,8 @@ class PagesController
             'direccion' => '',
             'escudo_path' => '',
             'firma_path' => '',
+            'color_primario' => '#0d6efd',
+            'color_secundario' => '#198754',
         ];
     }
 
@@ -586,8 +591,10 @@ class PagesController
             'pass_app' => trim((string)($_POST['pass_app'] ?? '')),
             'telefono' => trim((string)($_POST['telefono'] ?? '')),
             'direccion' => trim((string)($_POST['direccion'] ?? '')),
-            'escudo_path' => trim((string)($_POST['escudo_path'] ?? '')) ?: null,
+            'escudo_path' => trim((string)($_POST['current_escudo_path'] ?? '')) ?: null,
             'firma_path' => trim((string)($_POST['firma_path'] ?? '')) ?: null,
+            'color_primario' => $this->normalizeHexColor((string)($_POST['color_primario'] ?? ''), '#0d6efd'),
+            'color_secundario' => $this->normalizeHexColor((string)($_POST['color_secundario'] ?? ''), '#198754'),
         ];
     }
 
@@ -605,6 +612,8 @@ class PagesController
             'direccion' => (string)($payload['direccion'] ?? ''),
             'escudo_path' => (string)($payload['escudo_path'] ?? ''),
             'firma_path' => (string)($payload['firma_path'] ?? ''),
+            'color_primario' => (string)($payload['color_primario'] ?? '#0d6efd'),
+            'color_secundario' => (string)($payload['color_secundario'] ?? '#198754'),
         ]);
     }
 
@@ -644,8 +653,52 @@ class PagesController
         if ($payload['direccion'] === '') {
             $errors[] = 'La direccion es obligatoria.';
         }
+        if (!preg_match('/^#[0-9A-Fa-f]{6}$/', (string)$payload['color_primario'])) {
+            $errors[] = 'El color primario no es valido.';
+        }
+        if (!preg_match('/^#[0-9A-Fa-f]{6}$/', (string)$payload['color_secundario'])) {
+            $errors[] = 'El color secundario no es valido.';
+        }
 
         return $errors;
+    }
+
+    private function normalizeHexColor(string $value, string $fallback): string
+    {
+        $trimmed = trim($value);
+        if (preg_match('/^#[0-9A-Fa-f]{6}$/', $trimmed) === 1) {
+            return strtolower($trimmed);
+        }
+        return $fallback;
+    }
+
+    private function storeSchoolShield(string $currentPath = ''): ?string
+    {
+        if (empty($_FILES['escudo_file']['tmp_name']) || empty($_FILES['escudo_file']['name'])) {
+            return $currentPath !== '' ? $currentPath : null;
+        }
+
+        $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
+        $originalName = (string)$_FILES['escudo_file']['name'];
+        $extension = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
+        if (!in_array($extension, $allowedExtensions, true)) {
+            return $currentPath !== '' ? $currentPath : null;
+        }
+
+        $safeName = preg_replace('/[^A-Za-z0-9._-]/', '_', $originalName);
+        $randomPart = bin2hex(random_bytes(4));
+        $fileName = 'escudo_' . time() . '_' . $randomPart . '_' . $safeName;
+        $targetDir = dirname(__DIR__, 2) . '/fotos/escudos';
+        if (!is_dir($targetDir)) {
+            mkdir($targetDir, 0775, true);
+        }
+
+        $targetPath = $targetDir . '/' . $fileName;
+        if (!move_uploaded_file($_FILES['escudo_file']['tmp_name'], $targetPath)) {
+            return $currentPath !== '' ? $currentPath : null;
+        }
+
+        return 'fotos/escudos/' . $fileName;
     }
 
     private function schoolActionError(string $code): string

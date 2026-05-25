@@ -21,6 +21,8 @@ $formData = array_merge([
     'direccion' => '',
     'escudo_path' => '',
     'firma_path' => '',
+    'color_primario' => '#0d6efd',
+    'color_secundario' => '#198754',
 ], $formData);
 ?>
 <div class="container mt-5 mb-5">
@@ -45,7 +47,7 @@ $formData = array_merge([
                         </div>
                     <?php endif; ?>
 
-                    <form action="<?= htmlspecialchars($formAction, ENT_QUOTES, 'UTF-8') ?>" method="POST" class="needs-validation" novalidate>
+                    <form action="<?= htmlspecialchars($formAction, ENT_QUOTES, 'UTF-8') ?>" method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <label class="form-label" for="nombre">Nombre de escuela</label>
@@ -84,8 +86,22 @@ $formData = array_merge([
                                 <input type="text" class="form-control" id="direccion" name="direccion" maxlength="50" value="<?= htmlspecialchars((string)$formData['direccion'], ENT_QUOTES, 'UTF-8') ?>" required>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label" for="escudo_path">Ruta escudo (opcional)</label>
-                                <input type="text" class="form-control" id="escudo_path" name="escudo_path" maxlength="255" value="<?= htmlspecialchars((string)$formData['escudo_path'], ENT_QUOTES, 'UTF-8') ?>" placeholder="assets/img/escudo.png">
+                                <label class="form-label" for="color_primario">Color primario</label>
+                                <input type="color" class="form-control form-control-color w-100" id="color_primario" name="color_primario" value="<?= htmlspecialchars((string)$formData['color_primario'], ENT_QUOTES, 'UTF-8') ?>" title="Selecciona color primario">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="color_secundario">Color secundario</label>
+                                <input type="color" class="form-control form-control-color w-100" id="color_secundario" name="color_secundario" value="<?= htmlspecialchars((string)$formData['color_secundario'], ENT_QUOTES, 'UTF-8') ?>" title="Selecciona color secundario">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="escudo_file">Escudo de la escuela (archivo)</label>
+                                <input type="file" class="form-control" id="escudo_file" name="escudo_file" accept=".jpg,.jpeg,.png,.webp,.gif">
+                                <input type="hidden" name="current_escudo_path" value="<?= htmlspecialchars((string)$formData['escudo_path'], ENT_QUOTES, 'UTF-8') ?>">
+                                <?php if ((string)$formData['escudo_path'] !== ''): ?>
+                                    <div class="mt-2">
+                                        <img src="<?= htmlspecialchars((string)$formData['escudo_path'], ENT_QUOTES, 'UTF-8') ?>" alt="Escudo actual" style="max-height: 80px;">
+                                    </div>
+                                <?php endif; ?>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label" for="firma_path">Ruta firma (opcional)</label>

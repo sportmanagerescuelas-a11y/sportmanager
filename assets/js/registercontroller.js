@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const password = document.getElementById('password');
 
     const idInput = document.getElementById('id_usuario');
-    const idFeedback = document.getElementById('documentFeedback');
+    const idFeedback = document.getElementById('id_usuarioFeedback');
 
     const emailInput = document.getElementById('email');
     const emailFeedback = document.getElementById('emailFeedback');
@@ -40,6 +40,18 @@ document.addEventListener("DOMContentLoaded", function() {
         if (!emailHelp) return;
         emailHelp.textContent = text;
         emailHelp.className = isSuccess ? 'form-text text-success' : 'form-text text-danger';
+    };
+
+    const setEmailInvalidMessage = (message) => {
+        if (!emailFeedback) return;
+        emailFeedback.textContent = message;
+        emailFeedback.style.display = 'block';
+    };
+
+    const setIdInvalidMessage = (message) => {
+        if (!idFeedback) return;
+        idFeedback.textContent = message;
+        idFeedback.style.display = 'block';
     };
 
     const updateReq = (id, passed, text) => {
@@ -90,38 +102,56 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     if (idInput) {
-        idInput.addEventListener('blur', function() {
-            const id_usuario = this.value;
-            if (id_usuario.length > 0) {
-                if (idSpinner) idSpinner.style.display = 'inline-block';
-
-                const formData = new FormData();
-                formData.append('id_usuario', id_usuario);
-
-                fetch('controller/checkDocumentController.php', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (idSpinner) idSpinner.style.display = 'none';
-
-                    if (idFeedback) {
-                        if (data.exists) {
-                            idFeedback.style.display = 'block';
-                            idInput.classList.add('is-invalid');
-                        } else {
-                            idFeedback.style.display = 'none';
-                            idInput.classList.remove('is-invalid');
-                        }
-                    }
-                    checkFormValidity();
-                })
-                .catch(error => {
-                    if (idSpinner) idSpinner.style.display = 'none';
-                    console.error('Error:', error);
-                });
+        idInput.addEventListener('blur', function () {
+            const id_usuario = this.value.trim();
+            if (id_usuario.length === 0) {
+                idInput.classList.remove('is-invalid', 'is-valid');
+                if (idFeedback) {
+                    idFeedback.style.display = '';
+                }
+                checkFormValidity();
+                return;
             }
+
+            if (!/^\d+$/.test(id_usuario)) {
+                idInput.classList.add('is-invalid');
+                idInput.classList.remove('is-valid');
+                setIdInvalidMessage('El documento solo debe contener numeros.');
+                checkFormValidity();
+                return;
+            }
+
+            if (idSpinner) idSpinner.style.display = 'inline-block';
+
+            const formData = new FormData();
+            formData.append('id_usuario', id_usuario);
+
+            fetch('controllers/checkDocumentController.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.valid && data.exists === false) {
+                    idInput.classList.remove('is-invalid');
+                    idInput.classList.add('is-valid');
+                    if (idFeedback) idFeedback.style.display = '';
+                } else {
+                    idInput.classList.add('is-invalid');
+                    idInput.classList.remove('is-valid');
+                    setIdInvalidMessage((data && data.message) ? data.message : 'No se pudo validar el documento.');
+                }
+                checkFormValidity();
+            })
+            .catch(() => {
+                idInput.classList.add('is-invalid');
+                idInput.classList.remove('is-valid');
+                setIdInvalidMessage('No se pudo validar el documento. Intenta de nuevo.');
+                checkFormValidity();
+            })
+            .finally(() => {
+                if (idSpinner) idSpinner.style.display = 'none';
+            });
         });
     }
 
@@ -131,7 +161,10 @@ document.addEventListener("DOMContentLoaded", function() {
 
         if (email === '') {
             emailInput.classList.remove('is-invalid', 'is-valid');
-            if (emailFeedback) emailFeedback.textContent = 'Este correo ya esta registrado.';
+            if (emailFeedback) {
+                emailFeedback.textContent = 'Este correo ya esta registrado.';
+                emailFeedback.style.display = '';
+            }
             if (emailHelp) emailHelp.textContent = '';
             if (emailSpinner) emailSpinner.style.display = 'none';
             emailValidationInProgress = false;
@@ -143,7 +176,7 @@ document.addEventListener("DOMContentLoaded", function() {
         if (!basicEmailRegex.test(email)) {
             emailInput.classList.add('is-invalid');
             emailInput.classList.remove('is-valid');
-            if (emailFeedback) emailFeedback.textContent = 'El formato del correo no es valido.';
+            setEmailInvalidMessage('El formato del correo no es valido.');
             setEmailHelp('', false);
             if (emailSpinner) emailSpinner.style.display = 'none';
             emailValidationInProgress = false;
@@ -158,7 +191,7 @@ document.addEventListener("DOMContentLoaded", function() {
         const formData = new FormData();
         formData.append('email', email);
 
-        fetch('app/controllers/checkEmailController.php', {
+        fetch('controllers/checkEmailController.php', {
             method: 'POST',
             body: formData
         })
@@ -167,21 +200,22 @@ document.addEventListener("DOMContentLoaded", function() {
                 if (data && data.valid && data.exists === false) {
                     emailInput.classList.remove('is-invalid');
                     emailInput.classList.add('is-valid');
-                    if (emailFeedback) emailFeedback.textContent = 'Este correo ya esta registrado.';
+                    if (emailFeedback) {
+                        emailFeedback.textContent = 'Este correo ya esta registrado.';
+                        emailFeedback.style.display = '';
+                    }
                     setEmailHelp('Correo valido y disponible.', true);
                 } else {
                     emailInput.classList.add('is-invalid');
                     emailInput.classList.remove('is-valid');
-                    if (emailFeedback) {
-                        emailFeedback.textContent = (data && data.message) ? data.message : 'No se pudo validar el correo.';
-                    }
+                    setEmailInvalidMessage((data && data.message) ? data.message : 'No se pudo validar el correo.');
                     setEmailHelp('', false);
                 }
             })
             .catch(() => {
                 emailInput.classList.add('is-invalid');
                 emailInput.classList.remove('is-valid');
-                if (emailFeedback) emailFeedback.textContent = 'No se pudo validar el correo. Intenta de nuevo.';
+                setEmailInvalidMessage('No se pudo validar el correo. Intenta de nuevo.');
                 setEmailHelp('', false);
             })
             .finally(() => {

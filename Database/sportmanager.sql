@@ -783,3 +783,6 @@ COMMIT;
 -- SELECT id_usuario, nombres, apellidos, email, id_rol, estado, habilitado
 -- FROM usuarios
 -- WHERE id_usuario = @superadmin_id;
+
+
+

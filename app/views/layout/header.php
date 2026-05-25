@@ -5,6 +5,49 @@
     <?php
     $stylePath = __DIR__ . '/../../../assets/css/style.css';
     $styleVersion = is_file($stylePath) ? (string)filemtime($stylePath) : (string)time();
+    $schoolPrimaryColor = '#212529';
+    $schoolSecondaryColor = '#001285';
+    $schoolShieldPath = 'assets/img/logo_icoaner.jpg';
+    $brandName = 'Proyecto SM';
+
+    if (isset($_SESSION['usuario']['id_escuela']) && (int)$_SESSION['usuario']['id_escuela'] > 0) {
+        try {
+            require_once __DIR__ . '/../../../config/conexion.php';
+            $schoolDb = null;
+            if (isset($conexion) && $conexion instanceof PDO) {
+                $schoolDb = $conexion;
+            } elseif (class_exists('Database') && method_exists('Database', 'getConnection')) {
+                $schoolDb = Database::getConnection();
+            }
+
+            if ($schoolDb instanceof PDO) {
+                $schoolStmt = $schoolDb->prepare('SELECT nombre, color_primario, color_secundario, escudo_path FROM escuelas WHERE id_escuela = ? LIMIT 1');
+                $schoolStmt->execute([(int)$_SESSION['usuario']['id_escuela']]);
+                $schoolTheme = $schoolStmt->fetch(PDO::FETCH_ASSOC);
+                if (is_array($schoolTheme)) {
+                    $schoolName = trim((string)($schoolTheme['nombre'] ?? ''));
+                    $primary = (string)($schoolTheme['color_primario'] ?? '');
+                    $secondary = (string)($schoolTheme['color_secundario'] ?? '');
+                    $shield = (string)($schoolTheme['escudo_path'] ?? '');
+                    $role = (int)($_SESSION['rol'] ?? 0);
+                    if ($role === 3 && $schoolName !== '') {
+                        $brandName = $schoolName;
+                    }
+                    if (preg_match('/^#[0-9A-Fa-f]{6}$/', $primary) === 1) {
+                        $schoolPrimaryColor = strtolower($primary);
+                    }
+                    if (preg_match('/^#[0-9A-Fa-f]{6}$/', $secondary) === 1) {
+                        $schoolSecondaryColor = strtolower($secondary);
+                    }
+                    if ($shield !== '') {
+                        $schoolShieldPath = $shield;
+                    }
+                }
+            }
+        } catch (Throwable) {
+            // Mantener tema por defecto si falla la consulta.
+        }
+    }
     ?>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,7 +60,7 @@
 
 <body>
     <header>
-        <div class="top-bar bg-dark text-white py-1">
+        <div class="top-bar text-white py-1" style="background-color: <?= htmlspecialchars($schoolPrimaryColor, ENT_QUOTES, 'UTF-8') ?>;">
             <div class="container d-flex justify-content-between">
                 <span>Email: sportmanager.escuelas@gmail.com | Tel: 601 577 1818</span>
                 <div>
@@ -28,11 +71,11 @@
             </div>
         </div>
 
-        <nav class="navbar navbar-expand-lg navbar-light custom-navbar">
+        <nav class="navbar navbar-expand-lg navbar-light custom-navbar" style="border-bottom: 4px solid <?= htmlspecialchars($schoolSecondaryColor, ENT_QUOTES, 'UTF-8') ?>;">
             <div class="container">
                 <a class="navbar-brand d-flex align-items-center" href="index.php">
-                    <img src="assets/img/logo_icoaner.jpg" alt="Logo" class="logo-nav me-2">
-                    <span>Proyecto SM</span>
+                    <img src="<?= htmlspecialchars($schoolShieldPath, ENT_QUOTES, 'UTF-8') ?>" alt="Logo" class="logo-nav me-2">
+                    <span><?= htmlspecialchars($brandName, ENT_QUOTES, 'UTF-8') ?></span>
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                     aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">

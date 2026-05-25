@@ -22,6 +22,52 @@ $registerErrorMap = [
     'db' => 'No se pudo crear la cuenta en este momento. IntÃ©ntalo nuevamente.',
 ];
 $registerErrorText = sm_error_text($registerErrorCode, $registerErrorMap);
+$fieldErrorMap = [
+    'id_usuario' => [
+        'empty' => 'Debes ingresar tu numero de documento.',
+        'duplicateid' => 'Ya existe un usuario con ese numero de documento.',
+    ],
+    'tipo_documento' => [
+        'empty' => 'Debes seleccionar un tipo de documento.',
+    ],
+    'id_escuela' => [
+        'empty' => 'Debes seleccionar una escuela.',
+        'school' => 'La escuela seleccionada no existe. Elige una escuela valida.',
+    ],
+    'nombres' => [
+        'empty' => 'Debes ingresar tus nombres.',
+    ],
+    'apellidos' => [
+        'empty' => 'Debes ingresar tus apellidos.',
+    ],
+    'email' => [
+        'empty' => 'Debes ingresar tu correo electronico.',
+        'invalidemail' => 'El formato del correo no es valido.',
+        'duplicateemail' => 'Este correo ya esta registrado.',
+    ],
+    'password' => [
+        'empty' => 'Debes ingresar una contrasena.',
+        'password' => 'La contrasena no cumple los requisitos minimos.',
+    ],
+    'telefono' => [
+        'empty' => 'Debes ingresar tu telefono.',
+        'phone' => 'El telefono debe tener entre 7 y 11 digitos.',
+    ],
+    'comprobante_pago' => [
+        'comprobante' => 'Debes adjuntar el comprobante de pago para administrador.',
+        'comprobante_upload' => 'No se pudo guardar el comprobante. Intentalo de nuevo.',
+    ],
+];
+
+$activeFieldError = ['field' => '', 'message' => ''];
+foreach ($fieldErrorMap as $fieldId => $codes) {
+    if (isset($codes[$registerErrorCode])) {
+        $activeFieldError['field'] = $fieldId;
+        $activeFieldError['message'] = $codes[$registerErrorCode];
+        break;
+    }
+}
+
 $registerSuccessCode = isset($_GET['success']) ? (string)$_GET['success'] : '';
 $registerSuccessText = '';
 if ($registerSuccessCode !== '') {
@@ -36,7 +82,7 @@ $modalTitle = '';
 $modalMessage = '';
 $modalType = '';
 
-if ($registerErrorText !== '') {
+if ($registerErrorText !== '' && $activeFieldError['field'] === '') {
     $modalTitle = 'Fuera de juego';
     $modalMessage = $registerErrorText;
     $modalType = 'danger';
@@ -61,8 +107,11 @@ if ($registerErrorText !== '') {
                     <form action="controllers/registerController.php" method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
                         <div class="mb-3">
                             <label for="id_usuario" class="form-label">Numero de Documento</label>
-                            <input type="number" class="form-control" id="id_usuario" name="id_usuario" placeholder="Tu numero de documento" required>
-                            <div class="invalid-feedback">Por favor ingrese su numero de documento.</div>
+                            <div class="position-relative">
+                                <input type="number" class="form-control" id="id_usuario" name="id_usuario" placeholder="Tu numero de documento" required>
+                                <span id="idSpinner" class="spinner-border spinner-border-sm text-primary position-absolute top-50 end-0 translate-middle-y me-3" style="display:none;" role="status" aria-hidden="true"></span>
+                            </div>
+                            <div class="invalid-feedback" id="id_usuarioFeedback">Por favor ingrese su numero de documento.</div>
                         </div>
                         <div class="mb-3">
                             <label for="tipo_documento" class="form-label">Tipo de Documento</label>
@@ -74,7 +123,7 @@ if ($registerErrorText !== '') {
                                 <option value="PAS">PAS - Pasaporte</option>
                                 <option value="PEP">PEP - Permiso Especial de Permanencia</option>
                             </select>
-                            <div class="invalid-feedback">Seleccione un tipo de documento.</div>
+                            <div class="invalid-feedback" id="tipo_documentoFeedback">Seleccione un tipo de documento.</div>
                         </div>
                         <div class="mb-3" id="schoolWrap">
                             <label for="id_escuela" class="form-label">Escuela</label>
@@ -87,15 +136,17 @@ if ($registerErrorText !== '') {
                                     </option>
                                 <?php endforeach; ?>
                             </select>
-                            <div class="invalid-feedback">Debes seleccionar una escuela.</div>
+                            <div class="invalid-feedback" id="id_escuelaFeedback">Debes seleccionar una escuela.</div>
                         </div>
                         <div class="mb-3">
                             <label for="nombres" class="form-label">Nombres</label>
                             <input type="text" class="form-control" id="nombres" name="nombres" placeholder="Tu nombre" required>
+                            <div class="invalid-feedback" id="nombresFeedback">Debes ingresar tus nombres.</div>
                         </div>
                         <div class="mb-3">
                             <label for="apellidos" class="form-label">Apellidos</label>
                             <input type="text" class="form-control" id="apellidos" name="apellidos" placeholder="Tus apellidos" required>
+                            <div class="invalid-feedback" id="apellidosFeedback">Debes ingresar tus apellidos.</div>
                         </div>
                         <div class="mb-3">
                             <label for="email" class="form-label">Correo Electronico</label>
@@ -109,6 +160,7 @@ if ($registerErrorText !== '') {
                         <div class="mb-3">
                             <label for="password" class="form-label">Contrasena</label>
                             <input type="password" class="form-control" id="password" name="password" placeholder="Crea una contrasena" required>
+                            <div class="invalid-feedback" id="passwordFeedback">Debes ingresar una contrasena valida.</div>
                             <small id="passwordHelp" class="form-text text-muted">
                                 La contrasena debe cumplir todos estos requisitos:
                             </small>
@@ -124,6 +176,7 @@ if ($registerErrorText !== '') {
                         <div class="mb-3">
                             <label for="telefono" class="form-label">Telefono</label>
                             <input type="tel" class="form-control" id="telefono" name="telefono" placeholder="Tu telefono" required>
+                            <div class="invalid-feedback" id="telefonoFeedback">Debes ingresar un telefono valido.</div>
                         </div>
                         <div class="mb-3">
                             <label for="id_rol" class="form-label">Rol</label>
@@ -136,6 +189,7 @@ if ($registerErrorText !== '') {
                         <div class="mb-3" id="comprobantePagoWrap" style="display:none;">
                             <label for="comprobante_pago" class="form-label">Comprobante de pago (solo administrador)</label>
                             <input type="file" class="form-control" id="comprobante_pago" name="comprobante_pago" accept=".jpg,.jpeg,.png,.pdf">
+                            <div class="invalid-feedback" id="comprobante_pagoFeedback">Debes adjuntar el comprobante.</div>
                         </div>
                         <button type="submit" name="register" class="btn btn-primary w-100">Registrarse</button>
                     </form>
@@ -144,14 +198,34 @@ if ($registerErrorText !== '') {
         </div>
     </div>
 </div>
-<?php if ($modalMessage !== ''): ?>
-    <?php
-    $actions = [];
-    if ($registerSuccessText !== '') {
-        $actions[] = '<a href="index.php?url=login" class="btn btn-success">Ir a iniciar sesion</a>';
-    }
-    sm_render_modal_message('registerMessageModal', $modalTitle, $modalMessage, $modalType, $actions);
-    ?>
+<?php if ($registerSuccessText !== ''): ?>
+    <div class="modal fade" id="registerMessageModal" tabindex="-1" aria-labelledby="registerMessageModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-white border border-success border-3">
+                <div class="modal-header border-0 justify-content-center pb-0">
+                    <h5 class="modal-title text-center w-100" id="registerMessageModalLabel">Registro exitoso</h5>
+                </div>
+                <div class="modal-body text-center pt-2">
+                    <img src="assets/img/controlar.gif" alt="Registro exitoso" class="img-fluid mb-3" style="max-height: 180px;">
+                    <p class="mb-0"><?= htmlspecialchars($registerSuccessText, ENT_QUOTES, 'UTF-8') ?></p>
+                </div>
+                <div class="modal-footer border-0 justify-content-center pt-0">
+                    <a href="index.php?url=login" class="btn btn-success px-4">Aceptar</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const modalElement = document.getElementById('registerMessageModal');
+        if (modalElement && window.bootstrap && bootstrap.Modal) {
+            const modal = new bootstrap.Modal(modalElement, { backdrop: 'static', keyboard: false });
+            modal.show();
+        }
+    });
+    </script>
+<?php elseif ($modalMessage !== ''): ?>
+    <?php sm_render_modal_message('registerMessageModal', $modalTitle, $modalMessage, $modalType); ?>
 <?php endif; ?>
 <script src="assets/js/registercontroller.js?v=<?= urlencode($registerControllerVersion) ?>"></script>
 <script>
@@ -177,6 +251,23 @@ document.addEventListener('DOMContentLoaded', function () {
 
     roleSelect.addEventListener('change', sync);
     sync();
+
+    const serverFieldError = {
+        field: '<?= htmlspecialchars($activeFieldError['field'], ENT_QUOTES, 'UTF-8') ?>',
+        message: '<?= htmlspecialchars($activeFieldError['message'], ENT_QUOTES, 'UTF-8') ?>'
+    };
+
+    if (serverFieldError.field !== '') {
+        const field = document.getElementById(serverFieldError.field);
+        const feedback = document.getElementById(serverFieldError.field + 'Feedback');
+        if (field) {
+            field.classList.add('is-invalid');
+            field.focus();
+        }
+        if (feedback && serverFieldError.message !== '') {
+            feedback.textContent = serverFieldError.message;
+        }
+    }
 });
 </script>
 

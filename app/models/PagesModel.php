@@ -10,6 +10,7 @@ class PagesModel
         require_once dirname(__DIR__, 2) . '/config/conexion.php';
         if (isset($conexion) && $conexion instanceof PDO) {
             $this->db = $conexion;
+            $this->ensureSchoolCustomizationColumns();
             return;
         }
 
@@ -17,10 +18,30 @@ class PagesModel
             /** @var PDO $pdo */
             $pdo = Database::getConnection();
             $this->db = $pdo;
+            $this->ensureSchoolCustomizationColumns();
             return;
         }
 
         throw new RuntimeException('No se pudo inicializar la conexion de base de datos en PagesModel.');
+    }
+
+    private function ensureSchoolCustomizationColumns(): void
+    {
+        try {
+            $primaryExistsStmt = $this->db->query("SHOW COLUMNS FROM escuelas LIKE 'color_primario'");
+            $primaryExists = $primaryExistsStmt !== false && $primaryExistsStmt->fetch(PDO::FETCH_ASSOC) !== false;
+            if (!$primaryExists) {
+                $this->db->exec("ALTER TABLE escuelas ADD COLUMN color_primario CHAR(7) NOT NULL DEFAULT '#0d6efd' AFTER firma_path");
+            }
+
+            $secondaryExistsStmt = $this->db->query("SHOW COLUMNS FROM escuelas LIKE 'color_secundario'");
+            $secondaryExists = $secondaryExistsStmt !== false && $secondaryExistsStmt->fetch(PDO::FETCH_ASSOC) !== false;
+            if (!$secondaryExists) {
+                $this->db->exec("ALTER TABLE escuelas ADD COLUMN color_secundario CHAR(7) NOT NULL DEFAULT '#198754' AFTER color_primario");
+            }
+        } catch (Throwable) {
+            // Si falla, el sistema sigue funcionando con valores por defecto en vista.
+        }
     }
 
     public function pendingUsers(): array
@@ -150,9 +171,9 @@ class PagesModel
             $nextId = (int)$this->db->query('SELECT COALESCE(MAX(id_escuela), 0) + 1 FROM escuelas')->fetchColumn();
             $stmt = $this->db->prepare("
                 INSERT INTO escuelas
-                (id_escuela, nombre, disciplina, dia_pago, valor_inscripcion, valor_mensualidad, correo, pass_app, telefono, direccion, escudo_path, firma_path)
+                (id_escuela, nombre, disciplina, dia_pago, valor_inscripcion, valor_mensualidad, correo, pass_app, telefono, direccion, escudo_path, firma_path, color_primario, color_secundario)
                 VALUES
-                (:id_escuela, :nombre, :disciplina, :dia_pago, :valor_inscripcion, :valor_mensualidad, :correo, :pass_app, :telefono, :direccion, :escudo_path, :firma_path)
+                (:id_escuela, :nombre, :disciplina, :dia_pago, :valor_inscripcion, :valor_mensualidad, :correo, :pass_app, :telefono, :direccion, :escudo_path, :firma_path, :color_primario, :color_secundario)
             ");
 
             $ok = $stmt->execute([
@@ -168,6 +189,8 @@ class PagesModel
                 ':direccion' => $data['direccion'],
                 ':escudo_path' => $data['escudo_path'],
                 ':firma_path' => $data['firma_path'],
+                ':color_primario' => $data['color_primario'],
+                ':color_secundario' => $data['color_secundario'],
             ]);
 
             if (!$ok) {
@@ -207,7 +230,9 @@ class PagesModel
                     telefono = :telefono,
                     direccion = :direccion,
                     escudo_path = :escudo_path,
-                    firma_path = :firma_path
+                    firma_path = :firma_path,
+                    color_primario = :color_primario,
+                    color_secundario = :color_secundario
                 WHERE id_escuela = :id_escuela
             ");
 
@@ -224,6 +249,8 @@ class PagesModel
                 ':direccion' => $data['direccion'],
                 ':escudo_path' => $data['escudo_path'],
                 ':firma_path' => $data['firma_path'],
+                ':color_primario' => $data['color_primario'],
+                ':color_secundario' => $data['color_secundario'],
             ]);
 
             if (!$ok) {

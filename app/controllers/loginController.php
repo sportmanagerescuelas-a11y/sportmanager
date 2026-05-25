@@ -8,7 +8,7 @@ require_once __DIR__ . '/../models/Usuario.php';
 if (isset($_POST["login"])) {
 
     if (empty($_POST["email"]) || empty($_POST["password"])) {
-        header("Location: ../index.php?url=login&error=1"); // Error generico para no dar pistas
+        header("Location: ../index.php?url=login&error=empty");
         exit();
     }
 
@@ -17,7 +17,7 @@ if (isset($_POST["login"])) {
     $password = $_POST["password"]; // La contrase??a no se sanitiza para poder compararla con el hash
 
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        header("Location: ../index.php?url=login&error=1"); // Error generico para no dar pistas
+        header("Location: ../index.php?url=login&error=invalidemail");
         exit();
     }
 
