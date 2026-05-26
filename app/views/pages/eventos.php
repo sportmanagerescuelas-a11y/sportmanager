@@ -22,7 +22,7 @@ $rol = (int)($_SESSION['rol'] ?? 0);
                 $idEvento = (int)($e['id_evento'] ?? 0);
                 $tituloEvento = (string)($e['titulo'] ?? 'Pago');
                 $costoEvento = (float)($e['costo'] ?? 0);
-                $urlPagar = 'index.php?url=iniciar'
+                $urlPagar = 'iniciar'
                     . '&id_evento=' . urlencode((string)$idEvento)
                     . '&evento=' . urlencode($tituloEvento)
                     . '&monto=' . urlencode((string)$costoEvento)

@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 $viewData = get_defined_vars();
 $productos = is_array($viewData['productos'] ?? null) ? $viewData['productos'] : [];
 
@@ -45,20 +45,20 @@ function normalize_image_src(string $value): string
 
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
         <div class="container">
-            <a class="navbar-brand" href="index.php?url=productos">Gestion de Productos</a>
+            <a class="navbar-brand" href="productos">Gestion de Productos</a>
             <div class="ms-auto dropdown">
                 <button class="btn btn-outline-light btn-sm dropdown-toggle" type="button" id="adminMenuProductos" data-bs-toggle="dropdown" aria-expanded="false">
                     Menu admin
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="adminMenuProductos">
-                    <li><a class="dropdown-item" href="index.php?url=dashboard">Mi panel</a></li>
-                    <li><a class="dropdown-item" href="index.php?url=admin_usuarios">Gestionar usuarios</a></li>
-                    <li><a class="dropdown-item" href="index.php?url=deportistas">Deportistas</a></li>
-                    <li><a class="dropdown-item" href="index.php?url=gestion_eventos">Eventos</a></li>
-                    <li><a class="dropdown-item" href="index.php?url=reportes">Reportes</a></li>
-                    <li><a class="dropdown-item" href="index.php?url=productos">Productos</a></li>
+                    <li><a class="dropdown-item" href="dashboard">Mi panel</a></li>
+                    <li><a class="dropdown-item" href="admin_usuarios">Gestionar usuarios</a></li>
+                    <li><a class="dropdown-item" href="deportistas">Deportistas</a></li>
+                    <li><a class="dropdown-item" href="gestion_eventos">Eventos</a></li>
+                    <li><a class="dropdown-item" href="reportes">Reportes</a></li>
+                    <li><a class="dropdown-item" href="productos">Productos</a></li>
                     <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item" href="index.php?url=logout">Cerrar sesion</a></li>
+                    <li><a class="dropdown-item" href="logout">Cerrar sesion</a></li>
                 </ul>
             </div>
         </div>
@@ -66,13 +66,13 @@ function normalize_image_src(string $value): string
 
     <div class="container">
         <div class="mb-3">
-            <a href="index.php?url=dashboard" class="btn btn-secondary">Volver al panel</a>
+            <a href="dashboard" class="btn btn-secondary">Volver al panel</a>
         </div>
 
         <div class="card shadow-sm">
             <div class="card-header d-flex justify-content-between align-items-center gap-3 flex-wrap">
                 <h5 class="mb-0">Listado General</h5>
-                <a href="index.php?url=productos&product_action=nuevo" class="btn btn-primary btn-sm fw-bold">
+                <a href="productos&product_action=nuevo" class="btn btn-primary btn-sm fw-bold">
                     + Agregar Nuevo
                 </a>
             </div>
@@ -116,8 +116,8 @@ function normalize_image_src(string $value): string
                                     </td>
                                     <td class="text-center">
                                         <div class="btn-group" role="group">
-                                            <a href="index.php?url=productos&product_action=editar&id=<?= urlencode((string)($p['id_producto'] ?? '')) ?>" class="btn btn-outline-primary btn-sm">Editar</a>
-                                            <a href="index.php?url=productos&product_action=eliminar&id=<?= urlencode((string)($p['id_producto'] ?? '')) ?>"
+                                            <a href="productos&product_action=editar&id=<?= urlencode((string)($p['id_producto'] ?? '')) ?>" class="btn btn-outline-primary btn-sm">Editar</a>
+                                            <a href="productos&product_action=eliminar&id=<?= urlencode((string)($p['id_producto'] ?? '')) ?>"
                                                class="btn btn-outline-danger btn-sm"
                                                onclick="return confirm('Seguro que quieres deshabilitarlo?')">Deshabilitar</a>
                                         </div>

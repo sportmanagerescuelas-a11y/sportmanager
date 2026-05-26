@@ -29,6 +29,16 @@ if (!preg_match('/^\d+$/', $document)) {
     exit;
 }
 
+if (!preg_match('/^\d{1,11}$/', $document)) {
+    echo json_encode([
+        'ok' => true,
+        'valid' => false,
+        'exists' => false,
+        'message' => 'El documento debe tener maximo 11 digitos numericos.',
+    ]);
+    exit;
+}
+
 try {
     $stmt = $conexion->prepare('SELECT 1 FROM usuarios WHERE id_usuario = ? LIMIT 1');
     $stmt->execute([$document]);
@@ -49,4 +59,3 @@ try {
         'message' => 'No se pudo validar el documento en este momento.',
     ]);
 }
-

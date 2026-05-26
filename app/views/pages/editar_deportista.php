@@ -19,7 +19,7 @@ $niveles = is_array($viewData['niveles'] ?? null) ? $viewData['niveles'] : [];
 <br>
 <div class="container mt-5">
     <h2>Editar Deportista</h2>
-    <form method="POST" action="index.php?url=editar_deportista&id=<?= urlencode((string)$data->id_deportista) ?>" enctype="multipart/form-data">
+    <form method="POST" action="editar_deportista&id=<?= urlencode((string)$data->id_deportista) ?>" enctype="multipart/form-data">
         <div class="row">
             <div class="col-md-5 d-flex justify-content-center align-items-center mb-4">
                 <div class="card-fifa">
@@ -46,7 +46,7 @@ $niveles = is_array($viewData['niveles'] ?? null) ? $viewData['niveles'] : [];
                     </div>
                     <div class="col-md-6">
                         <label>Numero Documento</label>
-                        <input type="number" name="num_documento" class="form-control" value="<?= htmlspecialchars((string)$data->id_deportista) ?>">
+                        <input type="text" name="num_documento" class="form-control" value="<?= htmlspecialchars((string)$data->id_deportista) ?>" maxlength="11" pattern="\d{1,11}" inputmode="numeric">
                     </div>
                     <div class="col-md-6">
                         <label>Nombres</label>
@@ -100,7 +100,7 @@ $niveles = is_array($viewData['niveles'] ?? null) ? $viewData['niveles'] : [];
                     </div>
                     <div class="col-12 mt-3">
                         <button type="submit" class="btn btn-primary">Actualizar</button>
-                        <a href="index.php?url=deportistas" class="btn btn-secondary">Cancelar</a>
+                        <a href="deportistas" class="btn btn-secondary">Cancelar</a>
                     </div>
                 </div>
             </div>

@@ -5,7 +5,7 @@ $payuContext = array_merge([
     'evento_titulo' => 'Pago',
     'monto' => 0,
     'cantidad' => 1,
-    'action' => 'index.php?url=procesar_pago',
+    'action' => 'procesar_pago',
     'return_to' => 'pagos.php',
     'error' => '',
     'prefill' => [],
@@ -16,7 +16,7 @@ $idEvento = (int)($payuContext['id_evento'] ?? 0);
 $idDeportista = (int)($payuContext['id_deportista'] ?? 0);
 $monto = (float)($payuContext['monto'] ?? 0);
 $cantidad = (int)($payuContext['cantidad'] ?? 1);
-$action = (string)($payuContext['action'] ?? 'index.php?url=procesar_pago');
+$action = (string)($payuContext['action'] ?? 'procesar_pago');
 $returnTo = (string)($payuContext['return_to'] ?? 'pagos.php');
 $error = (string)($payuContext['error'] ?? '');
 $prefill = is_array($payuContext['prefill'] ?? null) ? $payuContext['prefill'] : [];
@@ -75,7 +75,7 @@ $prefill = is_array($payuContext['prefill'] ?? null) ? $payuContext['prefill'] :
             </div>
             <div class="col-md-4">
                 <label class="form-label fw-semibold">Documento</label>
-                <input type="text" class="form-control" name="dni" required>
+                <input type="text" class="form-control" name="dni" maxlength="11" pattern="\d{1,11}" inputmode="numeric" required>
             </div>
             <div class="col-md-4">
                 <label class="form-label fw-semibold">Tipo documento</label>
@@ -196,7 +196,7 @@ $prefill = is_array($payuContext['prefill'] ?? null) ? $payuContext['prefill'] :
     }
 
     function cargarBancos() {
-        fetch('index.php?url=obtener_bancos')
+        fetch('obtener_bancos')
             .then(r => r.json())
             .then(data => {
                 pseBank.innerHTML = '';

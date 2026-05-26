@@ -5,7 +5,7 @@ $paymentDetails = is_array($viewData['paymentDetails'] ?? null) ? $viewData['pay
 $paymentError = (string)($viewData['paymentError'] ?? '');
 $invoiceResult = is_array($viewData['invoiceResult'] ?? null) ? $viewData['invoiceResult'] : [];
 $refreshUrl = (string)($viewData['refreshUrl'] ?? '');
-$retryUrl = (string)($viewData['retryUrl'] ?? 'index.php?url=iniciar');
+$retryUrl = (string)($viewData['retryUrl'] ?? 'iniciar');
 
 $status = is_array($paymentResult['status'] ?? null) ? $paymentResult['status'] : [];
 $statusTone = (string)($status['tone'] ?? 'secondary');

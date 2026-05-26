@@ -1,7 +1,7 @@
 <?php
 
 if (!defined('SESSION_TIMEOUT_SECONDS')) {
-    define('SESSION_TIMEOUT_SECONDS', 1800);
+    define('SESSION_TIMEOUT_SECONDS', 180);
 }
 
 if (!headers_sent()) {

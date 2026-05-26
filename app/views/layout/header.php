@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 
 <head>
@@ -7,10 +7,11 @@
     $styleVersion = is_file($stylePath) ? (string)filemtime($stylePath) : (string)time();
     $schoolPrimaryColor = '#212529';
     $schoolSecondaryColor = '#001285';
-    $schoolShieldPath = 'assets/img/logo_icoaner.jpg';
+    $schoolShieldPath = 'assets/img/balonfutbol.png';
     $brandName = 'Proyecto SM';
+    $currentRole = (int)($_SESSION['rol'] ?? 0);
 
-    if (isset($_SESSION['usuario']['id_escuela']) && (int)$_SESSION['usuario']['id_escuela'] > 0) {
+    if ($currentRole !== 4 && isset($_SESSION['usuario']['id_escuela']) && (int)$_SESSION['usuario']['id_escuela'] > 0) {
         try {
             require_once __DIR__ . '/../../../config/conexion.php';
             $schoolDb = null;
@@ -73,7 +74,7 @@
 
         <nav class="navbar navbar-expand-lg navbar-light custom-navbar" style="border-bottom: 4px solid <?= htmlspecialchars($schoolSecondaryColor, ENT_QUOTES, 'UTF-8') ?>;">
             <div class="container">
-                <a class="navbar-brand d-flex align-items-center" href="index.php">
+                <a class="navbar-brand d-flex align-items-center" href="home">
                     <img src="<?= htmlspecialchars($schoolShieldPath, ENT_QUOTES, 'UTF-8') ?>" alt="Logo" class="logo-nav me-2">
                     <span><?= htmlspecialchars($brandName, ENT_QUOTES, 'UTF-8') ?></span>
                 </a>
@@ -95,43 +96,43 @@
 
                     $menuPorRol = [
                         1 => [
-                            ['label' => 'Mi panel', 'href' => 'index.php?url=dashboard'],
-                            ['label' => 'Registrar deportista', 'href' => 'index.php?url=crear_deportista'],
-                            ['label' => 'Mis deportistas', 'href' => 'index.php?url=deportistas'],
-                            ['label' => 'Eventos', 'href' => 'index.php?url=eventos'],
-                            ['label' => 'Mis pagos', 'href' => 'index.php?url=pagos'],
-                            ['label' => 'Uniformes', 'href' => 'index.php?url=uniformes'],
+                            ['label' => 'Mi panel', 'href' => 'dashboard'],
+                            ['label' => 'Registrar deportista', 'href' => 'crear_deportista'],
+                            ['label' => 'Mis deportistas', 'href' => 'deportistas'],
+                            ['label' => 'Eventos', 'href' => 'eventos'],
+                            ['label' => 'Mis pagos', 'href' => 'pagos'],
+                            ['label' => 'Uniformes', 'href' => 'uniformes'],
                         ],
                         2 => [
-                            ['label' => 'Mi panel', 'href' => 'index.php?url=dashboard'],
-                            ['label' => 'Deportistas', 'href' => 'index.php?url=deportistas'],
-                            ['label' => 'Registrar asistencia', 'href' => 'index.php?url=registrar-asistencia'],
-                            ['label' => 'Reportes', 'href' => 'index.php?url=reportes'],
-                            ['label' => 'Eventos', 'href' => 'index.php?url=eventos'],
-                            ['label' => 'Uniformes', 'href' => 'index.php?url=uniformes'],
+                            ['label' => 'Mi panel', 'href' => 'dashboard'],
+                            ['label' => 'Deportistas', 'href' => 'deportistas'],
+                            ['label' => 'Registrar asistencia', 'href' => 'registrar-asistencia'],
+                            ['label' => 'Reportes', 'href' => 'reportes'],
+                            ['label' => 'Eventos', 'href' => 'eventos'],
+                            ['label' => 'Uniformes', 'href' => 'uniformes'],
                         ],
                         3 => [
-                            ['label' => 'Mi panel', 'href' => 'index.php?url=dashboard'],
-                            ['label' => 'Gestionar escuelas', 'href' => 'index.php?url=gestion_escuelas'],
-                            ['label' => 'Gestionar usuarios', 'href' => 'index.php?url=admin_usuarios'],
-                            ['label' => 'Gestionar deportistas', 'href' => 'index.php?url=deportistas'],
-                            ['label' => 'Gestionar eventos', 'href' => 'index.php?url=gestion_eventos'],
-                            ['label' => 'Crear evento', 'href' => 'index.php?url=crear_evento'],
-                            ['label' => 'Productos', 'href' => 'index.php?url=productos'],
-                            ['label' => 'Reportes generales', 'href' => 'index.php?url=reportes'],
+                            ['label' => 'Mi panel', 'href' => 'dashboard'],
+                            ['label' => 'Gestionar escuelas', 'href' => 'gestion_escuelas'],
+                            ['label' => 'Gestionar usuarios', 'href' => 'admin_usuarios'],
+                            ['label' => 'Gestionar deportistas', 'href' => 'deportistas'],
+                            ['label' => 'Gestionar eventos', 'href' => 'gestion_eventos'],
+                            ['label' => 'Crear evento', 'href' => 'crear_evento'],
+                            ['label' => 'Productos', 'href' => 'productos'],
+                            ['label' => 'Reportes generales', 'href' => 'reportes'],
                             ['label' => 'Facturas', 'href' => 'index.php?action=listar'],
-                            ['label' => 'Uniformes', 'href' => 'index.php?url=uniformes'],
+                            ['label' => 'Uniformes', 'href' => 'uniformes'],
                         ],
                     ];
-                    $opcionesMenu = $menuPorRol[$rolUsuario] ?? [['label' => 'Mi panel', 'href' => 'index.php?url=dashboard']];
+                    $opcionesMenu = $menuPorRol[$rolUsuario] ?? [['label' => 'Mi panel', 'href' => 'dashboard']];
                     ?>
 
                     <ul class="navbar-nav ms-auto">
                         <?php if ($esPaginaPrincipal): ?>
-                            <li class="nav-item"><a class="nav-link" href="index.php#sobre-nosotros">Sobre nosotros</a></li>
-                            <li class="nav-item"><a class="nav-link" href="index.php#planes">Planes</a></li>
-                            <li class="nav-item"><a class="nav-link" href="index.php#beneficios">Beneficios</a></li>
-                            <li class="nav-item"><a class="nav-link" href="index.php#contacto">Contacto</a></li>
+                            <li class="nav-item"><a class="nav-link" href="home#sobre-nosotros">Sobre nosotros</a></li>
+                            <li class="nav-item"><a class="nav-link" href="home#planes">Planes</a></li>
+                            <li class="nav-item"><a class="nav-link" href="home#beneficios">Beneficios</a></li>
+                            <li class="nav-item"><a class="nav-link" href="home#contacto">Contacto</a></li>
                         <?php endif; ?>
 
                         <?php if ($usuarioLogueado): ?>
@@ -151,9 +152,9 @@
                                     Hola, <?= $nombreUsuario ?>
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                                    <li><a class="dropdown-item" href="index.php?url=dashboard">Mi panel</a></li>
+                                    <li><a class="dropdown-item" href="dashboard">Mi panel</a></li>
                                     <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="index.php?url=logout">Cerrar sesion</a></li>
+                                    <li><a class="dropdown-item" href="logout">Cerrar sesion</a></li>
                                 </ul>
                             </li>
                         <?php else: ?>
@@ -162,8 +163,8 @@
                                     Iniciar
                                 </a>
                                 <ul class="dropdown-menu" aria-labelledby="startDropdown">
-                                    <li><a class="dropdown-item" href="index.php?url=login">Iniciar sesion</a></li>
-                                    <li><a class="dropdown-item" href="index.php?url=register">Registrarse</a></li>
+                                    <li><a class="dropdown-item" href="login">Iniciar sesion</a></li>
+                                    <li><a class="dropdown-item" href="register">Registrarse</a></li>
                                 </ul>
                             </li>
                         <?php endif; ?>

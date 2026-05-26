@@ -1,4 +1,4 @@
-﻿<br>
+<br>
 <br>
 <?php
 $viewData = get_defined_vars();
@@ -8,10 +8,10 @@ $registerControllerPath = __DIR__ . '/../../../assets/js/registercontroller.js';
 $registerControllerVersion = is_file($registerControllerPath) ? (string)filemtime($registerControllerPath) : (string)time();
 $registerErrorCode = isset($_GET['error']) ? (string)$_GET['error'] : '';
 $registerErrorMap = [
-    '404' => 'La pÃ¡gina solicitada no existe o fue movida.',
+    '404' => 'La página solicitada no existe o fue movida.',
     'empty' => 'Debes completar todos los campos del formulario.',
-    'invalidemail' => 'El correo electrÃ³nico no tiene un formato vÃ¡lido.',
-    'phone' => 'El telefono debe tener entre 7 y 11 digitos.',
+    'invalidemail' => 'El correo electrónico no tiene un formato válido.',
+    'phone' => 'El telefono debe tener exactamente 10 digitos.',
     'password' => 'La contrasena no cumple los requisitos minimos.',
     'duplicateid' => 'Ya existe un usuario con ese numero de documento.',
     'duplicateemail' => 'Ya existe un usuario con ese correo electronico.',
@@ -19,7 +19,7 @@ $registerErrorMap = [
     'school' => 'La escuela seleccionada no existe. Elige una escuela valida.',
     'comprobante' => 'Para registrarte como administrador debes adjuntar un comprobante de pago.',
     'comprobante_upload' => 'No se pudo guardar el comprobante. Intentalo de nuevo.',
-    'db' => 'No se pudo crear la cuenta en este momento. IntÃ©ntalo nuevamente.',
+    'db' => 'No se pudo crear la cuenta en este momento. Inténtalo nuevamente.',
 ];
 $registerErrorText = sm_error_text($registerErrorCode, $registerErrorMap);
 $fieldErrorMap = [
@@ -51,7 +51,7 @@ $fieldErrorMap = [
     ],
     'telefono' => [
         'empty' => 'Debes ingresar tu telefono.',
-        'phone' => 'El telefono debe tener entre 7 y 11 digitos.',
+        'phone' => 'El telefono debe tener exactamente 10 digitos.',
     ],
     'comprobante_pago' => [
         'comprobante' => 'Debes adjuntar el comprobante de pago para administrador.',
@@ -96,10 +96,55 @@ if ($registerErrorText !== '' && $activeFieldError['field'] === '') {
     $modalType = 'warning';
 }
 ?>
+<style>
+.password-popover-wrap {
+    position: relative;
+}
+
+.register-card,
+.register-card .card-body {
+    overflow: visible;
+}
+
+.password-popover {
+    position: absolute;
+    top: 0;
+    left: calc(100% + 12px);
+    width: 290px;
+    background: #ffffff;
+    border: 1px solid #dee2e6;
+    border-radius: 10px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+    padding: 12px;
+    z-index: 20;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(4px);
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+}
+
+.password-popover-wrap:hover .password-popover,
+.password-popover-wrap:focus-within .password-popover {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+@media (max-width: 991.98px) {
+    .password-popover {
+        position: static;
+        width: 100%;
+        margin-top: 10px;
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+    }
+}
+</style>
 <div class="container mt-5 mb-5">
     <div class="row justify-content-center">
         <div class="col-md-6">
-            <div class="card shadow-sm">
+            <div class="card shadow-sm register-card">
                 <div class="card-header">
                     <h2 class="text-center">Crear cuenta</h2>
                 </div>
@@ -108,7 +153,7 @@ if ($registerErrorText !== '' && $activeFieldError['field'] === '') {
                         <div class="mb-3">
                             <label for="id_usuario" class="form-label">Numero de Documento</label>
                             <div class="position-relative">
-                                <input type="number" class="form-control" id="id_usuario" name="id_usuario" placeholder="Tu numero de documento" required>
+                                <input type="text" class="form-control" id="id_usuario" name="id_usuario" placeholder="Tu numero de documento" maxlength="11" pattern="\d{1,11}" inputmode="numeric" required>
                                 <span id="idSpinner" class="spinner-border spinner-border-sm text-primary position-absolute top-50 end-0 translate-middle-y me-3" style="display:none;" role="status" aria-hidden="true"></span>
                             </div>
                             <div class="invalid-feedback" id="id_usuarioFeedback">Por favor ingrese su numero de documento.</div>
@@ -124,19 +169,6 @@ if ($registerErrorText !== '' && $activeFieldError['field'] === '') {
                                 <option value="PEP">PEP - Permiso Especial de Permanencia</option>
                             </select>
                             <div class="invalid-feedback" id="tipo_documentoFeedback">Seleccione un tipo de documento.</div>
-                        </div>
-                        <div class="mb-3" id="schoolWrap">
-                            <label for="id_escuela" class="form-label">Escuela</label>
-                            <select class="form-select" id="id_escuela" name="id_escuela" required>
-                                <option value="" selected disabled>Selecciona tu escuela...</option>
-                                <?php foreach ($schools as $school): ?>
-                                    <?php $value = (string)($school->id_escuela ?? ''); ?>
-                                    <option value="<?= htmlspecialchars($value, ENT_QUOTES, 'UTF-8') ?>" <?= $selectedSchool === $value ? 'selected' : '' ?>>
-                                        <?= htmlspecialchars((string)(($school->nombre ?? '') . ' - ' . ($school->disciplina ?? '')), ENT_QUOTES, 'UTF-8') ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                            <div class="invalid-feedback" id="id_escuelaFeedback">Debes seleccionar una escuela.</div>
                         </div>
                         <div class="mb-3">
                             <label for="nombres" class="form-label">Nombres</label>
@@ -157,25 +189,27 @@ if ($registerErrorText !== '' && $activeFieldError['field'] === '') {
                             <div id="emailFeedback" class="invalid-feedback">Este correo ya esta registrado.</div>
                             <div id="emailHelp" class="form-text"></div>
                         </div>
-                        <div class="mb-3">
+                        <div class="mb-3 password-popover-wrap">
                             <label for="password" class="form-label">Contrasena</label>
                             <input type="password" class="form-control" id="password" name="password" placeholder="Crea una contrasena" required>
                             <div class="invalid-feedback" id="passwordFeedback">Debes ingresar una contrasena valida.</div>
-                            <small id="passwordHelp" class="form-text text-muted">
-                                La contrasena debe cumplir todos estos requisitos:
-                            </small>
-                            <ul id="passwordRequirements" class="mt-2 mb-0 ps-3 small">
-                                <li id="req-length" class="text-danger">âœ– Minimo 8 caracteres</li>
-                                <li id="req-upper" class="text-danger">âœ– Una letra mayuscula</li>
-                                <li id="req-lower" class="text-danger">âœ– Una letra minuscula</li>
-                                <li id="req-number" class="text-danger">âœ– Un numero</li>
-                                <li id="req-special" class="text-danger">âœ– Un caracter especial (@$!%*?&._-)</li>
-                            </ul>
-                            <div id="passwordMissing" class="mt-2 small text-danger"></div>
+                            <div class="password-popover" role="note" aria-live="polite">
+                                <small id="passwordHelp" class="form-text text-muted d-block mb-2">
+                                    La contrasena debe cumplir estos requisitos:
+                                </small>
+                                <ul id="passwordRequirements" class="mb-0 ps-3 small">
+                                    <li id="req-length" class="text-danger">✖ Minimo 8 caracteres</li>
+                                    <li id="req-upper" class="text-danger">✖ Una letra mayuscula</li>
+                                    <li id="req-lower" class="text-danger">✖ Una letra minuscula</li>
+                                    <li id="req-number" class="text-danger">✖ Un numero</li>
+                                    <li id="req-special" class="text-danger">✖ Un caracter especial (@$!%*?&._-)</li>
+                                </ul>
+                                <div id="passwordMissing" class="mt-2 small text-danger"></div>
+                            </div>
                         </div>
                         <div class="mb-3">
                             <label for="telefono" class="form-label">Telefono</label>
-                            <input type="tel" class="form-control" id="telefono" name="telefono" placeholder="Tu telefono" required>
+                            <input type="tel" class="form-control" id="telefono" name="telefono" placeholder="Tu telefono" maxlength="10" pattern="\d{10}" inputmode="numeric" required>
                             <div class="invalid-feedback" id="telefonoFeedback">Debes ingresar un telefono valido.</div>
                         </div>
                         <div class="mb-3">
@@ -185,6 +219,19 @@ if ($registerErrorText !== '' && $activeFieldError['field'] === '') {
                                 <option value="2">Formador (requiere aprobacion)</option>
                                 <option value="3">Administrador de escuela (requiere validacion de pago)</option>
                             </select>
+                        </div>
+                        <div class="mb-3" id="schoolWrap">
+                            <label for="id_escuela" class="form-label">Escuela</label>
+                            <select class="form-select" id="id_escuela" name="id_escuela" required>
+                                <option value="" selected disabled>Selecciona tu escuela...</option>
+                                <?php foreach ($schools as $school): ?>
+                                    <?php $value = (string)($school->id_escuela ?? ''); ?>
+                                    <option value="<?= htmlspecialchars($value, ENT_QUOTES, 'UTF-8') ?>" <?= $selectedSchool === $value ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars((string)(($school->nombre ?? '') . ' - ' . ($school->disciplina ?? '')), ENT_QUOTES, 'UTF-8') ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <div class="invalid-feedback" id="id_escuelaFeedback">Debes seleccionar una escuela.</div>
                         </div>
                         <div class="mb-3" id="comprobantePagoWrap" style="display:none;">
                             <label for="comprobante_pago" class="form-label">Comprobante de pago (solo administrador)</label>
@@ -210,7 +257,7 @@ if ($registerErrorText !== '' && $activeFieldError['field'] === '') {
                     <p class="mb-0"><?= htmlspecialchars($registerSuccessText, ENT_QUOTES, 'UTF-8') ?></p>
                 </div>
                 <div class="modal-footer border-0 justify-content-center pt-0">
-                    <a href="index.php?url=login" class="btn btn-success px-4">Aceptar</a>
+                    <a href="login" class="btn btn-success px-4">Aceptar</a>
                 </div>
             </div>
         </div>
@@ -242,8 +289,9 @@ document.addEventListener('DOMContentLoaded', function () {
         const isAdmin = roleSelect.value === '3';
         wrap.style.display = isAdmin ? '' : 'none';
         input.required = isAdmin;
-        schoolWrap.style.display = isAdmin ? 'none' : '';
+        schoolWrap.style.display = '';
         schoolSelect.required = !isAdmin;
+        schoolSelect.disabled = isAdmin;
         if (isAdmin) {
             schoolSelect.value = '';
         }

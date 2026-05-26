@@ -43,7 +43,7 @@ final class UniformesController
             $error = $this->validate($formData, null);
 
             if ($error === '' && $this->model()->create($formData)) {
-                $this->redirect('index.php?url=uniformes&created=1');
+                $this->redirect('uniformes&created=1');
             }
 
             if ($error === '') {
@@ -66,7 +66,7 @@ final class UniformesController
         $id = $this->uniformIdFromRequest();
         $uniforme = $id > 0 ? $this->model()->findById($id, $this->role(), $this->userId()) : null;
         if (!$uniforme) {
-            $this->redirect('index.php?url=uniformes&error=notfound');
+            $this->redirect('uniformes&error=notfound');
         }
 
         $error = '';
@@ -77,7 +77,7 @@ final class UniformesController
             $error = $this->validate($formData, $id);
 
             if ($error === '' && $this->model()->update($id, $formData)) {
-                $this->redirect('index.php?url=uniformes&updated=1');
+                $this->redirect('uniformes&updated=1');
             }
 
             if ($error === '') {
@@ -99,19 +99,19 @@ final class UniformesController
     {
         $this->requireAdmin();
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            $this->redirect('index.php?url=uniformes');
+            $this->redirect('uniformes');
         }
 
         $id = $this->uniformIdFromRequest();
         if ($id <= 0 || !$this->model()->findById($id, $this->role(), $this->userId())) {
-            $this->redirect('index.php?url=uniformes&error=notfound');
+            $this->redirect('uniformes&error=notfound');
         }
 
         if ($this->model()->delete($id)) {
-            $this->redirect('index.php?url=uniformes&deleted=1');
+            $this->redirect('uniformes&deleted=1');
         }
 
-        $this->redirect('index.php?url=uniformes&error=delete');
+        $this->redirect('uniformes&error=delete');
     }
 
     private function model(): Uniforme
@@ -228,7 +228,7 @@ final class UniformesController
     private function requireLogin(): void
     {
         if (!isset($_SESSION['usuario'], $_SESSION['id_usuario'])) {
-            $this->redirect('index.php?url=login');
+            $this->redirect('login');
         }
     }
 
@@ -236,7 +236,7 @@ final class UniformesController
     {
         $this->requireLogin();
         if (!in_array($this->role(), [2, 3], true)) {
-            $this->redirect('index.php?url=uniformes');
+            $this->redirect('uniformes');
         }
     }
 
@@ -244,7 +244,7 @@ final class UniformesController
     {
         $this->requireLogin();
         if ($this->role() !== 3) {
-            $this->redirect('index.php?url=uniformes');
+            $this->redirect('uniformes');
         }
     }
 

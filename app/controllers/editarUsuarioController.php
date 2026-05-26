@@ -2,8 +2,8 @@
 require_once __DIR__ . '/../../config/session.php';
 require_once __DIR__ . '/../../config/conexion.php';
 
-if (!isset($_SESSION["rol"]) || $_SESSION["rol"] != 3) {
-    header("Location: ../dashboard.php");
+if (!isset($_SESSION["rol"]) || !in_array((int)$_SESSION["rol"], [3, 4], true)) {
+    header("Location: ../dashboard");
     exit();
 }
 
@@ -30,9 +30,20 @@ if ($accion == "activar" || $accion == "deshabilitar") {
     $nombres = $_POST["nombres"];
     $apellidos = $_POST["apellidos"];
     $email = $_POST["email"];
-    $telefono = $_POST["telefono"];
+    $telefono = preg_replace('/\D+/', '', (string)($_POST["telefono"] ?? '')) ?? '';
+    $id_escuela = isset($_POST["id_escuela"]) ? trim((string)$_POST["id_escuela"]) : '';
     $id_rol = $_POST["id_rol"];
     $nueva_contrasena = $_POST["nueva_contrasena"];
+
+    if (!preg_match('/^\d{10}$/', $telefono)) {
+        header("Location: ../admin_usuarios");
+        exit();
+    }
+
+    if ($id_escuela !== '' && !ctype_digit($id_escuela)) {
+        header("Location: ../admin_usuarios");
+        exit();
+    }
 
     if (!empty($nueva_contrasena)) {
 
@@ -44,6 +55,7 @@ if ($accion == "activar" || $accion == "deshabilitar") {
             apellidos = :apellidos,
             email = :email,
             telefono = :telefono,
+            id_escuela = :id_escuela,
             id_rol = :id_rol,
             contrasena = :contrasena
         WHERE id_usuario = :id
@@ -58,6 +70,7 @@ if ($accion == "activar" || $accion == "deshabilitar") {
             apellidos = :apellidos,
             email = :email,
             telefono = :telefono,
+            id_escuela = :id_escuela,
             id_rol = :id_rol
         WHERE id_usuario = :id
         ");
@@ -67,6 +80,11 @@ if ($accion == "activar" || $accion == "deshabilitar") {
     $sql->bindParam(":apellidos", $apellidos);
     $sql->bindParam(":email", $email);
     $sql->bindParam(":telefono", $telefono);
+    if ($id_escuela === '') {
+        $sql->bindValue(":id_escuela", null, PDO::PARAM_NULL);
+    } else {
+        $sql->bindValue(":id_escuela", (int)$id_escuela, PDO::PARAM_INT);
+    }
     $sql->bindParam(":id_rol", $id_rol);
     $sql->bindParam(":id", $id);
 
@@ -74,7 +92,7 @@ if ($accion == "activar" || $accion == "deshabilitar") {
 }
 
 // ???? Redirecci??n
-header("Location: ../admin_usuarios.php");
+header("Location: ../admin_usuarios");
 exit();
 
 

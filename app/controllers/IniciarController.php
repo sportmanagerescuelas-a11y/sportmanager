@@ -23,9 +23,9 @@ final class IniciarController
         $monto = isset($_GET['monto']) ? (float)$_GET['monto'] : 0.0;
         $cantidad = isset($_GET['cantidad']) ? max(1, (int)$_GET['cantidad']) : 1;
         $idUsuarioSesion = (int)($_SESSION['id_usuario'] ?? ($_SESSION['usuario']['id_usuario'] ?? 0));
-        $returnTo = trim((string)($_GET['return_to'] ?? 'index.php?url=iniciar'));
+        $returnTo = trim((string)($_GET['return_to'] ?? 'iniciar'));
         if ($returnTo === '' || preg_match('/^(https?:)?\/\//i', $returnTo)) {
-            $returnTo = 'index.php?url=iniciar';
+            $returnTo = 'iniciar';
         }
         $returnTo = ltrim($returnTo, '/');
 
@@ -84,7 +84,7 @@ final class IniciarController
             'evento_titulo' => $eventoTitulo,
             'monto' => $monto,
             'cantidad' => $cantidad,
-            'action' => 'index.php?url=procesar_pago',
+            'action' => 'procesar_pago',
             'return_to' => $returnTo,
             'error' => $_SESSION['error'] ?? '',
             'prefill' => [

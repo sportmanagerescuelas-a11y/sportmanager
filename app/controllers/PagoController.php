@@ -71,8 +71,8 @@ final class PagoController
         if (!preg_match('/^[A-Z]{2}$/', $pais)) {
             $this->fail('El pais debe ser una abreviatura ISO2 (ejemplo CO).');
         }
-        if (!preg_match('/^\d{10}$/', $dni)) {
-            $this->fail('El documento debe tener exactamente 10 digitos numericos.');
+        if (!preg_match('/^\d{1,11}$/', $dni)) {
+            $this->fail('El documento debe tener maximo 11 digitos numericos.');
         }
         if (!preg_match('/^\d+$/', $codigoPostal)) {
             $this->fail('El codigo postal debe ser numerico.');

@@ -121,6 +121,14 @@ document.addEventListener("DOMContentLoaded", function() {
                 return;
             }
 
+            if (!/^\d{1,11}$/.test(id_usuario)) {
+                idInput.classList.add('is-invalid');
+                idInput.classList.remove('is-valid');
+                setIdInvalidMessage('El documento debe tener maximo 11 digitos numericos.');
+                checkFormValidity();
+                return;
+            }
+
             if (idSpinner) idSpinner.style.display = 'inline-block';
 
             const formData = new FormData();

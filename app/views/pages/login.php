@@ -56,10 +56,10 @@ if (!empty($_SESSION['flash_session_expired'])) {
                         <button type="submit" name="login" class="btn btn-primary w-100">Ingresar</button>
                     </form>
                     <div class="text-end mt-2">
-                        <a href="index.php?url=recuperar" class="btn btn-link p-0">&iquest;Olvidaste tu contrase&ntilde;a?</a>
+                        <a href="recuperar" class="btn btn-link p-0">&iquest;Olvidaste tu contrase&ntilde;a?</a>
                     </div>
                     <div class="mt-3 text-center">
-                        <p>&iquest;No tienes cuenta? <a href="index.php?url=register">Reg&iacute;strate aqu&iacute;</a></p>
+                        <p>&iquest;No tienes cuenta? <a href="register">Reg&iacute;strate aqu&iacute;</a></p>
                     </div>
                 </div>
             </div>

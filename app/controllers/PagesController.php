@@ -60,9 +60,9 @@ class PagesController
                             $this->model()->assignSchoolToUser((int)$_SESSION['id_usuario'], (int)$schoolId);
                             $_SESSION['usuario']['id_escuela'] = (int)$schoolId;
                             $_SESSION['usuario']['estado'] = 'aprobado';
-                            $this->redirect('index.php?url=dashboard');
+                            $this->redirect('dashboard');
                         }
-                        $this->redirect('index.php?url=gestion_escuelas&created=1');
+                        $this->redirect('gestion_escuelas&created=1');
                     }
                     $dbError = $this->model()->lastError();
                     $error = $dbError !== '' ? ('No se pudo crear la escuela: ' . $dbError) : 'No se pudo crear la escuela.';
@@ -91,7 +91,7 @@ class PagesController
         $id = (string)($_GET['id'] ?? '');
         $school = $this->model()->schoolById($id);
         if (!$school) {
-            $this->redirect('index.php?url=gestion_escuelas&error=notfound');
+            $this->redirect('gestion_escuelas&error=notfound');
         }
 
         $error = null;
@@ -108,7 +108,7 @@ class PagesController
             } else {
                 $payload['escudo_path'] = $this->storeSchoolShield((string)($payload['escudo_path'] ?? ''));
                 if ($this->model()->updateSchool($id, $payload)) {
-                    $this->redirect('index.php?url=gestion_escuelas&updated=1');
+                    $this->redirect('gestion_escuelas&updated=1');
                 }
                 $dbError = $this->model()->lastError();
                 $error = $dbError !== '' ? ('No se pudo actualizar la escuela: ' . $dbError) : 'No se pudo actualizar la escuela.';
@@ -129,18 +129,19 @@ class PagesController
         $this->requireSuperAdmin();
         $id = (string)($_GET['id'] ?? '');
         if ($id === '' || !$this->model()->schoolById($id)) {
-            $this->redirect('index.php?url=gestion_escuelas&error=notfound');
+            $this->redirect('gestion_escuelas&error=notfound');
         }
 
         if (!$this->model()->deleteSchool($id)) {
-            $this->redirect('index.php?url=gestion_escuelas&error=delete');
+            $this->redirect('gestion_escuelas&error=delete');
         }
 
-        $this->redirect('index.php?url=gestion_escuelas&deleted=1');
+        $this->redirect('gestion_escuelas&deleted=1');
     }
 
     public function logout(): void
     {
+        $inactiveReason = ((string)($_GET['reason'] ?? '') === 'inactive');
         $_SESSION = [];
 
         if (ini_get('session.use_cookies')) {
@@ -158,7 +159,13 @@ class PagesController
 
         session_unset();
         session_destroy();
-        $this->redirect('index.php?url=login');
+
+        if ($inactiveReason) {
+            session_start();
+            $_SESSION['flash_session_expired'] = true;
+        }
+
+        $this->redirect('login');
     }
 
     public function dashboard(): void
@@ -170,21 +177,36 @@ class PagesController
 
     public function adminUsers(): void
     {
-        $this->requireSuperAdmin();
+        $this->requireAdminOrSuperAdmin();
+        $role = (int)($_SESSION['rol'] ?? 0);
+        if ($role === 3) {
+            $schoolId = (int)($_SESSION['usuario']['id_escuela'] ?? 0);
+            $this->render('admin_usuarios', [
+                'usuariosPendientes' => [],
+                'usuariosAprobados' => $schoolId > 0 ? $this->model()->usersBySchool($schoolId) : [],
+                'isSchoolAdminView' => true,
+            ]);
+            return;
+        }
+
         $this->render('admin_usuarios', [
             'usuariosPendientes' => $this->model()->pendingUsers(),
             'usuariosAprobados' => $this->model()->approvedUsers(),
+            'isSchoolAdminView' => false,
         ]);
     }
 
     public function editUser(): void
     {
-        $this->requireSuperAdmin();
+        $this->requireAdminOrSuperAdmin();
         $user = $this->model()->userById((string)($_GET['id'] ?? ''));
         if (!$user) {
-            $this->redirect('admin_usuarios.php');
+            $this->redirect('admin_usuarios');
         }
-        $this->render('editar_usuario', ['user' => $user]);
+        $this->render('editar_usuario', [
+            'user' => $user,
+            'schools' => $this->model()->schools(),
+        ]);
     }
 
     public function athletes(): void
@@ -207,8 +229,8 @@ class PagesController
             $payload['id_usuario'] = (int)$_SESSION['id_usuario'];
             $payload['foto'] = $this->storeUploadedPhoto('default.png');
 
-            if (!preg_match('/^\d+$/', $payload['id_deportista'])) {
-                $errorDetails[] = 'El numero de documento del deportista debe ser numerico.';
+            if (!preg_match('/^\d{1,11}$/', $payload['id_deportista'])) {
+                $errorDetails[] = 'El numero de documento del deportista debe tener maximo 11 digitos numericos.';
             }
             if ($payload['nombres'] === '') {
                 $errorDetails[] = 'Los nombres del deportista son obligatorios.';
@@ -232,7 +254,7 @@ class PagesController
             if (!empty($errorDetails)) {
                 $error = 'Corrige los siguientes datos para registrar el deportista.';
             } elseif ($this->model()->createAthlete($payload)) {
-                $this->redirect('index.php?url=deportistas');
+                $this->redirect('deportistas');
             } else {
                 $dbError = $this->model()->lastError();
                 $error = $dbError !== '' ? ('No se pudo registrar el deportista: ' . $dbError) : 'No se pudo registrar el deportista.';
@@ -253,7 +275,7 @@ class PagesController
         $id = (string)($_GET['id'] ?? '');
         $athlete = $this->model()->athleteById($id);
         if (!$athlete) {
-            $this->redirect('index.php?url=deportistas');
+            $this->redirect('deportistas');
         }
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -263,7 +285,7 @@ class PagesController
                 $this->deleteOldPhoto($athlete->foto);
             }
             $this->model()->updateAthlete($id, $payload);
-            $this->redirect('index.php?url=deportistas');
+            $this->redirect('deportistas');
         }
 
         $this->render('editar_deportista', [
@@ -282,7 +304,7 @@ class PagesController
         if ($athlete && ((int)$_SESSION['rol'] === 3 || $isOwner)) {
             $this->model()->deleteAthlete($id);
         }
-        $this->redirect('index.php?url=deportistas');
+        $this->redirect('deportistas');
     }
 
     public function userAthletes(): void
@@ -406,7 +428,7 @@ class PagesController
         $this->requireReportAccess();
         $tabla = isset($_GET['tabla']) ? (string)$_GET['tabla'] : '';
         if (!$this->canAccessReportTable($tabla)) {
-            $this->redirect('index.php?url=reportes&error=forbidden_table');
+            $this->redirect('reportes&error=forbidden_table');
         }
 
         require_once __DIR__ . '/ReporteController.php';
@@ -444,7 +466,7 @@ class PagesController
     private function requireLogin(): void
     {
         if (!isset($_SESSION['usuario']) || !isset($_SESSION['id_usuario'])) {
-            $this->redirect('index.php?url=login');
+            $this->redirect('login');
         }
     }
 
@@ -462,10 +484,18 @@ class PagesController
         }
     }
 
+    private function requireAdminOrSuperAdmin(): void
+    {
+        $rol = (int)($_SESSION['rol'] ?? 0);
+        if (!in_array($rol, [3, 4], true)) {
+            $this->redirect('dashboard.php');
+        }
+    }
+
     private function requireSchoolCreationAccess(): void
     {
         if (!isset($_SESSION['rol'], $_SESSION['id_usuario'])) {
-            $this->redirect('index.php?url=login');
+            $this->redirect('login');
         }
 
         $rol = (int)$_SESSION['rol'];
@@ -624,7 +654,7 @@ class PagesController
         $diaPagoValido = (int)$payload['dia_pago'] >= 1 && (int)$payload['dia_pago'] <= 31;
         $inscripcionValida = is_numeric($payload['valor_inscripcion']) && (float)$payload['valor_inscripcion'] >= 0;
         $mensualidadValida = is_numeric($payload['valor_mensualidad']) && (float)$payload['valor_mensualidad'] >= 0;
-        $telefonoValido = preg_match('/^\d{7,11}$/', (string)$payload['telefono']) === 1;
+        $telefonoValido = preg_match('/^\d{10}$/', (string)$payload['telefono']) === 1;
 
         if ($payload['nombre'] === '') {
             $errors[] = 'El nombre de la escuela es obligatorio.';
@@ -648,7 +678,7 @@ class PagesController
             $errors[] = 'La clave de app/correo es obligatoria.';
         }
         if (!$telefonoValido) {
-            $errors[] = 'El telefono debe tener entre 7 y 11 digitos numericos.';
+            $errors[] = 'El telefono debe tener exactamente 10 digitos numericos.';
         }
         if ($payload['direccion'] === '') {
             $errors[] = 'La direccion es obligatoria.';

@@ -36,6 +36,58 @@ $url = $_GET['url'] ?? 'home';
 $path = trim((string)$url, '/');
 $route = preg_replace('/\.php$/', '', $path);
 
+$canonicalFriendlyRoutes = [
+    'register' => 'registro',
+    'login' => 'iniciar-sesion',
+    'dashboard' => 'panel',
+    'logout' => 'cerrar-sesion',
+];
+
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($canonicalFriendlyRoutes[$route])) {
+    $basePath = rtrim(str_replace('\\', '/', dirname((string)($_SERVER['SCRIPT_NAME'] ?? '/index.php'))), '/');
+    if ($basePath === '') {
+        $basePath = '/';
+    }
+
+    $query = $_GET;
+    unset($query['url']);
+    $queryString = http_build_query($query);
+    $target = ($basePath === '/' ? '' : $basePath) . '/' . $canonicalFriendlyRoutes[$route];
+    if ($queryString !== '') {
+        $target .= '?' . $queryString;
+    }
+
+    header('Location: ' . $target, true, 302);
+    exit;
+}
+
+$friendlyAliases = [
+    'registro' => 'register',
+    'iniciar-sesion' => 'login',
+    'panel' => 'dashboard',
+    'cerrar-sesion' => 'logout',
+    'crear-deportista' => 'crear_deportista',
+    'editar-deportista' => 'editar_deportista',
+    'eliminar-deportista' => 'eliminar_deportista',
+    'gestion-escuelas' => 'gestion_escuelas',
+    'crear-escuela' => 'crear_escuela',
+    'editar-escuela' => 'editar_escuela',
+    'eliminar-escuela' => 'eliminar_escuela',
+    'admin-usuarios' => 'admin_usuarios',
+    'editar-usuario' => 'editar_usuario',
+    'gestion-eventos' => 'gestion_eventos',
+    'crear-evento' => 'crear_evento',
+    'editar-evento' => 'editar_evento',
+    'ver-inscritos' => 'ver_inscritos',
+    'ver-deportistas-usuario' => 'ver_deportistas_usuario',
+    'procesar-pago' => 'procesar_pago',
+    'obtener-bancos' => 'obtener_bancos',
+];
+
+if (isset($friendlyAliases[$route])) {
+    $route = $friendlyAliases[$route];
+}
+
 switch ($route) {
     case '':
     case 'home':

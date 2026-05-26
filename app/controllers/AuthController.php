@@ -52,11 +52,11 @@ class AuthController
         $emailRaw = $_POST['email'] ?? '';
         $email = trim((string)$emailRaw);
         if ($email === '') {
-            header('Location: index.php?url=recuperar&error=empty');
+            header('Location: recuperar&error=empty');
             exit;
         }
         if (filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
-            header('Location: index.php?url=recuperar&error=invalidemail');
+            header('Location: recuperar&error=invalidemail');
             exit;
         }
 
@@ -132,7 +132,7 @@ class AuthController
         $configuredBaseUrl = getenv('APP_URL');
         if (is_string($configuredBaseUrl) && trim($configuredBaseUrl) !== '') {
             $baseUrl = rtrim(trim($configuredBaseUrl), '/');
-            return "{$baseUrl}/index.php?url=reset&token={$token}";
+            return "{$baseUrl}/reset&token={$token}";
         }
 
         $https = !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
@@ -142,7 +142,7 @@ class AuthController
         $basePath = rtrim(str_replace('\\', '/', dirname($scriptName)), '/');
         $baseUrl = "{$scheme}://{$host}" . ($basePath !== '' ? $basePath : '');
 
-        return "{$baseUrl}/index.php?url=reset&token={$token}";
+        return "{$baseUrl}/reset&token={$token}";
     }
 }
 

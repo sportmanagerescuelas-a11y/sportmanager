@@ -23,7 +23,7 @@ final class PagosPageController
     public function show(): void
     {
         if (!isset($_SESSION['usuario']) || !isset($_SESSION['id_usuario'])) {
-            header('Location: index.php?url=login');
+            header('Location: login');
             exit();
         }
 

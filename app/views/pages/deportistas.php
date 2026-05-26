@@ -9,7 +9,7 @@ $rol = (int)($viewData['rol'] ?? ($_SESSION['rol'] ?? 0));
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2>Lista de Deportistas</h2>
         <?php if ($rol !== 2): ?>
-            <a href="index.php?url=crear_deportista" class="btn btn-success">Nuevo deportista</a>
+            <a href="crear_deportista" class="btn btn-success">Nuevo deportista</a>
         <?php endif; ?>
     </div>
 
@@ -48,7 +48,7 @@ $rol = (int)($viewData['rol'] ?? ($_SESSION['rol'] ?? 0));
                         </td>
                         <td><?= htmlspecialchars((string)$row->nombre_usuario) ?></td>
                         <td>
-                            <a href="index.php?url=editar_deportista&id=<?= urlencode((string)$row->id_deportista) ?>" class="btn btn-warning btn-sm">Editar</a>
+                            <a href="editar_deportista&id=<?= urlencode((string)$row->id_deportista) ?>" class="btn btn-warning btn-sm">Editar</a>
                             <?php if ($rol === 3): ?>
                                 <form action="controllers/cambiarEstadoDeportista.php" method="POST" class="d-inline-block">
                                     <input type="hidden" name="id_deportista" value="<?= htmlspecialchars((string)$row->id_deportista) ?>">
@@ -62,5 +62,5 @@ $rol = (int)($viewData['rol'] ?? ($_SESSION['rol'] ?? 0));
             </tbody>
         </table>
     </div>
-    <a href="index.php?url=dashboard" class="btn btn-primary mt-3">Volver</a>
+    <a href="dashboard" class="btn btn-primary mt-3">Volver</a>
 </div>

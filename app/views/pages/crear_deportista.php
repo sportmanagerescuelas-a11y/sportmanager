@@ -21,7 +21,7 @@ $errorDetails = is_array($viewData['errorDetails'] ?? null) ? $viewData['errorDe
             </ul>
         </div>
     <?php endif; ?>
-    <form method="POST" action="index.php?url=crear_deportista" enctype="multipart/form-data">
+    <form method="POST" action="crear_deportista" enctype="multipart/form-data">
         <div class="row">
             <div class="col-md-5 d-flex justify-content-center align-items-center mb-4">
                 <div class="card-fifa">
@@ -48,7 +48,7 @@ $errorDetails = is_array($viewData['errorDetails'] ?? null) ? $viewData['errorDe
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Numero Documento</label>
-                        <input type="number" name="id_deportista" class="form-control" required>
+                        <input type="text" name="id_deportista" class="form-control" maxlength="11" pattern="\d{1,11}" inputmode="numeric" required>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Nombres</label>
@@ -98,7 +98,7 @@ $errorDetails = is_array($viewData['errorDetails'] ?? null) ? $viewData['errorDe
                     </div>
                     <div class="col-12 mt-3">
                         <button type="submit" class="btn btn-primary">Guardar</button>
-                        <a href="index.php?url=deportistas" class="btn btn-secondary">Volver</a>
+                        <a href="deportistas" class="btn btn-secondary">Volver</a>
                     </div>
                 </div>
             </div>

@@ -19,13 +19,13 @@ if ($recoverErrorCode === 'empty') {
 <div class="card p-4 shadow">
 <h4>Recuperar contrasena</h4>
 <p class="text-muted mb-3">Escribe el correo electronico asociado a tu cuenta y te enviaremos las instrucciones para restablecer tu contrasena.</p>
-<form method="POST" action="index.php?url=enviar">
+<form method="POST" action="enviar">
 <label for="email" class="form-label">Correo electronico</label>
 <input type="email" id="email" name="email" class="form-control" placeholder="tu@correo.com" required>
 <div class="invalid-feedback" id="emailFeedback">Correo invalido.</div>
 <div class="mt-3 d-flex gap-2">
   <button class="btn btn-primary" type="submit">Enviar</button>
-  <a href="index.php?url=login" class="btn btn-secondary text-white">Cancelar</a>
+  <a href="login" class="btn btn-secondary text-white">Cancelar</a>
 </div>
 </form>
 </div>

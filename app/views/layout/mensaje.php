@@ -18,7 +18,7 @@
         <p class="mb-0">Si el correo existe o la contrasena fue actualizada, recibiras instrucciones.</p>
       </div>
       <div class="modal-footer border-0 justify-content-center pt-0">
-        <a href="index.php?url=login" class="btn btn-success px-4">Aceptar</a>
+        <a href="login" class="btn btn-success px-4">Aceptar</a>
       </div>
     </div>
   </div>

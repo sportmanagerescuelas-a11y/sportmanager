@@ -1,4 +1,4 @@
-ï»¿<div class="home-page">
+<div class="home-page">
     <section class="section-hero home-hero" id="sobre-nosotros">
         <div class="container home-hero-grid">
             <div class="home-hero-copy">
@@ -10,8 +10,8 @@
                     impulsar el crecimiento integral de cada estudiante.
                 </p>
                 <div class="home-hero-actions">
-                    <a href="index.php?url=register" class="btn btn-primary">Comenzar hoy</a>
-                    <a href="index.php?url=login" class="btn home-btn-outline">Ya tengo cuenta</a>
+                    <a href="register" class="btn btn-primary">Comenzar hoy</a>
+                    <a href="login" class="btn home-btn-outline">Ya tengo cuenta</a>
                 </div>
                 <div class="home-hero-stats">
                     <div class="home-stat-card">
@@ -38,7 +38,7 @@
                     </div>
                     <div class="carousel-inner">
                         <div class="carousel-item active">
-                            <img src="assets/img/125148621-equipos-de-entrenamiento-deportivo-de-fÃºtbol-en-el-campo-de-entrenamiento-de-fÃºtbol-al-aire-libre.jpg" class="d-block w-100" alt="Entrenamiento 1" loading="lazy">
+                            <img src="assets/img/125148621-equipos-de-entrenamiento-deportivo-de-fútbol-en-el-campo-de-entrenamiento-de-fútbol-al-aire-libre.jpg" class="d-block w-100" alt="Entrenamiento 1" loading="lazy">
                         </div>
                         <div class="carousel-item">
                             <img src="assets/img/UXINXTZHNNEOVMXLCMURUTHGXY.jpg" class="d-block w-100" alt="Entrenamiento 2" loading="lazy">
@@ -79,7 +79,7 @@
                         <li>Evaluacion inicial</li>
                         <li>Seguimiento mensual</li>
                     </ul>
-                    <a href="index.php?url=register" class="btn btn-primary">Inscribirme</a>
+                    <a href="register" class="btn btn-primary">Inscribirme</a>
                 </article>
 
                 <article class="home-plan-card home-plan-card-featured">
@@ -91,7 +91,7 @@
                         <li>Control fisico y tecnico</li>
                         <li>Acceso a eventos internos</li>
                     </ul>
-                    <a href="index.php?url=register" class="btn btn-primary">Quiero este plan</a>
+                    <a href="register" class="btn btn-primary">Quiero este plan</a>
                 </article>
 
                 <article class="home-plan-card">
@@ -102,7 +102,7 @@
                         <li>Plan individual de progreso</li>
                         <li>Acompanamiento competitivo</li>
                     </ul>
-                    <a href="index.php?url=register" class="btn btn-primary">Solicitar cupo</a>
+                    <a href="register" class="btn btn-primary">Solicitar cupo</a>
                 </article>
             </div>
         </div>

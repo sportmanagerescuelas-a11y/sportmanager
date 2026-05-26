@@ -15,6 +15,26 @@ $passwordToggleVersion = is_file($passwordTogglePath) ? (string)filemtime($passw
                 window.location.reload();
             }
         });
+
+        (function () {
+            const IDLE_TIMEOUT_MS = 180000; // 3 minutos
+            let idleTimer = null;
+
+            function resetIdleTimer() {
+                if (idleTimer) {
+                    clearTimeout(idleTimer);
+                }
+                idleTimer = setTimeout(function () {
+                    window.location.href = 'logout?reason=inactive';
+                }, IDLE_TIMEOUT_MS);
+            }
+
+            ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach(function (eventName) {
+                window.addEventListener(eventName, resetIdleTimer, { passive: true });
+            });
+
+            resetIdleTimer();
+        })();
     </script>
 <?php endif; ?>
     <!-- Back to top button (outside footer) -->

@@ -6,7 +6,7 @@ $formData = is_array($viewData['formData'] ?? null) ? $viewData['formData'] : []
 $error = (string)($viewData['error'] ?? '');
 $isEdit = (bool)($viewData['isEdit'] ?? false);
 $uniformId = (int)($viewData['uniformId'] ?? ($formData['id_uniforme'] ?? 0));
-$action = $isEdit ? 'index.php?url=editar_uniforme&id=' . urlencode((string)$uniformId) : 'index.php?url=crear_uniforme';
+$action = $isEdit ? 'editar_uniforme&id=' . urlencode((string)$uniformId) : 'crear_uniforme';
 $selectedAthlete = (string)($formData['id_deportista'] ?? '');
 $selectedType = (string)($formData['tipo_uniforme'] ?? 'competencia');
 ?>
@@ -19,7 +19,7 @@ $selectedType = (string)($formData['tipo_uniforme'] ?? 'competencia');
                     <h2 class="mb-1"><?= $isEdit ? 'Editar uniforme' : 'Registrar uniforme' ?></h2>
                     <p class="text-muted mb-0">Asocia un uniforme a un deportista y conserva numeros unicos por categoria.</p>
                 </div>
-                <a href="index.php?url=uniformes" class="btn btn-outline-secondary">Volver</a>
+                <a href="uniformes" class="btn btn-outline-secondary">Volver</a>
             </div>
 
             <?php if ($error !== ''): ?>
@@ -81,7 +81,7 @@ $selectedType = (string)($formData['tipo_uniforme'] ?? 'competencia');
                             </div>
 
                             <div class="col-12 d-flex flex-wrap gap-2 justify-content-end">
-                                <a href="index.php?url=uniformes" class="btn btn-outline-secondary">Cancelar</a>
+                                <a href="uniformes" class="btn btn-outline-secondary">Cancelar</a>
                                 <button type="submit" class="btn btn-primary"><?= $isEdit ? 'Guardar cambios' : 'Registrar uniforme' ?></button>
                             </div>
                         </form>

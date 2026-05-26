@@ -13,11 +13,11 @@ $idEvento = (int)($viewData['idEvento'] ?? 0);
         </div>
         <div class="d-flex flex-wrap gap-2">
             <?php if ($idEvento > 0): ?>
-                <a href="index.php?url=iniciar&id_evento=<?= urlencode((string)$idEvento) ?>" class="btn btn-primary">
+                <a href="iniciar&id_evento=<?= urlencode((string)$idEvento) ?>" class="btn btn-primary">
                     Pagar evento
                 </a>
             <?php endif; ?>
-            <a href="index.php?url=dashboard" class="btn btn-outline-secondary">Volver al dashboard</a>
+            <a href="dashboard" class="btn btn-outline-secondary">Volver al dashboard</a>
         </div>
     </div>
 

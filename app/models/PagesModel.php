@@ -64,10 +64,41 @@ class PagesModel
             FROM usuarios u
             LEFT JOIN escuelas e ON e.id_escuela = u.id_escuela
             LEFT JOIN deportistas d ON d.id_usuario = u.id_usuario
-            WHERE u.estado IN ('aprobado', 'deshabilitado')
-              AND u.id_rol IN (1, 2, 3)
+            WHERE u.estado IN ('aprobado', 'deshabilitado', 'crear_escuela')
+              AND u.id_rol = 3
             GROUP BY u.id_usuario
         ");
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function usersBySchool(int $schoolId): array
+    {
+        $stmt = $this->db->prepare("
+            SELECT u.*, e.nombre AS nombre_escuela, COUNT(d.id_deportista) AS total_deportistas
+            FROM usuarios u
+            LEFT JOIN escuelas e ON e.id_escuela = u.id_escuela
+            LEFT JOIN deportistas d ON d.id_usuario = u.id_usuario
+            WHERE u.id_escuela = :school_id
+              AND u.id_rol IN (1, 2, 3)
+            GROUP BY u.id_usuario
+            ORDER BY u.nombres ASC, u.apellidos ASC
+        ");
+        $stmt->execute([':school_id' => $schoolId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function athletesBySchool(int $schoolId): array
+    {
+        $stmt = $this->db->prepare("
+            SELECT d.*, c.nombre_cat, n.nombre, u.nombres AS nombre_usuario, u.apellidos AS apellido_usuario
+            FROM deportistas d
+            INNER JOIN categoria c ON d.id_categoria = c.id_categoria
+            INNER JOIN nivel n ON d.id_nivel = n.id_nivel
+            INNER JOIN usuarios u ON d.id_usuario = u.id_usuario
+            WHERE u.id_escuela = :school_id
+            ORDER BY d.nombres ASC, d.apellidos ASC
+        ");
+        $stmt->execute([':school_id' => $schoolId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
@@ -357,7 +388,19 @@ class PagesModel
             INNER JOIN estados e ON d.id_estado = e.id_estado
         ";
 
-        if (in_array($role, [2, 3], true)) {
+        if ($role === 3) {
+            $stmt = $this->db->prepare($sql . '
+                WHERE u.id_escuela = (
+                    SELECT id_escuela
+                    FROM usuarios
+                    WHERE id_usuario = :id_usuario
+                    LIMIT 1
+                )');
+            $stmt->execute([':id_usuario' => $userId]);
+            return $stmt->fetchAll(PDO::FETCH_OBJ);
+        }
+
+        if ($role === 2) {
             return $this->db->query($sql)->fetchAll(PDO::FETCH_OBJ);
         }
 

@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require_once __DIR__ . '/../../config/session.php';
 require_once __DIR__ . '/../core/Controller.php';
 require_once __DIR__ . '/../models/Deportista.php';
@@ -20,13 +20,13 @@ class DeportistasController extends Controller
     private function requireTrainerSession(): void
     {
         if (!isset($_SESSION['usuario']) || !isset($_SESSION['id_usuario'])) {
-            header('Location: index.php?url=login');
+            header('Location: login');
             exit();
         }
 
         $rol = (int)($_SESSION['rol'] ?? 0);
         if (!in_array($rol, [2, 3], true)) {
-            header('Location: index.php?url=dashboard');
+            header('Location: dashboard');
             exit();
         }
     }
@@ -66,12 +66,12 @@ class DeportistasController extends Controller
     public function asistenciaHijos(): void
     {
         if (!isset($_SESSION['usuario']) || !isset($_SESSION['id_usuario'])) {
-            header('Location: index.php?url=login');
+            header('Location: login');
             exit();
         }
 
         if ((int)($_SESSION['rol'] ?? 0) !== 1) {
-            header('Location: index.php?url=dashboard');
+            header('Location: dashboard');
             exit();
         }
 
@@ -141,13 +141,13 @@ class DeportistasController extends Controller
         if (!empty($existentes)) {
             $count = count($existentes);
             $fechaParam = urlencode($fecha);
-            header('Location: index.php?url=registrar-asistencia&error=duplicado&count=' . $count . '&fecha=' . $fechaParam);
+            header('Location: registrar-asistencia&error=duplicado&count=' . $count . '&fecha=' . $fechaParam);
             return;
         }
 
         Asistencia::insertMany($clean, $fecha);
 
-        header('Location: index.php?url=registrar-asistencia&ok=1');
+        header('Location: registrar-asistencia&ok=1');
     }
 }
 

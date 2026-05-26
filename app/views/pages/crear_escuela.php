@@ -6,7 +6,7 @@ $formData = is_array($viewData['formData'] ?? null) ? $viewData['formData'] : []
 $errorDetails = is_array($viewData['errorDetails'] ?? null) ? $viewData['errorDetails'] : [];
 $isEdit = !empty($viewData['isEdit']);
 $schoolId = (string)($viewData['schoolId'] ?? '');
-$formAction = $isEdit ? ('index.php?url=editar_escuela&id=' . urlencode($schoolId)) : 'index.php?url=crear_escuela';
+$formAction = $isEdit ? ('editar_escuela&id=' . urlencode($schoolId)) : 'crear_escuela';
 $title = $isEdit ? 'Editar Escuela' : 'Crear Escuela';
 $buttonText = $isEdit ? 'Actualizar escuela' : 'Crear escuela';
 $formData = array_merge([
@@ -79,7 +79,7 @@ $formData = array_merge([
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label" for="telefono">Telefono</label>
-                                <input type="text" class="form-control" id="telefono" name="telefono" maxlength="11" value="<?= htmlspecialchars((string)$formData['telefono'], ENT_QUOTES, 'UTF-8') ?>" required>
+                                <input type="text" class="form-control" id="telefono" name="telefono" maxlength="10" pattern="\d{10}" inputmode="numeric" value="<?= htmlspecialchars((string)$formData['telefono'], ENT_QUOTES, 'UTF-8') ?>" required>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label" for="direccion">Direccion</label>
@@ -110,7 +110,7 @@ $formData = array_merge([
                         </div>
                         <div class="mt-4 d-flex gap-2">
                             <button type="submit" class="btn btn-primary"><?= htmlspecialchars($buttonText, ENT_QUOTES, 'UTF-8') ?></button>
-                            <a href="index.php?url=gestion_escuelas" class="btn btn-secondary">Volver</a>
+                            <a href="gestion_escuelas" class="btn btn-secondary">Volver</a>
                         </div>
                     </form>
                 </div>

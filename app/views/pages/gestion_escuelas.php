@@ -8,7 +8,7 @@ $error = (string)($viewData['error'] ?? '');
 <div class="container mt-5 mb-5">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2 class="mb-0">Gestion de Escuelas</h2>
-        <a href="index.php?url=crear_escuela" class="btn btn-success">+ Crear escuela</a>
+        <a href="crear_escuela" class="btn btn-success">+ Crear escuela</a>
     </div>
 
     <?php if (isset($_GET['created']) && $_GET['created'] === '1'): ?>
@@ -55,9 +55,9 @@ $error = (string)($viewData['error'] ?? '');
                     <td>$<?= number_format((float)($escuela->valor_mensualidad ?? 0), 2, ',', '.') ?></td>
                     <td><?= $totalUsuarios ?></td>
                     <td>
-                        <a href="index.php?url=editar_escuela&id=<?= urlencode($id) ?>" class="btn btn-warning btn-sm">Editar</a>
+                        <a href="editar_escuela&id=<?= urlencode($id) ?>" class="btn btn-warning btn-sm">Editar</a>
                         <?php if ($totalUsuarios === 0): ?>
-                            <a href="index.php?url=eliminar_escuela&id=<?= urlencode($id) ?>" class="btn btn-danger btn-sm" onclick="return confirm('Seguro que deseas eliminar esta escuela?');">Eliminar</a>
+                            <a href="eliminar_escuela&id=<?= urlencode($id) ?>" class="btn btn-danger btn-sm" onclick="return confirm('Seguro que deseas eliminar esta escuela?');">Eliminar</a>
                         <?php else: ?>
                             <button type="button" class="btn btn-secondary btn-sm" disabled>Eliminar</button>
                         <?php endif; ?>
@@ -67,5 +67,5 @@ $error = (string)($viewData['error'] ?? '');
         </tbody>
     </table>
 
-    <a href="index.php?url=dashboard" class="btn btn-primary mt-3">Volver al panel</a>
+    <a href="dashboard" class="btn btn-primary mt-3">Volver al panel</a>
 </div>

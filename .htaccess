@@ -9,11 +9,11 @@ RewriteRule ^(?:app/(?:views|models|core|helpers|Services)|config|storage|vendor
 RewriteCond %{THE_REQUEST} \s/+sportmanager/app/controllers/ [NC]
 RewriteRule ^app/controllers/ - [F,L,NC]
 
-# 1) Canonicalizar index.php?url=ruta -> /ruta
+# 1) Canonicalizar index.php?url=ruta[&otros=...] -> /ruta[?otros=...]
 RewriteCond %{REQUEST_METHOD} =GET
-RewriteCond %{QUERY_STRING} ^url=[^&]+$ [NC]
-RewriteCond %{THE_REQUEST} \s/+sportmanager/index\.php\?url=([^&\s]+) [NC]
-RewriteRule ^index\.php$ %1? [R=302,L,NE]
+RewriteCond %{THE_REQUEST} \s/+sportmanager/index\.php\? [NC]
+RewriteCond %{QUERY_STRING} ^url=([^&]+)&?(.*)$ [NC]
+RewriteRule ^index\.php$ %1?%2 [R=302,L,NE]
 
 # 2) Canonicalizar /archivo.php -> /archivo (excepto index.php y endpoints heredados)
 RewriteCond %{REQUEST_METHOD} =GET

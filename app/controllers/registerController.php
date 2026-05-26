@@ -23,43 +23,48 @@ if (isset($_POST["register"])) {
     }
 
     if (empty($id_usuario) || empty($tipo_documento) || empty($nombres) || empty($apellidos) || empty($email) || empty($password) || empty($telefono) || empty($id_rol)) {
-        header("Location: ../index.php?url=register&error=empty");
+        header("Location: ../register&error=empty");
         exit();
     }
 
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        header("Location: ../index.php?url=register&error=invalidemail");
+        header("Location: ../register&error=invalidemail");
+        exit();
+    }
+
+    if (!preg_match('/^\d{1,11}$/', $id_usuario)) {
+        header("Location: ../register&error=empty");
         exit();
     }
 
     $usuarioModel = new Usuario($conexion);
 
-    if (!preg_match('/^\d{7,11}$/', $telefono)) {
-        header("Location: ../index.php?url=register&error=phone");
+    if (!preg_match('/^\d{10}$/', $telefono)) {
+        header("Location: ../register&error=phone");
         exit();
     }
 
     if (!preg_match('/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&._-]).{8,}$/', $password)) {
-        header("Location: ../index.php?url=register&error=password");
+        header("Location: ../register&error=password");
         exit();
     }
 
     $stmtUserId = $conexion->prepare("SELECT 1 FROM usuarios WHERE id_usuario = ? LIMIT 1");
     $stmtUserId->execute([$id_usuario]);
     if ($stmtUserId->fetchColumn()) {
-        header("Location: ../index.php?url=register&error=duplicateid");
+        header("Location: ../register&error=duplicateid");
         exit();
     }
 
     $stmtEmail = $conexion->prepare("SELECT 1 FROM usuarios WHERE email = ? LIMIT 1");
     $stmtEmail->execute([$email]);
     if ($stmtEmail->fetchColumn()) {
-        header("Location: ../index.php?url=register&error=duplicateemail");
+        header("Location: ../register&error=duplicateemail");
         exit();
     }
 
     if ($id_rol !== 3 && !$usuarioModel->escuelaExiste($id_escuela)) {
-        header("Location: ../index.php?url=register&error=school");
+        header("Location: ../register&error=school");
         exit();
     }
 
@@ -69,7 +74,7 @@ if (isset($_POST["register"])) {
 
     if ($id_rol === 3) {
         if (empty($_FILES['comprobante_pago']['tmp_name']) || empty($_FILES['comprobante_pago']['name'])) {
-            header("Location: ../index.php?url=register&error=comprobante");
+            header("Location: ../register&error=comprobante");
             exit();
         }
     }
@@ -89,25 +94,25 @@ if (isset($_POST["register"])) {
             $saved = move_uploaded_file($_FILES['comprobante_pago']['tmp_name'], $targetPath);
             if ($saved) {
                 $usuarioModel->crearSolicitudPagoAdmin($id_usuario, $publicPath);
-                header("Location: ../index.php?url=register&success=payment_pending");
+                header("Location: ../register&success=payment_pending");
                 exit();
             }
 
-            header("Location: ../index.php?url=register&error=comprobante_upload");
+            header("Location: ../register&error=comprobante_upload");
             exit();
         }
 
         if ($id_rol === 2) {
-            header("Location: ../index.php?url=register&success=pending");
+            header("Location: ../register&success=pending");
         } else {
-            header("Location: ../index.php?url=register&success=1");
+            header("Location: ../register&success=1");
         }
         exit();
     }
 
-    header("Location: ../index.php?url=register&error=db");
+    header("Location: ../register&error=db");
     exit();
 }
 
-header("Location: ../index.php?url=register");
+header("Location: ../register");
 exit();

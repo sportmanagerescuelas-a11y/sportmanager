@@ -18,9 +18,9 @@ $messageClass = str_contains(strtolower($message), 'no se') ? 'alert-danger' : '
         </div>
         <div class="d-flex flex-wrap gap-2">
             <?php if ($canCreate): ?>
-                <a href="index.php?url=crear_uniforme" class="btn btn-primary">Registrar uniforme</a>
+                <a href="crear_uniforme" class="btn btn-primary">Registrar uniforme</a>
             <?php endif; ?>
-            <a href="index.php?url=dashboard" class="btn btn-outline-secondary">Volver al dashboard</a>
+            <a href="dashboard" class="btn btn-outline-secondary">Volver al dashboard</a>
         </div>
     </div>
 
@@ -68,8 +68,8 @@ $messageClass = str_contains(strtolower($message), 'no se') ? 'alert-danger' : '
                                     <?php if ($canManage): ?>
                                         <td class="text-center">
                                             <div class="d-flex justify-content-center gap-2">
-                                                <a href="index.php?url=editar_uniforme&id=<?= urlencode((string)($uniforme['id_uniforme'] ?? '')) ?>" class="btn btn-sm btn-outline-primary">Editar</a>
-                                                <form method="POST" action="index.php?url=eliminar_uniforme" onsubmit="return confirm('Seguro que deseas eliminar este uniforme?');">
+                                                <a href="editar_uniforme&id=<?= urlencode((string)($uniforme['id_uniforme'] ?? '')) ?>" class="btn btn-sm btn-outline-primary">Editar</a>
+                                                <form method="POST" action="eliminar_uniforme" onsubmit="return confirm('Seguro que deseas eliminar este uniforme?');">
                                                     <input type="hidden" name="id" value="<?= htmlspecialchars((string)($uniforme['id_uniforme'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
                                                     <button type="submit" class="btn btn-sm btn-outline-danger">Borrar</button>
                                                 </form>

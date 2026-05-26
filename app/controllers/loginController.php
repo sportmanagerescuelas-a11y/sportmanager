@@ -8,7 +8,7 @@ require_once __DIR__ . '/../models/Usuario.php';
 if (isset($_POST["login"])) {
 
     if (empty($_POST["email"]) || empty($_POST["password"])) {
-        header("Location: ../index.php?url=login&error=empty");
+        header("Location: ../login&error=empty");
         exit();
     }
 
@@ -17,7 +17,7 @@ if (isset($_POST["login"])) {
     $password = $_POST["password"]; // La contrase??a no se sanitiza para poder compararla con el hash
 
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        header("Location: ../index.php?url=login&error=invalidemail");
+        header("Location: ../login&error=invalidemail");
         exit();
     }
 
@@ -29,23 +29,23 @@ if (isset($_POST["login"])) {
 
         // ???? Verificar contrase??a
         if (!password_verify($password, $usuario['contrasena'])) {
-            header("Location: ../index.php?url=login&error=invalid");
+            header("Location: ../login&error=invalid");
             exit();
         }
 
         // ???? Verificar estado
         if ($usuario['estado'] == 'pendiente') {
-            header("Location: ../index.php?url=login&error=pending");
+            header("Location: ../login&error=pending");
             exit();
         }
         if ($usuario['estado'] == 'pago_pendiente') {
-            header("Location: ../index.php?url=login&error=payment_pending");
+            header("Location: ../login&error=payment_pending");
             exit();
         }
 
         // ???? Opcional: usuario deshabilitado
         if ($usuario['habilitado'] == 0) {
-            header("Location: ../index.php?url=login&error=disabled");
+            header("Location: ../login&error=disabled");
             exit();
         }
 
@@ -64,14 +64,14 @@ if (isset($_POST["login"])) {
         $_SESSION["nombre_rol"] = $rolData["nombre_rol"];
 
         if ($usuario['estado'] === 'crear_escuela' && (int)$usuario['id_rol'] === 3) {
-            header("Location: ../index.php?url=crear_escuela");
+            header("Location: ../crear_escuela");
             exit();
         }
 
-        header("Location: ../index.php?url=dashboard");
+        header("Location: ../dashboard");
         exit();
     } else {
-        header("Location: ../index.php?url=login&error=invalid");
+        header("Location: ../login&error=invalid");
         exit();
     }
 }

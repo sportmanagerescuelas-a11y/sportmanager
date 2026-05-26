@@ -16,7 +16,7 @@ $passwordToggleVersion = is_file($passwordTogglePath) ? (string)filemtime($passw
 <div class="container mt-5">
 <div class="card p-4 shadow">
 <h4>Nueva contraseña</h4>
-<form method="POST" action="index.php?url=guardar">
+<form method="POST" action="guardar">
 <input type="hidden" name="token" value="<?= htmlspecialchars($token, ENT_QUOTES, 'UTF-8') ?>">
 <input type="password" name="password" class="form-control" required>
 <button class="btn btn-success mt-3">Guardar</button>

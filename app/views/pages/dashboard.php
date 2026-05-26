@@ -69,7 +69,7 @@ if ($rolLabel === '') {
                     </div>
                     <div class="modal-footer">
                         <span class="me-auto">Inscritos: <b id="count<?= (int)$e->id_evento ?>"><?= (int)$e->total_inscritos ?></b></span>
-                        <a href="index.php?url=iniciar&id_evento=<?= (int)$e->id_evento ?>&evento=<?= urlencode((string)$e->titulo) ?>&monto=<?= urlencode((string)$e->costo) ?>&cantidad=1" class="btn btn-warning">Pagar</a>
+                        <a href="iniciar&id_evento=<?= (int)$e->id_evento ?>&evento=<?= urlencode((string)$e->titulo) ?>&monto=<?= urlencode((string)$e->costo) ?>&cantidad=1" class="btn btn-warning">Pagar</a>
                         <?php if ($e->inscrito): ?>
                             <button class="btn btn-success" disabled>Ya inscrito</button>
                         <?php else: ?>
@@ -116,25 +116,26 @@ if ($rolLabel === '') {
 
     <div class="opciones">
         <?php if ($rol === 4): ?>
-            <a href="index.php?url=admin_usuarios" class="card-dashboard">Validar Pagos Admin</a>
-            <a href="index.php?url=gestion_escuelas" class="card-dashboard">Gestionar Escuelas</a>
+            <a href="admin_usuarios" class="card-dashboard">Validar Pagos Admin</a>
+            <a href="gestion_escuelas" class="card-dashboard">Gestionar Escuelas</a>
         <?php elseif ($rol === 3): ?>
-            <a href="index.php?url=deportistas" class="card-dashboard">Gestionar Deportistas</a>
+            <a href="admin_usuarios" class="card-dashboard">Gestionar Usuarios</a>
+            <a href="deportistas" class="card-dashboard">Gestionar Deportistas</a>
             <a href="index.php?action=listar" class="card-dashboard">Reporte de Facturas</a>
-            <a href="index.php?url=productos" class="card-dashboard">Productos</a>
-            <a href="index.php?url=reportes" class="card-dashboard">Reportes Generales</a>
-            <a href="index.php?url=gestion_eventos" class="card-dashboard">Eventos</a>
-            <a href="index.php?url=uniformes" class="card-dashboard">Uniformes</a>
+            <a href="productos" class="card-dashboard">Productos</a>
+            <a href="reportes" class="card-dashboard">Reportes Generales</a>
+            <a href="gestion_eventos" class="card-dashboard">Eventos</a>
+            <a href="uniformes" class="card-dashboard">Uniformes</a>
         <?php elseif ($rol === 2): ?>
-            <a href="index.php?url=deportistas" class="card-dashboard">Ver Deportistas</a>
-            <a href="index.php?url=registrar-asistencia" class="card-dashboard">Registrar Asistencia</a>
-            <a href="index.php?url=reportes" class="card-dashboard">Reportes</a>
-            <a href="index.php?url=uniformes" class="card-dashboard">Uniformes</a>
+            <a href="deportistas" class="card-dashboard">Ver Deportistas</a>
+            <a href="registrar-asistencia" class="card-dashboard">Registrar Asistencia</a>
+            <a href="reportes" class="card-dashboard">Reportes</a>
+            <a href="uniformes" class="card-dashboard">Uniformes</a>
         <?php else: ?>
-            <a href="index.php?url=deportistas" class="card-dashboard">Registrar Deportista</a>
-            <a href="index.php?url=asistencia-hijos" class="card-dashboard">Ver Asistencias</a>
-            <a href="index.php?url=pagos" class="card-dashboard">Mis Pagos</a>
-            <a href="index.php?url=uniformes" class="card-dashboard">Uniformes</a>
+            <a href="deportistas" class="card-dashboard">Registrar Deportista</a>
+            <a href="asistencia-hijos" class="card-dashboard">Ver Asistencias</a>
+            <a href="pagos" class="card-dashboard">Mis Pagos</a>
+            <a href="uniformes" class="card-dashboard">Uniformes</a>
         <?php endif; ?>
     </div>
 </div>
@@ -198,7 +199,7 @@ if ($rolLabel === '') {
             payload.set("id_evento", idEventoSeguro);
             payload.set("id_deportista", String(id_deportista || "").trim());
 
-            fetch("index.php?url=inscribirse", {
+            fetch("inscribirse", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/x-www-form-urlencoded"

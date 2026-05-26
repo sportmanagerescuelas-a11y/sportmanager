@@ -5,7 +5,7 @@ require_once __DIR__ . '/../../config/conexion.php';
 
 // Solo superadmin
 if (!isset($_SESSION["rol"]) || (int)$_SESSION["rol"] !== 4) {
-    header("Location: ../index.php?url=dashboard");
+    header("Location: ../dashboard");
     exit();
 }
 
@@ -28,13 +28,13 @@ if (isset($_POST["id_usuario"])) {
                 $paymentStatus = (string)$stmtPayment->fetchColumn();
 
                 if ($paymentStatus !== 'verificado') {
-                    header("Location: ../index.php?url=admin_usuarios&error=pago_no_verificado");
+                    header("Location: ../admin_usuarios&error=pago_no_verificado");
                     exit();
                 }
             }
 
             if ($rol !== 3) {
-                header("Location: ../index.php?url=admin_usuarios&error=solo_admin");
+                header("Location: ../admin_usuarios&error=solo_admin");
                 exit();
             }
 
@@ -66,5 +66,5 @@ if (isset($_POST["id_usuario"])) {
     }
 }
 
-header("Location: ../index.php?url=admin_usuarios");
+header("Location: ../admin_usuarios");
 exit();

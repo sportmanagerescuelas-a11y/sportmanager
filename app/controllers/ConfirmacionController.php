@@ -149,7 +149,7 @@ final class ConfirmacionController
 
         $refreshUrl = '';
         if (($result['status']['key'] ?? '') === 'pending') {
-            $refreshUrl = 'index.php?url=confirmacion-pago-isn&check=1&referenceCode='
+            $refreshUrl = 'confirmacion-pago-isn&check=1&referenceCode='
                 . urlencode($referenceCode)
                 . ($encodedContext !== '' ? ('&ctx=' . urlencode($encodedContext)) : '');
         }

@@ -18,9 +18,9 @@ $tablas = is_array($viewData['tablas'] ?? null) ? $viewData['tablas'] : [];
             <?php foreach ($tablas as $tabla): ?>
                 <tr>
                     <td><?= htmlspecialchars((string)$tabla) ?></td>
-                    <td><a class="btn btn-success btn-sm" href="index.php?url=descargar&tabla=<?= urlencode((string)$tabla) ?>&formato=xlsx">XLSX</a></td>
-                    <td><a class="btn btn-secondary btn-sm" href="index.php?url=descargar&tabla=<?= urlencode((string)$tabla) ?>&formato=csv">CSV</a></td>
-                    <td><a class="btn btn-danger btn-sm" href="index.php?url=descargar&tabla=<?= urlencode((string)$tabla) ?>&formato=pdf">PDF</a></td>
+                    <td><a class="btn btn-success btn-sm" href="descargar&tabla=<?= urlencode((string)$tabla) ?>&formato=xlsx">XLSX</a></td>
+                    <td><a class="btn btn-secondary btn-sm" href="descargar&tabla=<?= urlencode((string)$tabla) ?>&formato=csv">CSV</a></td>
+                    <td><a class="btn btn-danger btn-sm" href="descargar&tabla=<?= urlencode((string)$tabla) ?>&formato=pdf">PDF</a></td>
                 </tr>
             <?php endforeach; ?>
         </tbody>

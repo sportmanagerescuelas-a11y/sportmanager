@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 $viewData = get_defined_vars();
 $productoData = is_array($viewData['producto'] ?? null) ? $viewData['producto'] : [];
 $producto = array_merge([
@@ -54,20 +54,20 @@ $imgSrc = normalize_image_src((string)$producto['imagen']);
 <body class="bg-light">
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
         <div class="container">
-            <a class="navbar-brand" href="index.php?url=productos">Gestion de Productos</a>
+            <a class="navbar-brand" href="productos">Gestion de Productos</a>
             <div class="ms-auto dropdown">
                 <button class="btn btn-outline-light btn-sm dropdown-toggle" type="button" id="adminMenuProductos" data-bs-toggle="dropdown" aria-expanded="false">
                     Menu admin
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="adminMenuProductos">
-                    <li><a class="dropdown-item" href="index.php?url=dashboard">Mi panel</a></li>
-                    <li><a class="dropdown-item" href="index.php?url=admin_usuarios">Gestionar usuarios</a></li>
-                    <li><a class="dropdown-item" href="index.php?url=deportistas">Deportistas</a></li>
-                    <li><a class="dropdown-item" href="index.php?url=gestion_eventos">Eventos</a></li>
-                    <li><a class="dropdown-item" href="index.php?url=reportes">Reportes</a></li>
-                    <li><a class="dropdown-item" href="index.php?url=productos">Productos</a></li>
+                    <li><a class="dropdown-item" href="dashboard">Mi panel</a></li>
+                    <li><a class="dropdown-item" href="admin_usuarios">Gestionar usuarios</a></li>
+                    <li><a class="dropdown-item" href="deportistas">Deportistas</a></li>
+                    <li><a class="dropdown-item" href="gestion_eventos">Eventos</a></li>
+                    <li><a class="dropdown-item" href="reportes">Reportes</a></li>
+                    <li><a class="dropdown-item" href="productos">Productos</a></li>
                     <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item" href="index.php?url=logout">Cerrar sesion</a></li>
+                    <li><a class="dropdown-item" href="logout">Cerrar sesion</a></li>
                 </ul>
             </div>
         </div>
@@ -75,7 +75,7 @@ $imgSrc = normalize_image_src((string)$producto['imagen']);
 
     <div class="container">
         <div class="mb-3">
-            <a href="index.php?url=productos" class="btn btn-secondary">Volver a productos</a>
+            <a href="productos" class="btn btn-secondary">Volver a productos</a>
         </div>
 
         <div class="card shadow-sm">
@@ -85,9 +85,9 @@ $imgSrc = normalize_image_src((string)$producto['imagen']);
             <div class="card-body">
                 <?php if ($isEdit && empty($producto)): ?>
                     <div class="alert alert-danger mb-3">Producto no encontrado.</div>
-                    <a href="index.php?url=productos" class="btn btn-secondary">Volver</a>
+                    <a href="productos" class="btn btn-secondary">Volver</a>
                 <?php else: ?>
-                    <form method="POST" action="index.php?url=productos&product_action=<?= $isEdit ? 'actualizar' : 'guardar' ?><?= $isEdit ? '&id=' . urlencode((string)($producto['id_producto'] ?? '')) : '' ?>">
+                    <form method="POST" action="productos&product_action=<?= $isEdit ? 'actualizar' : 'guardar' ?><?= $isEdit ? '&id=' . urlencode((string)($producto['id_producto'] ?? '')) : '' ?>">
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <label class="form-label">Nombre</label>
@@ -122,7 +122,7 @@ $imgSrc = normalize_image_src((string)$producto['imagen']);
                             <button type="submit" class="btn btn-primary">
                                 <?= $isEdit ? 'Guardar Cambios' : 'Crear Producto' ?>
                             </button>
-                            <a href="index.php?url=productos" class="btn btn-secondary">Cancelar</a>
+                            <a href="productos" class="btn btn-secondary">Cancelar</a>
                         </div>
                     </form>
                 <?php endif; ?>

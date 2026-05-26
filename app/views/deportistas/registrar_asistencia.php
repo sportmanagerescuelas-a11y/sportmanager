@@ -73,14 +73,14 @@ $queryBase = 'index.php?' . http_build_query($queryParams);
                     </div>
                     <div class="attendance-filter-buttons">
                         <button type="submit" class="btn btn-primary btn-sm">Aplicar</button>
-                        <a href="index.php?url=registrar-asistencia" class="btn btn-outline-secondary btn-sm">Quitar filtros</a>
+                        <a href="registrar-asistencia" class="btn btn-outline-secondary btn-sm">Quitar filtros</a>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 
-    <form id="asistenciaForm" method="post" action="index.php?url=guardar-asistencia">
+    <form id="asistenciaForm" method="post" action="guardar-asistencia">
         <input type="hidden" name="payload" id="payload">
         <input type="hidden" name="fecha" id="fechaInput">
 
@@ -94,7 +94,7 @@ $queryBase = 'index.php?' . http_build_query($queryParams);
                     <div class="attendance-actions">
                         <button type="submit" class="btn btn-success" id="submitAsistencia" disabled>Guardar asistencia</button>
                         <button type="button" class="btn btn-outline-secondary" id="clearAsistencia">Limpiar</button>
-                        <a href="index.php?url=dashboard" class="btn btn-outline-primary">Volver</a>
+                        <a href="dashboard" class="btn btn-outline-primary">Volver</a>
                     </div>
                 </div>
 
