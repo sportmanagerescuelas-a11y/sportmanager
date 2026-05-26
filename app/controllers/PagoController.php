@@ -127,8 +127,9 @@ final class PagoController
         $referenceCode = 'PAGO_' . uniqid();
         $signature = md5($config['apiKey'] . '~' . $config['merchantId'] . '~' . $referenceCode . '~' . $total . '~COP');
         $returnUrlBase = (string)$config['returnUrlBase'];
-        $idUsuarioSesion = (int)($_SESSION['id_usuario'] ?? ($_SESSION['usuario']['id_usuario'] ?? 0));
+        $idUsuarioSesion = (int)($_SESSION['id_usuario'] ?? ($_SESSION['usuario']['id_usuario'] ?? ($_SESSION['registro_temporal']['id_usuario'] ?? 0)));
         $idEscuelaSesion = (int)($_SESSION['usuario']['id_escuela'] ?? 1);
+        $idRolTemporal = (int)($_SESSION['registro_temporal']['id_rol'] ?? ($_SESSION['rol'] ?? 0));
         $idDeportista = isset($_POST['id_deportista']) ? (int)$_POST['id_deportista'] : 0;
 
         $paymentFlow = new PaymentTransactionService();
@@ -141,6 +142,7 @@ final class PagoController
             'concepto' => $concepto,
             'metodo_pago' => $metodoPago,
             'cantidad' => $cantidad,
+            'id_rol' => $idRolTemporal,
         ];
         $encodedContext = $paymentFlow->encodeContext($paymentContext);
         $paymentFlow->storeContext($referenceCode, $paymentContext);

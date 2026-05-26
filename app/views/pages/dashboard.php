@@ -17,19 +17,20 @@ if ($rolLabel === '') {
             <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#seleccionarEventoModal">Ver</button>
         </div>
 
-        <div class="modal fade modal-top-right" id="seleccionarEventoModal" tabindex="-1" data-bs-backdrop="false">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Selecciona un evento</h5>
+        <div class="modal fade" id="seleccionarEventoModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content" style="border: 2px solid var(--school-primary-color); background-color: #fff;">
+                    <div class="modal-header" style="background-color: #fff; border-bottom: 1px solid var(--school-primary-color);">
+                        <h5 class="modal-title w-100 text-center">Selecciona un evento</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
-                    <div class="modal-body">
+                    <div class="modal-body" style="background-color: #fff;">
                         <div class="d-grid gap-2">
                             <?php foreach ($events as $e): ?>
                                 <button
                                     type="button"
-                                    class="btn btn-outline-primary btnSeleccionarEvento"
+                                    class="btn btnSeleccionarEvento"
+                                    style="border-color: var(--school-primary-color); color: var(--school-primary-color);"
                                     data-evento-id="<?= (int)$e->id_evento ?>"
                                     data-bs-dismiss="modal"
                                 >
@@ -38,7 +39,7 @@ if ($rolLabel === '') {
                             <?php endforeach; ?>
                         </div>
                     </div>
-                    <div class="modal-footer">
+                    <div class="modal-footer" style="background-color: #fff; border-top: 1px solid var(--school-primary-color);">
                         <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                     </div>
                 </div>
@@ -55,19 +56,19 @@ if ($rolLabel === '') {
         }));
         $availableAthletesCount = count($availableAthletes);
         ?>
-        <div class="modal fade modal-top-right" id="evento<?= (int)$e->id_evento ?>" tabindex="-1" data-bs-backdrop="false">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title"><?= htmlspecialchars((string)$e->titulo) ?></h5>
+        <div class="modal fade" id="evento<?= (int)$e->id_evento ?>" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content" style="border: 2px solid var(--school-primary-color); background-color: #fff;">
+                    <div class="modal-header" style="background-color: #fff; border-bottom: 1px solid var(--school-primary-color);">
+                        <h5 class="modal-title w-100 text-center"><?= htmlspecialchars((string)$e->titulo) ?></h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
-                    <div class="modal-body">
+                    <div class="modal-body" style="background-color: #fff;">
                         <p><b>Fecha:</b> <?= htmlspecialchars((string)$e->fecha) ?></p>
                         <p><b>Tipo:</b> <?= htmlspecialchars((string)$e->tipo_evento) ?></p>
                         <p><b>Costo:</b> $<?= htmlspecialchars((string)$e->costo) ?></p>
                     </div>
-                    <div class="modal-footer">
+                    <div class="modal-footer" style="background-color: #fff; border-top: 1px solid var(--school-primary-color);">
                         <span class="me-auto">Inscritos: <b id="count<?= (int)$e->id_evento ?>"><?= (int)$e->total_inscritos ?></b></span>
                         <a href="iniciar&id_evento=<?= (int)$e->id_evento ?>&evento=<?= urlencode((string)$e->titulo) ?>&monto=<?= urlencode((string)$e->costo) ?>&cantidad=1" class="btn btn-warning">Pagar</a>
                         <?php if ($e->inscrito): ?>
@@ -81,8 +82,8 @@ if ($rolLabel === '') {
             </div>
         </div>
 
-        <div class="modal fade modal-top-right" id="seleccionarDeportista<?= (int)$e->id_evento ?>" tabindex="-1" data-bs-backdrop="false">
-            <div class="modal-dialog">
+        <div class="modal fade" id="seleccionarDeportista<?= (int)$e->id_evento ?>" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">Seleccionar Deportista</h5>

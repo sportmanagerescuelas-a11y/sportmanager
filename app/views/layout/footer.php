@@ -94,5 +94,54 @@ $passwordToggleVersion = is_file($passwordTogglePath) ? (string)filemtime($passw
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="assets/js/password-toggle.js?v=<?= urlencode($passwordToggleVersion) ?>"></script>
 <script src="assets/js/indexcontroller.js?v=<?= urlencode($indexControllerVersion) ?>"></script>
+<script>
+    (function () {
+        const numericLimits = {
+            id_usuario: 11,
+            id_deportista: 11,
+            num_documento: 11,
+            dni: 11,
+            telefono: 10
+        };
+
+        function normalizeNumericInput(input) {
+            const fieldName = input.name || input.id || '';
+            const maxLen = numericLimits[fieldName] || null;
+            let value = String(input.value || '').replace(/\D+/g, '');
+            if (maxLen !== null) {
+                value = value.slice(0, maxLen);
+            }
+            if (input.value !== value) {
+                input.value = value;
+            }
+        }
+
+        document.addEventListener('input', function (event) {
+            const target = event.target;
+            if (!target || !(target instanceof HTMLInputElement)) {
+                return;
+            }
+            const fieldName = target.name || target.id || '';
+            if (!(fieldName in numericLimits)) {
+                return;
+            }
+            normalizeNumericInput(target);
+        });
+
+        document.addEventListener('paste', function (event) {
+            const target = event.target;
+            if (!target || !(target instanceof HTMLInputElement)) {
+                return;
+            }
+            const fieldName = target.name || target.id || '';
+            if (!(fieldName in numericLimits)) {
+                return;
+            }
+            setTimeout(function () {
+                normalizeNumericInput(target);
+            }, 0);
+        });
+    })();
+</script>
 </body>
 </html>

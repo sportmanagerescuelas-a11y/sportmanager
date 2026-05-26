@@ -86,6 +86,40 @@ final class ConfirmacionController
         }
     }
 
+    /**
+     * @param array<string,mixed> $context
+     * @param array<string,mixed> $result
+     */
+    private function maybeMarkAdminPaymentVerified(array $context, array $result): void
+    {
+        if ((string)($result['status']['key'] ?? '') !== 'approved') {
+            return;
+        }
+
+        if ((int)($context['id_rol'] ?? 0) !== 3) {
+            return;
+        }
+
+        $userId = (string)($context['id_usuario'] ?? '');
+        if ($userId === '' || !ctype_digit($userId)) {
+            return;
+        }
+
+        require APP_BASE_PATH . '/config/conexion.php';
+        if (!isset($conexion) || !($conexion instanceof \PDO)) {
+            return;
+        }
+
+        $stmt = $conexion->prepare("
+            UPDATE admin_payment_requests
+            SET estado = 'verificado', actualizado_en = NOW()
+            WHERE id_usuario = :id_usuario
+            ORDER BY id_request DESC
+            LIMIT 1
+        ");
+        $stmt->execute([':id_usuario' => (int)$userId]);
+    }
+
     public function pagoIsn(): void
     {
         $paymentFlow = new PaymentTransactionService();
@@ -146,6 +180,7 @@ final class ConfirmacionController
         }
 
         $this->maybeCreateUserFromLegacyFlow($result);
+        $this->maybeMarkAdminPaymentVerified($context, $result);
 
         $refreshUrl = '';
         if (($result['status']['key'] ?? '') === 'pending') {

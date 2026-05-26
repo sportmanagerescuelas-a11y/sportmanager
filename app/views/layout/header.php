@@ -9,6 +9,7 @@
     $schoolSecondaryColor = '#001285';
     $schoolShieldPath = 'assets/img/balonfutbol.png';
     $brandName = 'Sport Manager';
+    $currentRole = (int)($_SESSION['rol'] ?? 0);
 
     if ($currentRole !== 4 && isset($_SESSION['usuario']['id_escuela']) && (int)$_SESSION['usuario']['id_escuela'] > 0) {
         try {
@@ -28,9 +29,13 @@
                     $schoolName = trim((string)($schoolTheme['nombre'] ?? ''));
                     $primary = (string)($schoolTheme['color_primario'] ?? '');
                     $secondary = (string)($schoolTheme['color_secundario'] ?? '');
+                    $shield = trim((string)($schoolTheme['escudo_path'] ?? ''));
                     $role = (int)($_SESSION['rol'] ?? 0);
                     if ($role === 3 && $schoolName !== '') {
                         $brandName = $schoolName;
+                    }
+                    if ($shield !== '') {
+                        $schoolShieldPath = $shield;
                     }
                     if (preg_match('/^#[0-9A-Fa-f]{6}$/', $primary) === 1) {
                         $schoolPrimaryColor = strtolower($primary);
@@ -54,7 +59,7 @@
     <link rel="stylesheet" href="assets/css/style.css?v=<?= urlencode($styleVersion) ?>">
 </head>
 
-<body>
+<body style="--school-primary-color: <?= htmlspecialchars($schoolPrimaryColor, ENT_QUOTES, 'UTF-8') ?>;">
     <header>
         <div class="top-bar text-white py-1" style="background-color: <?= htmlspecialchars($schoolPrimaryColor, ENT_QUOTES, 'UTF-8') ?>;">
             <div class="container d-flex justify-content-between">

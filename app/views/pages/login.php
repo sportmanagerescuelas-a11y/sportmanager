@@ -13,12 +13,14 @@ $loginErrorText = sm_error_text($loginErrorCode, $loginErrorMap);
 $loginModalTitle = '';
 $loginModalMessage = '';
 $loginModalType = '';
+$loginSessionExpired = false;
 $loginFieldError = ['field' => '', 'message' => ''];
 
 if (!empty($_SESSION['flash_session_expired'])) {
     $loginModalTitle = 'Sesion finalizada';
     $loginModalMessage = 'Tu sesion expiro por inactividad. Inicia sesion de nuevo.';
     $loginModalType = 'warning';
+    $loginSessionExpired = true;
     unset($_SESSION['flash_session_expired']);
 } elseif ($loginErrorCode === 'invalidemail') {
     $loginFieldError = ['field' => 'email', 'message' => 'El formato del correo no es valido.'];
@@ -75,7 +77,35 @@ if (!empty($_SESSION['flash_session_expired'])) {
     </div>
 </div>
 <?php if ($loginModalMessage !== ''): ?>
-    <?php sm_render_modal_message('loginMessageModal', $loginModalTitle, $loginModalMessage, $loginModalType); ?>
+    <?php if ($loginSessionExpired): ?>
+        <div class="modal fade" id="loginMessageModal" tabindex="-1" aria-labelledby="loginMessageModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content" style="border: 2px solid #fd7e14;">
+                    <div class="modal-header" style="background-color: #ffffff; border-bottom: 1px solid #fd7e14;">
+                        <h5 class="modal-title w-100 text-center" id="loginMessageModalLabel"><?= htmlspecialchars($loginModalTitle, ENT_QUOTES, 'UTF-8') ?></h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body text-center" style="background-color: #ffffff;">
+                        <img src="assets/img/reloj.gif" alt="Sesion expirada" class="img-fluid mb-3" style="max-height: 180px;">
+                        <p class="mb-0"><?= htmlspecialchars($loginModalMessage, ENT_QUOTES, 'UTF-8') ?></p>
+                    </div>
+                    <div class="modal-footer" style="background-color: #ffffff; border-top: 1px solid #fd7e14;">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const modalElement = document.getElementById('loginMessageModal');
+            if (modalElement && window.bootstrap && bootstrap.Modal) {
+                bootstrap.Modal.getOrCreateInstance(modalElement).show();
+            }
+        });
+        </script>
+    <?php else: ?>
+        <?php sm_render_modal_message('loginMessageModal', $loginModalTitle, $loginModalMessage, $loginModalType); ?>
+    <?php endif; ?>
 <?php endif; ?>
 <script>
 document.addEventListener('DOMContentLoaded', function () {

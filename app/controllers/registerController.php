@@ -10,7 +10,7 @@ if (isset($_POST["register"])) {
 
     $id_usuario = filter_var(trim($_POST["id_usuario"]), FILTER_SANITIZE_FULL_SPECIAL_CHARS);
     $tipo_documento = filter_var(trim($_POST["tipo_documento"]), FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-    $id_escuela = filter_var(trim($_POST["id_escuela"]), FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $id_escuela = filter_var(trim((string)($_POST["id_escuela"] ?? '')), FILTER_SANITIZE_FULL_SPECIAL_CHARS);
     $nombres = filter_var(trim($_POST["nombres"]), FILTER_SANITIZE_FULL_SPECIAL_CHARS);
     $apellidos = filter_var(trim($_POST["apellidos"]), FILTER_SANITIZE_FULL_SPECIAL_CHARS);
     $email = filter_var(trim($_POST["email"]), FILTER_SANITIZE_EMAIL);
@@ -45,13 +45,8 @@ if (isset($_POST["register"])) {
         exit();
     }
 
-<<<<<<< HEAD
-    if (!preg_match('/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&._-]).{8,}$/', $password)) {
-        header("Location: ../register&error=password");
-=======
     if (!sm_password_is_valid($password)) {
-        header("Location: ../index.php?url=register&error=password");
->>>>>>> 126dda8f7753308ef803a8c539ad3930816285c5
+        header("Location: ../register&error=password");
         exit();
     }
 
@@ -75,36 +70,40 @@ if (isset($_POST["register"])) {
     }
 
     if ($id_rol === 3) {
-        $id_escuela = null;
-    }
-
-    if ($id_rol === 3) {
-        if (empty($_FILES['comprobante_pago']['tmp_name']) || empty($_FILES['comprobante_pago']['name'])) {
-            header("Location: ../register&error=comprobante");
-            exit();
+        // Para admin, si no selecciona escuela, asignamos una escuela valida por defecto
+        // para evitar fallos por restricciones de base de datos.
+        if ($id_escuela === '' || $id_escuela === null) {
+            $stmtDefaultSchool = $conexion->query("SELECT id_escuela FROM escuelas ORDER BY id_escuela ASC LIMIT 1");
+            $defaultSchoolId = $stmtDefaultSchool ? (int)$stmtDefaultSchool->fetchColumn() : 0;
+            if ($defaultSchoolId <= 0) {
+                header("Location: ../register&error=schoolnone");
+                exit();
+            }
+            $id_escuela = (string)$defaultSchoolId;
         }
     }
 
     if ($usuarioModel->registrar($id_usuario, $tipo_documento, $id_escuela, $nombres, $apellidos, $email, $password, $telefono, $id_rol)) {
         if ($id_rol === 3) {
-            $safeName = preg_replace('/[^A-Za-z0-9._-]/', '_', (string)$_FILES['comprobante_pago']['name']);
-            $fileName = time() . '_' . $id_usuario . '_' . $safeName;
-            $targetDir = dirname(__DIR__, 2) . '/fotos/admin_payments';
-            if (!is_dir($targetDir)) {
-                mkdir($targetDir, 0775, true);
-            }
+            // Solicitud creada para seguimiento interno; se marcara como verificada
+            // tras la confirmacion exitosa en pasarela.
+            $usuarioModel->crearSolicitudPagoAdmin($id_usuario, 'pasarela');
 
-            $targetPath = $targetDir . '/' . $fileName;
-            $publicPath = 'fotos/admin_payments/' . $fileName;
+            $_SESSION['registro_temporal'] = [
+                'id_usuario' => $id_usuario,
+                'tipo_documento' => $tipo_documento,
+                'id_escuela' => null,
+                'nombres' => $nombres,
+                'apellidos' => $apellidos,
+                'nombre' => trim($nombres . ' ' . $apellidos),
+                'email' => $email,
+                'password' => $password,
+                'telefono' => $telefono,
+                'id_rol' => 3,
+                'cantidad' => 1,
+            ];
 
-            $saved = move_uploaded_file($_FILES['comprobante_pago']['tmp_name'], $targetPath);
-            if ($saved) {
-                $usuarioModel->crearSolicitudPagoAdmin($id_usuario, $publicPath);
-                header("Location: ../register&success=payment_pending");
-                exit();
-            }
-
-            header("Location: ../register&error=comprobante_upload");
+            header("Location: ../iniciar?evento=Pago%20registro%20administrador&monto=35000&cantidad=1&return_to=register");
             exit();
         }
 

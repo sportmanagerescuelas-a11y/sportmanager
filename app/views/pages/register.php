@@ -17,8 +17,6 @@ $registerErrorMap = [
     'duplicateemail' => 'Ya existe un usuario con ese correo electronico.',
     'schoolnone' => 'Aun no hay escuelas disponibles para inscripcion.',
     'school' => 'La escuela seleccionada no existe. Elige una escuela valida.',
-    'comprobante' => 'Para registrarte como administrador debes adjuntar un comprobante de pago.',
-    'comprobante_upload' => 'No se pudo guardar el comprobante. Intentalo de nuevo.',
     'db' => 'No se pudo crear la cuenta en este momento. Inténtalo nuevamente.',
 ];
 $registerErrorText = sm_error_text($registerErrorCode, $registerErrorMap);
@@ -52,10 +50,6 @@ $fieldErrorMap = [
     'telefono' => [
         'empty' => 'Debes ingresar tu telefono.',
         'phone' => 'El telefono debe tener exactamente 10 digitos.',
-    ],
-    'comprobante_pago' => [
-        'comprobante' => 'Debes adjuntar el comprobante de pago para administrador.',
-        'comprobante_upload' => 'No se pudo guardar el comprobante. Intentalo de nuevo.',
     ],
 ];
 
@@ -121,7 +115,7 @@ if ($registerErrorText !== '' && $activeFieldError['field'] === '') {
                 <div class="mb-3">
                     <label for="id_usuario" class="form-label">Numero de Documento</label>
                     <div class="position-relative">
-                        <input type="number" class="form-control auth-input" id="id_usuario" name="id_usuario" placeholder="Tu numero de documento" required>
+                        <input type="text" class="form-control auth-input" id="id_usuario" name="id_usuario" placeholder="Tu numero de documento" maxlength="11" pattern="\d{1,11}" inputmode="numeric" required>
                         <span id="idSpinner" class="spinner-border spinner-border-sm text-primary position-absolute top-50 end-0 translate-middle-y me-3" style="display:none;" role="status" aria-hidden="true"></span>
                     </div>
                     <div class="invalid-feedback" id="id_usuarioFeedback">Por favor ingrese su numero de documento.</div>
@@ -137,19 +131,6 @@ if ($registerErrorText !== '' && $activeFieldError['field'] === '') {
                         <option value="PEP">PEP - Permiso Especial de Permanencia</option>
                     </select>
                     <div class="invalid-feedback" id="tipo_documentoFeedback">Seleccione un tipo de documento.</div>
-                </div>
-                <div class="mb-3" id="schoolWrap">
-                    <label for="id_escuela" class="form-label">Escuela</label>
-                    <select class="form-select auth-input" id="id_escuela" name="id_escuela" required>
-                        <option value="" selected disabled>Selecciona tu escuela...</option>
-                        <?php foreach ($schools as $school): ?>
-                            <?php $value = (string)($school->id_escuela ?? ''); ?>
-                            <option value="<?= htmlspecialchars($value, ENT_QUOTES, 'UTF-8') ?>" <?= $selectedSchool === $value ? 'selected' : '' ?>>
-                                <?= htmlspecialchars((string)(($school->nombre ?? '') . ' - ' . ($school->disciplina ?? '')), ENT_QUOTES, 'UTF-8') ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                    <div class="invalid-feedback" id="id_escuelaFeedback">Debes seleccionar una escuela.</div>
                 </div>
                 <div class="mb-3">
                     <label for="nombres" class="form-label">Nombres</label>
@@ -174,21 +155,23 @@ if ($registerErrorText !== '' && $activeFieldError['field'] === '') {
                     <label for="password" class="form-label">Contrasena</label>
                     <input type="password" class="form-control auth-input" id="password" name="password" placeholder="Crea una contrasena" required>
                     <div class="invalid-feedback" id="passwordFeedback">Debes ingresar una contrasena valida.</div>
-                    <small id="passwordHelp" class="form-text text-muted">
-                        La contrasena debe cumplir todos estos requisitos:
-                    </small>
-                    <ul id="passwordRequirements" class="mt-2 mb-0 ps-3 small">
-                        <li id="req-length" class="text-danger">âœ– Minimo 8 caracteres</li>
-                        <li id="req-upper" class="text-danger">âœ– Una letra mayuscula</li>
-                        <li id="req-lower" class="text-danger">âœ– Una letra minuscula</li>
-                        <li id="req-number" class="text-danger">âœ– Un numero</li>
-                        <li id="req-special" class="text-danger">âœ– Un caracter especial (@$!%*?&._-)</li>
-                    </ul>
+                    <div id="passwordRequirementsBox" class="border rounded p-3 mt-2 bg-white shadow-sm d-none">
+    <small id="passwordHelp" class="form-text text-muted">
+        La contrasena debe cumplir todos estos requisitos:
+    </small>
+    <ul id="passwordRequirements" class="mt-2 mb-0 ps-3 small">
+        <li id="req-length" class="text-danger">- Minimo 8 caracteres</li>
+        <li id="req-upper" class="text-danger">- Una letra mayuscula</li>
+        <li id="req-lower" class="text-danger">- Una letra minuscula</li>
+        <li id="req-number" class="text-danger">- Un numero</li>
+        <li id="req-special" class="text-danger">- Un caracter especial (@$!%*?&._-)</li>
+    </ul>
+</div>
                     <div id="passwordMissing" class="mt-2 small text-danger"></div>
                 </div>
                 <div class="mb-3">
                     <label for="telefono" class="form-label">Telefono</label>
-                    <input type="tel" class="form-control auth-input" id="telefono" name="telefono" placeholder="Tu telefono" required>
+                    <input type="tel" class="form-control auth-input" id="telefono" name="telefono" placeholder="Tu telefono" maxlength="10" pattern="\d{10}" inputmode="numeric" required>
                     <div class="invalid-feedback" id="telefonoFeedback">Debes ingresar un telefono valido.</div>
                 </div>
                 <div class="mb-3">
@@ -199,10 +182,23 @@ if ($registerErrorText !== '' && $activeFieldError['field'] === '') {
                         <option value="3">Administrador de escuela (requiere validacion de pago)</option>
                     </select>
                 </div>
+                <div class="mb-3" id="schoolWrap">
+                    <label for="id_escuela" class="form-label">Escuela</label>
+                    <select class="form-select auth-input" id="id_escuela" name="id_escuela">
+                        <option value="" selected disabled>Selecciona tu escuela...</option>
+                        <?php foreach ($schools as $school): ?>
+                            <?php $value = (string)($school->id_escuela ?? ''); ?>
+                            <option value="<?= htmlspecialchars($value, ENT_QUOTES, 'UTF-8') ?>" <?= $selectedSchool === $value ? 'selected' : '' ?>>
+                                <?= htmlspecialchars((string)(($school->nombre ?? '') . ' - ' . ($school->disciplina ?? '')), ENT_QUOTES, 'UTF-8') ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                    <div class="invalid-feedback" id="id_escuelaFeedback">Debes seleccionar una escuela.</div>
+                </div>
                 <div class="mb-3" id="comprobantePagoWrap" style="display:none;">
-                    <label for="comprobante_pago" class="form-label">Comprobante de pago (solo administrador)</label>
-                    <input type="file" class="form-control auth-input" id="comprobante_pago" name="comprobante_pago" accept=".jpg,.jpeg,.png,.pdf">
-                    <div class="invalid-feedback" id="comprobante_pagoFeedback">Debes adjuntar el comprobante.</div>
+                    <div class="alert alert-info mb-0">
+                        Para administrador ya no necesitas subir comprobante. Al registrarte te llevaremos a la pasarela de pago.
+                    </div>
                 </div>
                 <button type="submit" name="register" class="btn btn-primary w-100 auth-action">Registrarse</button>
             </form>
@@ -237,23 +233,51 @@ if ($registerErrorText !== '' && $activeFieldError['field'] === '') {
     });
     </script>
 <?php elseif ($modalMessage !== ''): ?>
-    <?php sm_render_modal_message('registerMessageModal', $modalTitle, $modalMessage, $modalType); ?>
+    <?php if ($modalType === 'danger'): ?>
+        <div class="modal fade" id="registerMessageModal" tabindex="-1" aria-labelledby="registerMessageModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content bg-white border border-danger border-3">
+                    <div class="modal-header border-0 justify-content-center pb-0">
+                        <h5 class="modal-title text-center w-100" id="registerMessageModalLabel"><?= htmlspecialchars($modalTitle, ENT_QUOTES, 'UTF-8') ?></h5>
+                    </div>
+                    <div class="modal-body text-center pt-2">
+                        <img src="assets/img/silbato-deportivo.gif" alt="Error al crear cuenta" class="img-fluid mb-3" style="max-height: 180px;">
+                        <p class="mb-0"><?= htmlspecialchars($modalMessage, ENT_QUOTES, 'UTF-8') ?></p>
+                    </div>
+                    <div class="modal-footer border-0 justify-content-center pt-0">
+                        <button type="button" class="btn btn-danger px-4" data-bs-dismiss="modal">Aceptar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const modalElement = document.getElementById('registerMessageModal');
+            if (modalElement && window.bootstrap && bootstrap.Modal) {
+                const modal = new bootstrap.Modal(modalElement);
+                modal.show();
+            }
+        });
+        </script>
+    <?php else: ?>
+        <?php sm_render_modal_message('registerMessageModal', $modalTitle, $modalMessage, $modalType); ?>
+    <?php endif; ?>
 <?php endif; ?>
 <script src="assets/js/registercontroller.js?v=<?= urlencode($registerControllerVersion) ?>"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const roleSelect = document.getElementById('id_rol');
     const wrap = document.getElementById('comprobantePagoWrap');
-    const input = document.getElementById('comprobante_pago');
     const schoolWrap = document.getElementById('schoolWrap');
     const schoolSelect = document.getElementById('id_escuela');
+    const passwordInput = document.getElementById('password');
+    const passwordRequirementsBox = document.getElementById('passwordRequirementsBox');
 
-    if (!roleSelect || !wrap || !input || !schoolWrap || !schoolSelect) return;
+    if (!roleSelect || !wrap || !schoolWrap || !schoolSelect) return;
 
     const sync = function () {
         const isAdmin = roleSelect.value === '3';
         wrap.style.display = isAdmin ? '' : 'none';
-        input.required = isAdmin;
         schoolWrap.style.display = '';
         schoolSelect.required = !isAdmin;
         schoolSelect.disabled = isAdmin;
@@ -264,6 +288,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
     roleSelect.addEventListener('change', sync);
     sync();
+
+    if (passwordInput && passwordRequirementsBox) {
+        passwordInput.addEventListener('focus', function () {
+            passwordRequirementsBox.classList.remove('d-none');
+        });
+        passwordInput.addEventListener('blur', function () {
+            passwordRequirementsBox.classList.add('d-none');
+        });
+    }
 
     const serverFieldError = {
         field: '<?= htmlspecialchars($activeFieldError['field'], ENT_QUOTES, 'UTF-8') ?>',
@@ -283,5 +316,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 </script>
+
 
 
