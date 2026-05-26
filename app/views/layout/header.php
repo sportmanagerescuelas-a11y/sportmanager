@@ -7,8 +7,8 @@
     $styleVersion = is_file($stylePath) ? (string)filemtime($stylePath) : (string)time();
     $schoolPrimaryColor = '#212529';
     $schoolSecondaryColor = '#001285';
-    $schoolShieldPath = 'assets/img/logo_icoaner.jpg';
-    $brandName = 'Proyecto SM';
+    $schoolShieldPath = 'assets/img/balonfutbol.png';
+    $brandName = 'Sport Manager';
 
     if (isset($_SESSION['usuario']['id_escuela']) && (int)$_SESSION['usuario']['id_escuela'] > 0) {
         try {
@@ -28,7 +28,6 @@
                     $schoolName = trim((string)($schoolTheme['nombre'] ?? ''));
                     $primary = (string)($schoolTheme['color_primario'] ?? '');
                     $secondary = (string)($schoolTheme['color_secundario'] ?? '');
-                    $shield = (string)($schoolTheme['escudo_path'] ?? '');
                     $role = (int)($_SESSION['rol'] ?? 0);
                     if ($role === 3 && $schoolName !== '') {
                         $brandName = $schoolName;
@@ -39,9 +38,6 @@
                     if (preg_match('/^#[0-9A-Fa-f]{6}$/', $secondary) === 1) {
                         $schoolSecondaryColor = strtolower($secondary);
                     }
-                    if ($shield !== '') {
-                        $schoolShieldPath = $shield;
-                    }
                 }
             }
         } catch (Throwable) {
@@ -51,7 +47,7 @@
     ?>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Proyecto SM</title>
+    <title>Sport Manager | Gestión deportiva</title>
     <link rel="icon" type="image/png" href="assets/img/balonfutbol.png">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -73,9 +69,12 @@
 
         <nav class="navbar navbar-expand-lg navbar-light custom-navbar" style="border-bottom: 4px solid <?= htmlspecialchars($schoolSecondaryColor, ENT_QUOTES, 'UTF-8') ?>;">
             <div class="container">
-                <a class="navbar-brand d-flex align-items-center" href="index.php">
+                <a class="navbar-brand d-flex align-items-center brand-mark" href="index.php">
                     <img src="<?= htmlspecialchars($schoolShieldPath, ENT_QUOTES, 'UTF-8') ?>" alt="Logo" class="logo-nav me-2">
-                    <span><?= htmlspecialchars($brandName, ENT_QUOTES, 'UTF-8') ?></span>
+                    <span class="brand-text">
+                        <span class="brand-name"><?= htmlspecialchars($brandName, ENT_QUOTES, 'UTF-8') ?></span>
+                        <small>Gestión deportiva</small>
+                    </span>
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                     aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">

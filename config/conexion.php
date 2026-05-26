@@ -1,5 +1,9 @@
 <?php
 
+if (date_default_timezone_get() !== 'America/Bogota') {
+    date_default_timezone_set('America/Bogota');
+}
+
 class Database {
     private static $instance = null;
 
