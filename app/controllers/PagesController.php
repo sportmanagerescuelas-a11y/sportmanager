@@ -599,7 +599,6 @@ class PagesController
             'valor_inscripcion' => '',
             'valor_mensualidad' => '',
             'correo' => '',
-            'pass_app' => '',
             'telefono' => '',
             'direccion' => '',
             'escudo_path' => '',
@@ -618,7 +617,6 @@ class PagesController
             'valor_inscripcion' => trim((string)($_POST['valor_inscripcion'] ?? '0')),
             'valor_mensualidad' => trim((string)($_POST['valor_mensualidad'] ?? '0')),
             'correo' => trim((string)($_POST['correo'] ?? '')),
-            'pass_app' => trim((string)($_POST['pass_app'] ?? '')),
             'telefono' => trim((string)($_POST['telefono'] ?? '')),
             'direccion' => trim((string)($_POST['direccion'] ?? '')),
             'escudo_path' => trim((string)($_POST['current_escudo_path'] ?? '')) ?: null,
@@ -637,7 +635,6 @@ class PagesController
             'valor_inscripcion' => (string)($payload['valor_inscripcion'] ?? ''),
             'valor_mensualidad' => (string)($payload['valor_mensualidad'] ?? ''),
             'correo' => (string)($payload['correo'] ?? ''),
-            'pass_app' => (string)($payload['pass_app'] ?? ''),
             'telefono' => (string)($payload['telefono'] ?? ''),
             'direccion' => (string)($payload['direccion'] ?? ''),
             'escudo_path' => (string)($payload['escudo_path'] ?? ''),
@@ -673,9 +670,6 @@ class PagesController
         }
         if (!$mensualidadValida) {
             $errors[] = 'El valor de mensualidad debe ser un numero mayor o igual a 0.';
-        }
-        if ($payload['pass_app'] === '') {
-            $errors[] = 'La clave de app/correo es obligatoria.';
         }
         if (!$telefonoValido) {
             $errors[] = 'El telefono debe tener exactamente 10 digitos numericos.';

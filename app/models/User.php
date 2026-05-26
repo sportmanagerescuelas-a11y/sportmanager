@@ -97,13 +97,16 @@ class User
 
     public function findByToken(string $token): array|false
     {
+        $now = (new DateTimeImmutable('now', new DateTimeZone('America/Bogota')))
+            ->format('Y-m-d H:i:s');
         $stmt = $this->db->prepare(
             "SELECT * FROM usuarios
              WHERE reset_token = :token
-             AND token_expiry > NOW()
+             AND token_expiry > :now
              LIMIT 1"
         );
         $stmt->bindParam(":token", $token);
+        $stmt->bindParam(":now", $now);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }

@@ -1,5 +1,9 @@
 <?php
 
+if (date_default_timezone_get() !== 'America/Bogota') {
+    date_default_timezone_set('America/Bogota');
+}
+
 if (!defined('SESSION_TIMEOUT_SECONDS')) {
     define('SESSION_TIMEOUT_SECONDS', 180);
 }

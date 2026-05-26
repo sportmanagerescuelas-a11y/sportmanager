@@ -4,6 +4,7 @@ require_once __DIR__ . '/../../config/session.php';
 
 require_once __DIR__ . '/../../config/conexion.php';
 require_once __DIR__ . '/../models/Usuario.php';
+require_once __DIR__ . '/../helpers/password.php';
 
 if (isset($_POST["register"])) {
 
@@ -44,8 +45,13 @@ if (isset($_POST["register"])) {
         exit();
     }
 
+<<<<<<< HEAD
     if (!preg_match('/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&._-]).{8,}$/', $password)) {
         header("Location: ../register&error=password");
+=======
+    if (!sm_password_is_valid($password)) {
+        header("Location: ../index.php?url=register&error=password");
+>>>>>>> 126dda8f7753308ef803a8c539ad3930816285c5
         exit();
     }
 

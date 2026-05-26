@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../../config/session.php';
 require_once __DIR__ . '/../../config/conexion.php';
+require_once __DIR__ . '/../helpers/password.php';
 
 if (!isset($_SESSION["rol"]) || !in_array((int)$_SESSION["rol"], [3, 4], true)) {
     header("Location: ../dashboard");
@@ -46,6 +47,10 @@ if ($accion == "activar" || $accion == "deshabilitar") {
     }
 
     if (!empty($nueva_contrasena)) {
+        if (!sm_password_is_valid((string)$nueva_contrasena)) {
+            header("Location: ../admin_usuarios.php?error=password");
+            exit();
+        }
 
         $passwordHash = password_hash($nueva_contrasena, PASSWORD_DEFAULT);
 

@@ -2,6 +2,7 @@
 $projectRoot = dirname(__DIR__, 2);
 require_once $projectRoot . "/app/models/User.php";
 require_once $projectRoot . "/app/helpers/ui.php";
+require_once $projectRoot . "/app/helpers/password.php";
 
 $autoloadPath = $projectRoot . "/vendor/autoload.php";
 $phpMailerLoaded = false;
@@ -35,10 +36,12 @@ class AuthController
 {
     private User $user;
     private string $projectRoot;
+    private \DateTimeZone $timezone;
 
     public function __construct()
     {
         $this->projectRoot = dirname(__DIR__, 2);
+        $this->timezone = new \DateTimeZone('America/Bogota');
         $this->user = new User();
     }
 
@@ -64,7 +67,9 @@ class AuthController
 
         if ($user) {
             $token = bin2hex(random_bytes(32));
-            $expira = date("Y-m-d H:i:s", strtotime("+1 hour"));
+            $expira = (new \DateTimeImmutable('now', $this->timezone))
+                ->modify('+5 minutes')
+                ->format('Y-m-d H:i:s');
             $this->user->saveToken($email, $token, $expira);
             $resetUrl = $this->buildResetUrl($token);
 
@@ -117,12 +122,20 @@ class AuthController
     public function guardarPassword(): void
     {
         $token = $_POST['token'] ?? '';
-        $password = $_POST['password'] ?? '';
+        $password = (string)($_POST['password'] ?? '');
 
-        if ($token !== '' && $password !== '') {
-            $passwordHash = password_hash($password, PASSWORD_DEFAULT);
-            $this->user->updatePassword($token, $passwordHash);
+        if ($token === '' || $password === '' || !sm_password_is_valid($password)) {
+            header('Location: index.php?url=reset&token=' . urlencode((string)$token) . '&error=password');
+            exit;
         }
+
+        $passwordHash = password_hash($password, PASSWORD_DEFAULT);
+        if ($passwordHash === false) {
+            header('Location: index.php?url=reset&token=' . urlencode((string)$token) . '&error=password');
+            exit;
+        }
+
+        $this->user->updatePassword($token, $passwordHash);
 
         require $this->projectRoot . "/app/views/layout/mensaje.php";
     }

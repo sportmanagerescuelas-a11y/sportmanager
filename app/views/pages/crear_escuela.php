@@ -16,7 +16,6 @@ $formData = array_merge([
     'valor_inscripcion' => '',
     'valor_mensualidad' => '',
     'correo' => '',
-    'pass_app' => '',
     'telefono' => '',
     'direccion' => '',
     'escudo_path' => '',
@@ -72,10 +71,6 @@ $formData = array_merge([
                             <div class="col-md-6">
                                 <label class="form-label" for="correo">Correo oficial</label>
                                 <input type="email" class="form-control" id="correo" name="correo" maxlength="50" value="<?= htmlspecialchars((string)$formData['correo'], ENT_QUOTES, 'UTF-8') ?>" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label" for="pass_app">Clave de app/correo</label>
-                                <input type="text" class="form-control" id="pass_app" name="pass_app" maxlength="60" value="<?= htmlspecialchars((string)$formData['pass_app'], ENT_QUOTES, 'UTF-8') ?>" required>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label" for="telefono">Telefono</label>
