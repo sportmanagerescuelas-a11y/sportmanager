@@ -25,6 +25,25 @@ class FacturaModel {
         return $stmt->fetchAll();
     }
 
+    public function obtenerTodasPorEscuela(int $schoolId): array {
+        $query = "SELECT f.*, 
+                         u.nombres AS nombre_usuario, 
+                         CONCAT(d.nombres, ' ', d.apellidos) AS nombre_deportista, 
+                         e.titulo AS nombre_evento,
+                         m.nombre_entidad AS metodo_pago_texto
+                  FROM facturas f
+                  INNER JOIN usuarios u ON f.id = u.id_usuario
+                  LEFT JOIN deportistas d ON f.id_deportista = d.id_deportista
+                  LEFT JOIN eventos e ON f.id_evento = e.id_evento
+                  LEFT JOIN metodos_pago m ON f.tipo_pago = m.id_metodo
+                  WHERE u.id_escuela = :id_escuela
+                  ORDER BY f.id_factura DESC";
+
+        $stmt = $this->db->prepare($query);
+        $stmt->execute(['id_escuela' => $schoolId]);
+        return $stmt->fetchAll();
+    }
+
     public function obtenerFacturaPorId(string|int $id_factura): array|false {
         $query = "SELECT f.*, 
                          u.nombres AS nombre_usuario, 
@@ -40,6 +59,28 @@ class FacturaModel {
                   
         $stmt = $this->db->prepare($query);
         $stmt->execute(['id_factura' => $id_factura]);
+        return $stmt->fetch();
+    }
+
+    public function obtenerFacturaPorIdYEscuela(string|int $id_factura, int $schoolId): array|false {
+        $query = "SELECT f.*, 
+                         u.nombres AS nombre_usuario, 
+                         CONCAT(d.nombres, ' ', d.apellidos) AS nombre_deportista, 
+                         e.titulo AS nombre_evento,
+                         m.nombre_entidad AS metodo_pago_texto
+                  FROM facturas f
+                  INNER JOIN usuarios u ON f.id = u.id_usuario
+                  LEFT JOIN deportistas d ON f.id_deportista = d.id_deportista
+                  LEFT JOIN eventos e ON f.id_evento = e.id_evento
+                  LEFT JOIN metodos_pago m ON f.tipo_pago = m.id_metodo
+                  WHERE f.id_factura = :id_factura
+                    AND u.id_escuela = :id_escuela";
+                  
+        $stmt = $this->db->prepare($query);
+        $stmt->execute([
+            'id_factura' => $id_factura,
+            'id_escuela' => $schoolId,
+        ]);
         return $stmt->fetch();
     }
 

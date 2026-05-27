@@ -217,7 +217,9 @@ switch ($route) {
             case 'nuevo':
                 $producto = [];
                 $isEdit = false;
+                require __DIR__ . '/app/views/layout/header.php';
                 require __DIR__ . '/app/views/productos/form.php';
+                require __DIR__ . '/app/views/layout/footer.php';
                 break;
             case 'guardar':
                 $controller->guardar();
@@ -225,7 +227,9 @@ switch ($route) {
             case 'editar':
                 $producto = $controller->obtenerPorId($id);
                 $isEdit = true;
+                require __DIR__ . '/app/views/layout/header.php';
                 require __DIR__ . '/app/views/productos/form.php';
+                require __DIR__ . '/app/views/layout/footer.php';
                 break;
             case 'actualizar':
                 $controller->actualizar($id);
@@ -236,7 +240,9 @@ switch ($route) {
             case 'listar':
             default:
                 $productos = $controller->listar();
+                require __DIR__ . '/app/views/layout/header.php';
                 require __DIR__ . '/app/views/productos/listar.php';
+                require __DIR__ . '/app/views/layout/footer.php';
                 break;
         }
         break;

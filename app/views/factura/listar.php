@@ -2,36 +2,26 @@
 $viewData = get_defined_vars();
 $facturas = is_array($viewData['facturas'] ?? null) ? $viewData['facturas'] : [];
 ?>
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Listado de Facturas</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="assets/css/style.css">
-</head>
-<body class="bg-light">
 
-<div class="container my-5">
+<div class="container my-5 pt-5">
     
     <div class="mb-4">
         <a href="dashboard.php" class="btn btn-secondary">
-            <i class="bi bi-arrow-left-circle"></i> Volver al Panel Principal
+            Volver al Panel Principal
         </a>
     </div>
 
     <div class="card shadow-sm">
         <div class="card-header d-flex justify-content-between align-items-center gap-3 flex-wrap">
-            <h4 class="mb-0">📜 Listado de Facturas Registradas</h4>
-            <span class="badge bg-primary"><?= count($facturas) ?> Factura(s)</span>
+            <h4 class="mb-0">📜 Listado de Pagos Registrados</h4>
+            <span class="badge bg-primary"><?= count($facturas) ?> Pago(s)</span>
         </div>
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table class="table table-hover table-striped mb-0">
                     <thead class="table-secondary">
                         <tr>
-                            <th>ID Factura</th>
+                            <th>ID Pago</th>
                             <th>Deportista</th>
                             <th>Evento</th>
                             <th>Tipo de Pago</th>
@@ -54,11 +44,11 @@ $facturas = is_array($viewData['facturas'] ?? null) ? $viewData['facturas'] : []
                                     <td class="text-end">$<?= number_format($f['total'] ?? $f['monto'] ?? 0, 2) ?></td>
                                     <td class="text-center">
                                         <a href="index.php?action=ver&id=<?= urlencode((string)($f['id_factura'] ?? '')) ?>" class="btn btn-sm btn-info text-white">
-                                            <i class="bi bi-eye"></i> Visualizar
+                                            Visualizar
                                         </a>
                                         
                                         <a href="index.php?action=pdf&id=<?= urlencode((string)($f['id_factura'] ?? '')) ?>" target="_blank" class="btn btn-sm btn-danger">
-                                            <i class="bi bi-file-earmark-pdf"></i> Descargar PDF
+                                            Descargar PDF
                                         </a>
                                     </td>
                                 </tr>
@@ -74,7 +64,3 @@ $facturas = is_array($viewData['facturas'] ?? null) ? $viewData['facturas'] : []
         </div>
     </div>
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>

@@ -10,8 +10,16 @@ class FacturaController {
 
     // NUEVA ACCI??N: Carga la lista de todas las facturas
     public function listar(): void {
-        $facturas = $this->model->obtenerTodas();
-        require_once dirname(__DIR__) . '/views/factura/listar.php';
+        $rol = (int)($_SESSION['rol'] ?? 0);
+        $schoolId = (int)($_SESSION['usuario']['id_escuela'] ?? 0);
+        if ($rol === 4) {
+            $facturas = $this->model->obtenerTodas();
+        } elseif ($schoolId > 0) {
+            $facturas = $this->model->obtenerTodasPorEscuela($schoolId);
+        } else {
+            $facturas = [];
+        }
+        $this->renderWithSiteLayout('listar', ['facturas' => $facturas]);
     }
 
     public function ver(string|int $id): void {
@@ -19,7 +27,7 @@ class FacturaController {
         if (!$factura) {
             die("Factura no encontrada.");
         }
-        require_once dirname(__DIR__) . '/views/factura/ver.php';
+        $this->renderWithSiteLayout('ver', ['factura' => $factura]);
     }
 
     public function descargarPdf(string|int $id): void {
@@ -34,6 +42,13 @@ class FacturaController {
     {
         $rol = (int)($_SESSION['rol'] ?? 0);
         if ($rol === 3) {
+            $schoolId = (int)($_SESSION['usuario']['id_escuela'] ?? 0);
+            if ($schoolId <= 0) {
+                return false;
+            }
+            return $this->model->obtenerFacturaPorIdYEscuela($id, $schoolId);
+        }
+        if ($rol === 4) {
             return $this->model->obtenerFacturaPorId($id);
         }
 
@@ -43,6 +58,14 @@ class FacturaController {
         }
 
         return $this->model->obtenerFacturaPorIdYUsuario($id, $idUsuario);
+    }
+
+    private function renderWithSiteLayout(string $view, array $data = []): void
+    {
+        extract($data, EXTR_SKIP);
+        require dirname(__DIR__) . '/views/layout/header.php';
+        require dirname(__DIR__) . '/views/factura/' . $view . '.php';
+        require dirname(__DIR__) . '/views/layout/footer.php';
     }
 }
 

@@ -318,13 +318,13 @@ class PagesController
     public function events(): void
     {
         $this->requireLogin();
-        $this->render('eventos', ['eventos' => $this->model()->events()]);
+        $this->render('eventos', ['eventos' => $this->model()->events($this->scopeSchoolId())]);
     }
 
     public function manageEvents(): void
     {
         $this->requireAdmin();
-        $this->render('gestion_eventos', ['eventos' => $this->model()->managedEvents()]);
+        $this->render('gestion_eventos', ['eventos' => $this->model()->managedEvents($this->scopeSchoolId())]);
     }
 
     public function createEvent(): void
@@ -338,8 +338,8 @@ class PagesController
                 $this->render('crear_evento', ['error' => 'No puedes crear eventos en fechas pasadas.']);
                 return;
             }
-            $this->model()->createEvent($this->eventPayload());
-            $this->redirect('dashboard.php');
+            $this->model()->createEvent($this->eventPayload(), $this->scopeSchoolId());
+            $this->redirect('gestion_eventos');
         }
         $this->render('crear_evento');
     }
@@ -348,7 +348,7 @@ class PagesController
     {
         $this->requireAdmin();
         $id = (string)($_GET['id'] ?? '');
-        $evento = $this->model()->eventById($id);
+        $evento = $this->model()->eventById($id, $this->scopeSchoolId());
         if (!$evento) {
             $this->redirect('gestion_eventos.php');
         }
@@ -363,7 +363,7 @@ class PagesController
                 ]);
                 return;
             }
-            $this->model()->updateEvent($id, $this->eventPayload());
+            $this->model()->updateEvent($id, $this->eventPayload(), $this->scopeSchoolId());
             $this->redirect('gestion_eventos.php');
         }
         $this->render('editar_evento', ['evento' => $evento]);
@@ -372,7 +372,7 @@ class PagesController
     public function toggleEvent(): void
     {
         $this->requireAdmin();
-        $this->model()->toggleEvent((string)($_GET['id'] ?? ''));
+        $this->model()->toggleEvent((string)($_GET['id'] ?? ''), $this->scopeSchoolId());
         $this->redirect('gestion_eventos.php');
     }
 
@@ -380,7 +380,7 @@ class PagesController
     {
         $this->requireAdmin();
         $id = (string)($_GET['id'] ?? '');
-        $evento = $this->model()->eventById($id);
+        $evento = $this->model()->eventById($id, $this->scopeSchoolId());
         if (!$evento) {
             $this->render('ver_inscritos', ['evento' => null, 'inscritos' => []]);
             return;
@@ -756,5 +756,16 @@ class PagesController
         if (is_file($path)) {
             unlink($path);
         }
+    }
+
+    private function scopeSchoolId(): ?int
+    {
+        $role = (int)($_SESSION['rol'] ?? 0);
+        if ($role === 4) {
+            return null;
+        }
+
+        $schoolId = (int)($_SESSION['usuario']['id_escuela'] ?? 0);
+        return $schoolId > 0 ? $schoolId : null;
     }
 }

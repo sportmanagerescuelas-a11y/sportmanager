@@ -28,7 +28,7 @@ final class Uniforme
     /**
      * @return array<int,array<string,mixed>>
      */
-    public function allForRole(int $role, int $userId): array
+    public function allForRole(int $role, int $userId, ?int $schoolId = null): array
     {
         $sql = "
             SELECT u.*,
@@ -50,11 +50,17 @@ final class Uniforme
             return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
         }
 
+        if ($schoolId !== null && $schoolId > 0) {
+            $stmt = $this->db->prepare($sql . ' WHERE owner.id_escuela = :id_escuela ORDER BY c.nombre_cat ASC, u.numero_camiseta ASC');
+            $stmt->execute([':id_escuela' => $schoolId]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+        }
+
         $stmt = $this->db->query($sql . ' ORDER BY c.nombre_cat ASC, u.numero_camiseta ASC');
         return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
     }
 
-    public function findById(int $id, int $role, int $userId): ?array
+    public function findById(int $id, int $role, int $userId, ?int $schoolId = null): ?array
     {
         $sql = "
             SELECT u.*,
@@ -72,6 +78,14 @@ final class Uniforme
         if ($role === 1) {
             $sql .= ' AND d.id_usuario = :id_usuario';
             $params[':id_usuario'] = $userId;
+        } elseif ($schoolId !== null && $schoolId > 0) {
+            $sql .= ' AND EXISTS (
+                SELECT 1
+                FROM usuarios owner
+                WHERE owner.id_usuario = d.id_usuario
+                  AND owner.id_escuela = :id_escuela
+            )';
+            $params[':id_escuela'] = $schoolId;
         }
 
         $stmt = $this->db->prepare($sql . ' LIMIT 1');
@@ -83,7 +97,7 @@ final class Uniforme
     /**
      * @return array<int,array<string,mixed>>
      */
-    public function athletesForAssignment(?int $currentUniformId = null): array
+    public function athletesForAssignment(?int $currentUniformId = null, ?int $schoolId = null): array
     {
         $sql = "
             SELECT d.id_deportista,
@@ -96,7 +110,7 @@ final class Uniforme
             INNER JOIN categoria c ON c.id_categoria = d.id_categoria
             INNER JOIN usuarios owner ON owner.id_usuario = d.id_usuario
             LEFT JOIN uniformes u ON u.id_deportista = d.id_deportista
-            WHERE u.id_uniforme IS NULL
+            WHERE (u.id_uniforme IS NULL
         ";
         $params = [];
 
@@ -104,16 +118,28 @@ final class Uniforme
             $sql .= ' OR u.id_uniforme = :current_uniform_id';
             $params[':current_uniform_id'] = $currentUniformId;
         }
+        $sql .= ')';
+
+        if ($schoolId !== null && $schoolId > 0) {
+            $sql .= ' AND owner.id_escuela = :id_escuela';
+            $params[':id_escuela'] = $schoolId;
+        }
 
         $stmt = $this->db->prepare($sql . ' ORDER BY c.nombre_cat ASC, d.nombres ASC, d.apellidos ASC');
         $stmt->execute($params);
         return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
     }
 
-    public function athleteExists(int $athleteId): bool
+    public function athleteExists(int $athleteId, ?int $schoolId = null): bool
     {
-        $stmt = $this->db->prepare('SELECT 1 FROM deportistas WHERE id_deportista = :id_deportista');
-        $stmt->execute([':id_deportista' => $athleteId]);
+        $sql = 'SELECT 1 FROM deportistas d INNER JOIN usuarios u ON u.id_usuario = d.id_usuario WHERE d.id_deportista = :id_deportista';
+        $params = [':id_deportista' => $athleteId];
+        if ($schoolId !== null && $schoolId > 0) {
+            $sql .= ' AND u.id_escuela = :id_escuela';
+            $params[':id_escuela'] = $schoolId;
+        }
+        $stmt = $this->db->prepare($sql . ' LIMIT 1');
+        $stmt->execute($params);
         return (bool)$stmt->fetchColumn();
     }
 

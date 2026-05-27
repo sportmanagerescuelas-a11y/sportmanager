@@ -3,6 +3,37 @@ ob_start();
 
 $viewData = get_defined_vars();
 $factura = is_array($viewData['factura'] ?? null) ? $viewData['factura'] : [];
+$schoolPrimaryColor = '#102a43';
+$schoolSecondaryColor = '#d8dee7';
+if (isset($_SESSION['usuario']['id_escuela']) && (int)$_SESSION['usuario']['id_escuela'] > 0) {
+    try {
+        require_once __DIR__ . '/../../../config/conexion.php';
+        if (isset($conexion) && $conexion instanceof PDO) {
+            $themeStmt = $conexion->prepare('SELECT color_primario, color_secundario FROM escuelas WHERE id_escuela = ? LIMIT 1');
+            $themeStmt->execute([(int)$_SESSION['usuario']['id_escuela']]);
+            $theme = $themeStmt->fetch(PDO::FETCH_ASSOC);
+            if (is_array($theme)) {
+                if (preg_match('/^#[0-9A-Fa-f]{6}$/', (string)($theme['color_primario'] ?? '')) === 1) {
+                    $schoolPrimaryColor = strtolower((string)$theme['color_primario']);
+                }
+                if (preg_match('/^#[0-9A-Fa-f]{6}$/', (string)($theme['color_secundario'] ?? '')) === 1) {
+                    $schoolSecondaryColor = strtolower((string)$theme['color_secundario']);
+                }
+            }
+        }
+    } catch (Throwable) {
+    }
+}
+
+$hexToRgb = static function (string $hex): array {
+    $hex = ltrim($hex, '#');
+    if (strlen($hex) !== 6 || !ctype_xdigit($hex)) {
+        return [16, 42, 67];
+    }
+    return [hexdec(substr($hex, 0, 2)), hexdec(substr($hex, 2, 2)), hexdec(substr($hex, 4, 2))];
+};
+$primaryRgb = $hexToRgb($schoolPrimaryColor);
+$secondaryRgb = $hexToRgb($schoolSecondaryColor);
 
 $fpdfCandidates = [
     __DIR__ . '/../../../libs/fpdf.php',
@@ -28,10 +59,10 @@ if ($fpdfPath === null) {
         <style>
             body { font-family: "Segoe UI", Arial, sans-serif; margin: 24px; color: #111827; background: #f6f8fb; }
             .box { border: 1px solid #d8dee7; border-radius: 8px; padding: 16px; max-width: 800px; background: #ffffff; }
-            h2 { color: #102a43; text-align: center; }
+            h2 { color: <?= htmlspecialchars($schoolPrimaryColor, ENT_QUOTES, 'UTF-8') ?>; text-align: center; }
             table { width: 100%; border-collapse: collapse; margin-top: 12px; }
             th, td { border: 1px solid #d8dee7; padding: 8px; text-align: center; vertical-align: middle; }
-            th { background: #102a43; color: #ffffff; }
+            th { background: <?= htmlspecialchars($schoolPrimaryColor, ENT_QUOTES, 'UTF-8') ?>; color: #ffffff; }
             .right { text-align: right; }
         </style>
     </head>
@@ -63,8 +94,9 @@ if ($fpdfPath === null) {
 require_once $fpdfPath;
 
 class PDF extends FPDF {
+    public array $primaryColor = [16, 42, 67];
     function Header() {
-        $this->SetTextColor(16, 42, 67);
+        $this->SetTextColor($this->primaryColor[0], $this->primaryColor[1], $this->primaryColor[2]);
         $this->SetFont('Arial', 'B', 16); 
         $this->Cell(190, 10, utf8_decode('REPORTE DE FACTURACIÓN'), 0, 1, 'C');
         $this->Ln(10);
@@ -78,6 +110,7 @@ class PDF extends FPDF {
 }
 
 $pdf = new PDF();
+$pdf->primaryColor = $primaryRgb;
 $pdf->AddPage();
 $pdf->SetFont('Arial', '', 12); 
 
@@ -89,8 +122,8 @@ $metodo_pago  = $factura['metodo_pago_texto'] ?? 'N/A';
 $total_monto   = $factura['total'] ?? $factura['monto'] ?? 0; 
 
 // --- Encabezado ---
-$pdf->SetFillColor(216, 222, 231);
-$pdf->SetTextColor(16, 42, 67);
+$pdf->SetFillColor($secondaryRgb[0], $secondaryRgb[1], $secondaryRgb[2]);
+$pdf->SetTextColor($primaryRgb[0], $primaryRgb[1], $primaryRgb[2]);
 $pdf->Cell(190, 10, utf8_decode("Factura N°: " . str_pad($id_factura, 6, "0", STR_PAD_LEFT)), 1, 1, 'L', true);
 $pdf->Ln(5);
 
@@ -104,7 +137,7 @@ $pdf->Ln(10);
 
 // --- Tabla ---
 $pdf->SetFont('Arial', 'B', 12); 
-$pdf->SetFillColor(16, 42, 67); 
+$pdf->SetFillColor($primaryRgb[0], $primaryRgb[1], $primaryRgb[2]); 
 $pdf->SetTextColor(255, 255, 255); 
 
 $pdf->Cell(130, 10, utf8_decode('Descripción del Servicio / Evento'), 1, 0, 'C', true);

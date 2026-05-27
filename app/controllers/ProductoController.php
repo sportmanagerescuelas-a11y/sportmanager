@@ -9,19 +9,19 @@ class ProductoController {
     }
 
     public function listar(): array {
-        return $this->modelo->listar();
+        return $this->modelo->listar($this->schoolId());
     }
 
     public function obtenerPorId(string|int|null $id): array|null {
         if ($id === null || $id === '' || !is_numeric($id)) {
             return null;
         }
-        $producto = $this->modelo->obtenerPorId($id);
+        $producto = $this->modelo->obtenerPorId($id, $this->schoolId());
         return is_array($producto) ? $producto : null;
     }
 
     public function mostrarProductos(): array {
-        return $this->modelo->listar();
+        return $this->modelo->listar($this->schoolId());
     }
 
     public function guardar(): void {
@@ -30,7 +30,8 @@ class ProductoController {
                 $_POST['nombre'] ?? null,
                 $_POST['precio'] ?? null,
                 $_POST['descripcion'] ?? null,
-                $_POST['imagen'] ?? null
+                $_POST['imagen'] ?? null,
+                $this->schoolId()
             );
             header("Location: productos.php");
             exit;
@@ -43,7 +44,7 @@ class ProductoController {
             exit;
         }
 
-        $this->modelo->eliminar($id);
+        $this->modelo->eliminar($id, $this->schoolId());
         header("Location: productos.php");
         exit;
     }
@@ -60,11 +61,18 @@ class ProductoController {
                 $_POST['nombre'] ?? null,
                 $_POST['precio'] ?? null,
                 $_POST['descripcion'] ?? null,
-                $_POST['imagen'] ?? null
+                $_POST['imagen'] ?? null,
+                $this->schoolId()
             );
             header("Location: productos.php");
             exit;
         }
+    }
+
+    private function schoolId(): ?int
+    {
+        $id = (int)($_SESSION['usuario']['id_escuela'] ?? 0);
+        return $id > 0 ? $id : null;
     }
 }
 ?>

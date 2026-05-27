@@ -8,7 +8,7 @@ $message = (string)($viewData['message'] ?? '');
 $messageClass = str_contains(strtolower($message), 'no se') ? 'alert-danger' : 'alert-success';
 ?>
 
-<section class="container py-5">
+<section class="container py-5 mt-4">
     <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
         <div>
             <h2 class="mb-1">Uniformes</h2>

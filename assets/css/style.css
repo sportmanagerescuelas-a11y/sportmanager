@@ -248,6 +248,7 @@ section[id] {
 main {
     flex: 1;
     margin-top: -62px;
+    padding-bottom: 2.75rem;
     /* Navbar flotante sobre el azul */
 }
 
@@ -264,15 +265,16 @@ footer {
 
 footer.site-footer {
     background:
-        radial-gradient(circle at top left, rgba(90, 174, 255, 0.18), transparent 24%),
-        radial-gradient(circle at 90% 12%, rgba(40, 218, 176, 0.12), transparent 22%),
-        linear-gradient(180deg, #08111d 0%, #0f1d31 100%) !important;
+        radial-gradient(circle at top left, rgba(var(--school-primary-rgb), 0.16), transparent 24%),
+        radial-gradient(circle at 90% 12%, rgba(var(--school-secondary-rgb), 0.18), transparent 22%),
+        linear-gradient(180deg, var(--sm-gray-700) 0%, var(--sm-gray-800) 100%) !important;
     color: rgba(255, 255, 255, 0.88);
     text-align: left;
-    padding: 0;
+    padding: 1.1rem 0 0;
     overflow: hidden;
     position: relative;
     box-shadow: 0 -20px 50px rgba(6, 12, 22, 0.16);
+    margin-top: 2rem;
 }
 
 footer.site-footer::before {
@@ -319,14 +321,14 @@ footer.site-footer::before {
     font-size: clamp(1.55rem, 3vw, 2.15rem);
     font-weight: 900;
     letter-spacing: -0.04em;
-    color: #fff;
+    color: var(--sm-blue-700);
 }
 
 .site-footer__brand p,
 .site-footer__description,
 .site-footer__column p {
     margin: 0;
-    color: rgba(255, 255, 255, 0.76);
+    color: rgba(var(--school-primary-rgb), 0.9);
 }
 
 .site-footer__description {
@@ -343,14 +345,14 @@ footer.site-footer::before {
 
 .site-footer__column h3 {
     margin: 0 0 0.4rem;
-    color: #fff;
+    color: var(--sm-blue-700);
     font-size: 1rem;
     text-transform: uppercase;
     letter-spacing: 0.08em;
 }
 
 .site-footer__column a {
-    color: rgba(255, 255, 255, 0.78);
+    color: rgba(var(--school-primary-rgb), 0.92);
     text-decoration: none;
     width: fit-content;
     position: relative;
@@ -374,7 +376,7 @@ footer.site-footer::before {
 
 .site-footer__column a:hover,
 .site-footer__social a:hover {
-    color: #fff;
+    color: var(--sm-blue-600);
     transform: translateX(4px);
 }
 
@@ -391,7 +393,7 @@ footer.site-footer::before {
 }
 
 .site-footer__social a {
-    color: rgba(255, 255, 255, 0.8);
+    color: rgba(var(--school-primary-rgb), 0.92);
     text-decoration: none;
     position: relative;
     transition: transform 0.2s ease, color 0.2s ease;
@@ -406,7 +408,7 @@ footer.site-footer::before {
 }
 
 .site-footer__bottom span {
-    color: rgba(255, 255, 255, 0.72);
+    color: rgba(var(--school-primary-rgb), 0.9);
 }
 
 /* Back to top button (limpio y específico) */
@@ -686,7 +688,10 @@ footer.site-footer::before {
    usando un pseudo-elemento en la propia sección. Esto asegura el efecto arriba y abajo. */
 
 .dashboard {
-    background-image: url("../img/the-stadium-in-night-time-with-ai-generated-free-photo.jpg");
+    background:
+        radial-gradient(circle at 12% 18%, rgba(var(--school-primary-rgb), 0.34), transparent 38%),
+        radial-gradient(circle at 86% 14%, rgba(var(--school-secondary-rgb), 0.3), transparent 34%),
+        linear-gradient(145deg, var(--sm-blue-900) 0%, var(--sm-blue-800) 48%, var(--sm-gray-700) 100%);
     background-size: cover;
     background-position: center;
     min-height: 100vh;
@@ -954,6 +959,10 @@ footer.site-footer::before {
 
 /* ===== Ajuste visual global azul/gris ===== */
 :root {
+    --school-primary-color: #2f7fbd;
+    --school-secondary-color: #526174;
+    --school-primary-rgb: 47, 127, 189;
+    --school-secondary-rgb: 82, 97, 116;
     --sm-blue-900: #1d3f5f;
     --sm-blue-800: #275b86;
     --sm-blue-700: #2f7fbd;
@@ -974,11 +983,45 @@ html,
 body {
     font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     color: var(--sm-gray-950);
-    background: var(--sm-gray-50);
+    background:
+        radial-gradient(circle at 8% 12%, rgba(var(--school-primary-rgb), 0.16), transparent 32%),
+        radial-gradient(circle at 92% 8%, rgba(var(--school-secondary-rgb), 0.15), transparent 28%),
+        linear-gradient(140deg, rgba(var(--school-primary-rgb), 0.1) 0%, var(--sm-gray-50) 42%, rgba(var(--school-secondary-rgb), 0.14) 100%);
+    background-attachment: fixed;
+}
+
+body {
+    position: relative;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image: var(--school-shield-image, none);
+    background-repeat: no-repeat;
+    background-position: center 58%;
+    background-size: min(44vw, 420px);
+    opacity: 0.09;
+    filter: grayscale(8%);
 }
 
 body.bg-light {
-    background: var(--sm-gray-50) !important;
+    background:
+        radial-gradient(circle at 8% 12%, rgba(var(--school-primary-rgb), 0.16), transparent 32%),
+        radial-gradient(circle at 92% 8%, rgba(var(--school-secondary-rgb), 0.15), transparent 28%),
+        linear-gradient(140deg, rgba(var(--school-primary-rgb), 0.1) 0%, var(--sm-gray-50) 42%, rgba(var(--school-secondary-rgb), 0.14) 100%) !important;
+    background-attachment: fixed;
+}
+
+header,
+main,
+footer,
+nav.navbar {
+    position: relative;
+    z-index: 1;
 }
 
 .top-bar,
@@ -1013,7 +1056,8 @@ footer {
 .section-hero,
 #backToTop,
 .btn-primary,
-.bg-primary {
+.bg-primary,
+.text-bg-primary {
     background: var(--sm-blue-700) !important;
     border-color: var(--sm-blue-700) !important;
 }
@@ -1025,7 +1069,8 @@ footer {
 }
 
 .btn-secondary,
-.bg-secondary {
+.bg-secondary,
+.text-bg-secondary {
     background: var(--sm-gray-700) !important;
     border-color: var(--sm-gray-700) !important;
     color: var(--sm-white) !important;
@@ -1292,10 +1337,14 @@ footer {
 }
 
 .dashboard {
-    background-image:
-        radial-gradient(circle at 50% 25%, rgba(246, 248, 251, 0.10), transparent 34%),
-        linear-gradient(110deg, rgba(29, 63, 95, 0.45), rgba(51, 65, 85, 0.32)),
-        url("../img/the-stadium-in-night-time-with-ai-generated-free-photo.jpg");
+    background:
+        radial-gradient(circle at center,
+            rgba(var(--school-primary-rgb), 0.95) 0%,
+            rgba(var(--school-primary-rgb), 0.78) 24%,
+            rgba(var(--school-secondary-rgb), 0.72) 62%,
+            rgba(var(--school-secondary-rgb), 0.92) 100%);
+    position: relative;
+    isolation: isolate;
     padding: 220px 24px 64px;
     gap: 24px;
     justify-content: flex-start;
@@ -1308,15 +1357,46 @@ footer {
     inset: 0;
     z-index: 0;
     pointer-events: none;
-    background:
-        linear-gradient(90deg, transparent 0 48%, rgba(255, 255, 255, 0.18) 49% 51%, transparent 52% 100%),
-        radial-gradient(circle at 50% 54%, transparent 0 105px, rgba(255, 255, 255, 0.14) 107px 109px, transparent 111px);
-    opacity: 0.42;
+    background-image:
+        var(--school-shield-image, none),
+        linear-gradient(90deg, transparent 0 48%, rgba(255, 255, 255, 0.16) 49% 51%, transparent 52% 100%),
+        radial-gradient(circle at 50% 54%, transparent 0 105px, rgba(255, 255, 255, 0.12) 107px 109px, transparent 111px);
+    background-repeat: no-repeat, no-repeat, no-repeat;
+    background-position: center 52%, center center, center center;
+    background-size: min(42vw, 440px), 100% 100%, 100% 100%;
+    opacity: 1;
+    filter: drop-shadow(0 0 16px rgba(var(--school-primary-rgb), 0.24));
+}
+
+.dashboard::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image: var(--school-shield-image, none);
+    background-repeat: no-repeat;
+    background-position: center 52%;
+    background-size: min(46vw, 520px);
+    opacity: 0.4;
+    filter: drop-shadow(0 0 22px rgba(var(--school-primary-rgb), 0.3));
 }
 
 .dashboard > :not(.modal):not(.alert-fijo) {
     position: relative;
     z-index: 1;
+}
+
+.dashboard-shield-watermark {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-repeat: no-repeat;
+    background-position: center 52%;
+    background-size: min(48vw, 560px);
+    opacity: 0.34;
+    filter: drop-shadow(0 0 22px rgba(var(--school-primary-rgb), 0.3));
 }
 
 .subtitulo {

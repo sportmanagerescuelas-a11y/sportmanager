@@ -10,7 +10,10 @@ use PhpOffice\PhpSpreadsheet\Writer\Csv;
 class ReporteController {
     public function descargar(string $tablaNombre, string $formato = 'xlsx'): void {
         $modelo = new ReporteModel();
-        $datos = $modelo->obtenerDatos($tablaNombre);
+        $rol = (int)($_SESSION['rol'] ?? 0);
+        $schoolId = (int)($_SESSION['usuario']['id_escuela'] ?? 0);
+        $scopeSchoolId = ($rol === 3 && $schoolId > 0) ? $schoolId : null;
+        $datos = $modelo->obtenerDatos($tablaNombre, $scopeSchoolId);
         if (!$datos) exit("La tabla seleccionada no tiene datos.");
 
         if ($formato === 'pdf') {

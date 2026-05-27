@@ -24,7 +24,7 @@ final class UniformesController
         $userId = $this->userId();
 
         $this->render('uniformes/index', [
-            'uniformes' => $this->model()->allForRole($role, $userId),
+            'uniformes' => $this->model()->allForRole($role, $userId, $this->schoolId()),
             'role' => $role,
             'canCreate' => in_array($role, [2, 3], true),
             'canManage' => $role === 3,
@@ -52,7 +52,7 @@ final class UniformesController
         }
 
         $this->render('uniformes/form', [
-            'athletes' => $this->model()->athletesForAssignment(),
+            'athletes' => $this->model()->athletesForAssignment(null, $this->schoolId()),
             'types' => self::TYPES,
             'formData' => $formData,
             'error' => $error,
@@ -64,7 +64,7 @@ final class UniformesController
     {
         $this->requireAdmin();
         $id = $this->uniformIdFromRequest();
-        $uniforme = $id > 0 ? $this->model()->findById($id, $this->role(), $this->userId()) : null;
+        $uniforme = $id > 0 ? $this->model()->findById($id, $this->role(), $this->userId(), $this->schoolId()) : null;
         if (!$uniforme) {
             $this->redirect('uniformes&error=notfound');
         }
@@ -86,7 +86,7 @@ final class UniformesController
         }
 
         $this->render('uniformes/form', [
-            'athletes' => $this->model()->athletesForAssignment($id),
+            'athletes' => $this->model()->athletesForAssignment($id, $this->schoolId()),
             'types' => self::TYPES,
             'formData' => $formData,
             'error' => $error,
@@ -103,7 +103,7 @@ final class UniformesController
         }
 
         $id = $this->uniformIdFromRequest();
-        if ($id <= 0 || !$this->model()->findById($id, $this->role(), $this->userId())) {
+        if ($id <= 0 || !$this->model()->findById($id, $this->role(), $this->userId(), $this->schoolId())) {
             $this->redirect('uniformes&error=notfound');
         }
 
@@ -175,7 +175,7 @@ final class UniformesController
             return 'El numero de camiseta debe estar entre 1 y 999.';
         }
 
-        if ($athleteId <= 0 || !$this->model()->athleteExists($athleteId)) {
+        if ($athleteId <= 0 || !$this->model()->athleteExists($athleteId, $this->schoolId())) {
             return 'Selecciona un deportista valido.';
         }
 
@@ -256,6 +256,12 @@ final class UniformesController
     private function userId(): int
     {
         return (int)($_SESSION['id_usuario'] ?? 0);
+    }
+
+    private function schoolId(): ?int
+    {
+        $id = (int)($_SESSION['usuario']['id_escuela'] ?? 0);
+        return $id > 0 ? $id : null;
     }
 
     private function redirect(string $url): void

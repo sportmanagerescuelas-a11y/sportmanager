@@ -2,25 +2,15 @@
 $viewData = get_defined_vars();
 $factura = is_array($viewData['factura'] ?? null) ? $viewData['factura'] : [];
 ?>
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Factura #<?= htmlspecialchars((string)($factura['id_factura'] ?? '0'), ENT_QUOTES, 'UTF-8') ?></title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="assets/css/style.css">
-</head>
-<body class="bg-light">
 
 <div class="container my-5">
     <div class="d-flex justify-content-between mb-4">
         <a href="index.php?action=listar" class="btn btn-secondary">
-            <i class="bi bi-arrow-left"></i> Volver al Listado
+            Volver al Listado
         </a>
         
         <a href="index.php?action=pdf&id=<?= urlencode((string)($factura['id_factura'] ?? '')) ?>" target="_blank" class="btn btn-danger">
-            <i class="bi bi-file-earmark-pdf"></i> Descargar PDF
+            Descargar PDF
         </a>
     </div>
 
@@ -85,7 +75,3 @@ $factura = is_array($viewData['factura'] ?? null) ? $viewData['factura'] : [];
         </div>
     </div>
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>

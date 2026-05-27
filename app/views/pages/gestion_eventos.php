@@ -37,3 +37,6 @@ $eventos = is_array($viewData['eventos'] ?? null) ? $viewData['eventos'] : [];
         </tbody>
     </table>
 </div>
+<div class="container">
+    <a href="dashboard" class="btn btn-primary mt-3">Volver</a>
+</div>

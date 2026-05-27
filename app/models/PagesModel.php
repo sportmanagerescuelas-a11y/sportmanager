@@ -11,6 +11,7 @@ class PagesModel
         if (isset($conexion) && $conexion instanceof PDO) {
             $this->db = $conexion;
             $this->ensureSchoolCustomizationColumns();
+            $this->ensureEventSchoolColumn();
             return;
         }
 
@@ -19,6 +20,7 @@ class PagesModel
             $pdo = Database::getConnection();
             $this->db = $pdo;
             $this->ensureSchoolCustomizationColumns();
+            $this->ensureEventSchoolColumn();
             return;
         }
 
@@ -41,6 +43,19 @@ class PagesModel
             }
         } catch (Throwable) {
             // Si falla, el sistema sigue funcionando con valores por defecto en vista.
+        }
+    }
+
+    private function ensureEventSchoolColumn(): void
+    {
+        try {
+            $existsStmt = $this->db->query("SHOW COLUMNS FROM eventos LIKE 'id_escuela'");
+            $exists = $existsStmt !== false && $existsStmt->fetch(PDO::FETCH_ASSOC) !== false;
+            if (!$exists) {
+                $this->db->exec('ALTER TABLE eventos ADD COLUMN id_escuela INT(11) NULL AFTER estado');
+            }
+        } catch (Throwable) {
+            // Mantener compatibilidad si no se puede alterar estructura.
         }
     }
 
@@ -504,14 +519,24 @@ class PagesModel
         $stmt->execute([$id]);
     }
 
-    public function events(): array
+    public function events(?int $schoolId = null): array
     {
-        return $this->db->query('SELECT * FROM eventos')->fetchAll(PDO::FETCH_ASSOC);
+        if ($schoolId !== null && $schoolId > 0) {
+            $stmt = $this->db->prepare('SELECT * FROM eventos WHERE id_escuela = :id_escuela ORDER BY fecha DESC, id_evento DESC');
+            $stmt->execute([':id_escuela' => $schoolId]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        }
+        return $this->db->query('SELECT * FROM eventos ORDER BY fecha DESC, id_evento DESC')->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function managedEvents(): array
+    public function managedEvents(?int $schoolId = null): array
     {
-        $stmt = $this->db->query('SELECT * FROM eventos ORDER BY fecha DESC');
+        if ($schoolId !== null && $schoolId > 0) {
+            $stmt = $this->db->prepare('SELECT * FROM eventos WHERE id_escuela = :id_escuela ORDER BY fecha DESC');
+            $stmt->execute([':id_escuela' => $schoolId]);
+        } else {
+            $stmt = $this->db->query('SELECT * FROM eventos ORDER BY fecha DESC');
+        }
         $events = $stmt->fetchAll(PDO::FETCH_OBJ);
         foreach ($events as $event) {
             $event->total_inscritos = $this->countEventRegistrations((int)$event->id_evento);
@@ -519,34 +544,49 @@ class PagesModel
         return $events;
     }
 
-    public function eventById(string $id): ?object
+    public function eventById(string $id, ?int $schoolId = null): ?object
     {
-        $stmt = $this->db->prepare('SELECT * FROM eventos WHERE id_evento = ?');
-        $stmt->execute([$id]);
+        if ($schoolId !== null && $schoolId > 0) {
+            $stmt = $this->db->prepare('SELECT * FROM eventos WHERE id_evento = ? AND id_escuela = ?');
+            $stmt->execute([$id, $schoolId]);
+        } else {
+            $stmt = $this->db->prepare('SELECT * FROM eventos WHERE id_evento = ?');
+            $stmt->execute([$id]);
+        }
         return $stmt->fetch(PDO::FETCH_OBJ) ?: null;
     }
 
     /**
      * @param array<string,mixed> $data
      */
-    public function createEvent(array $data): void
+    public function createEvent(array $data, ?int $schoolId = null): void
     {
         $nextId = (int)$this->db->query('SELECT COALESCE(MAX(id_evento), 0) + 1 FROM eventos')->fetchColumn();
-        $stmt = $this->db->prepare('INSERT INTO eventos (id_evento, titulo, fecha, id_rol, tipo_evento, costo, cuotas) VALUES (?, ?, ?, ?, ?, ?, ?)');
-        $stmt->execute([$nextId, $data['titulo'], $data['fecha'], $data['id_rol'], $data['tipo_evento'], $data['costo'], $data['cuotas']]);
+        $stmt = $this->db->prepare('INSERT INTO eventos (id_evento, titulo, fecha, id_rol, tipo_evento, costo, cuotas, id_escuela) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
+        $stmt->execute([$nextId, $data['titulo'], $data['fecha'], $data['id_rol'], $data['tipo_evento'], $data['costo'], $data['cuotas'], $schoolId]);
     }
 
     /**
      * @param array<string,mixed> $data
      */
-    public function updateEvent(string $id, array $data): void
+    public function updateEvent(string $id, array $data, ?int $schoolId = null): void
     {
+        if ($schoolId !== null && $schoolId > 0) {
+            $stmt = $this->db->prepare('UPDATE eventos SET titulo = ?, fecha = ?, id_rol = ?, tipo_evento = ?, costo = ?, cuotas = ? WHERE id_evento = ? AND id_escuela = ?');
+            $stmt->execute([$data['titulo'], $data['fecha'], $data['id_rol'], $data['tipo_evento'], $data['costo'], $data['cuotas'], $id, $schoolId]);
+            return;
+        }
         $stmt = $this->db->prepare('UPDATE eventos SET titulo = ?, fecha = ?, id_rol = ?, tipo_evento = ?, costo = ?, cuotas = ? WHERE id_evento = ?');
         $stmt->execute([$data['titulo'], $data['fecha'], $data['id_rol'], $data['tipo_evento'], $data['costo'], $data['cuotas'], $id]);
     }
 
-    public function toggleEvent(string $id): void
+    public function toggleEvent(string $id, ?int $schoolId = null): void
     {
+        if ($schoolId !== null && $schoolId > 0) {
+            $stmt = $this->db->prepare('UPDATE eventos SET estado = IF(estado = 1, 0, 1) WHERE id_evento = ? AND id_escuela = ?');
+            $stmt->execute([$id, $schoolId]);
+            return;
+        }
         $stmt = $this->db->prepare('UPDATE eventos SET estado = IF(estado = 1, 0, 1) WHERE id_evento = ?');
         $stmt->execute([$id]);
     }

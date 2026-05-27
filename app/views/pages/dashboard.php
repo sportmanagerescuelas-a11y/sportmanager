@@ -7,8 +7,25 @@ $rolLabel = (string)($_SESSION['nombre_rol'] ?? '');
 if ($rolLabel === '') {
     $rolLabel = [1 => 'Acudiente', 2 => 'Entrenador', 3 => 'Administrador', 4 => 'Superadmin'][$rol] ?? 'Usuario';
 }
+
+$dashboardShieldPath = 'assets/img/balonfutbol.png';
+if ($rol !== 4 && isset($_SESSION['usuario']['id_escuela']) && (int)$_SESSION['usuario']['id_escuela'] > 0) {
+    try {
+        require_once __DIR__ . '/../../../config/conexion.php';
+        if (isset($conexion) && $conexion instanceof PDO) {
+            $shieldStmt = $conexion->prepare('SELECT escudo_path FROM escuelas WHERE id_escuela = ? LIMIT 1');
+            $shieldStmt->execute([(int)$_SESSION['usuario']['id_escuela']]);
+            $shield = trim((string)$shieldStmt->fetchColumn());
+            if ($shield !== '') {
+                $dashboardShieldPath = $shield;
+            }
+        }
+    } catch (Throwable) {
+    }
+}
 ?>
 <div class="dashboard position-relative">
+    <div class="dashboard-shield-watermark" style="background-image: url('<?= htmlspecialchars(str_replace("'", '%27', str_replace('\\', '/', $dashboardShieldPath)), ENT_QUOTES, 'UTF-8') ?>');"></div>
     <div class="rol-box"><?= htmlspecialchars($rolLabel) ?></div>
 
     <?php if (count($events) > 0): ?>
@@ -122,7 +139,7 @@ if ($rolLabel === '') {
         <?php elseif ($rol === 3): ?>
             <a href="admin_usuarios" class="card-dashboard">Gestionar Usuarios</a>
             <a href="deportistas" class="card-dashboard">Gestionar Deportistas</a>
-            <a href="index.php?action=listar" class="card-dashboard">Reporte de Facturas</a>
+            <a href="index.php?action=listar" class="card-dashboard">Reporte de Pago</a>
             <a href="productos" class="card-dashboard">Productos</a>
             <a href="reportes" class="card-dashboard">Reportes Generales</a>
             <a href="gestion_eventos" class="card-dashboard">Eventos</a>

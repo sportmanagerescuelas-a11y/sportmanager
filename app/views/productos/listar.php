@@ -32,39 +32,7 @@ function normalize_image_src(string $value): string
 }
 }
 ?>
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inventario de Productos</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/style.css">
-</head>
-<body class="bg-light">
-
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
-        <div class="container">
-            <a class="navbar-brand" href="productos">Gestion de Productos</a>
-            <div class="ms-auto dropdown">
-                <button class="btn btn-outline-light btn-sm dropdown-toggle" type="button" id="adminMenuProductos" data-bs-toggle="dropdown" aria-expanded="false">
-                    Menu admin
-                </button>
-                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="adminMenuProductos">
-                    <li><a class="dropdown-item" href="dashboard">Mi panel</a></li>
-                    <li><a class="dropdown-item" href="admin_usuarios">Gestionar usuarios</a></li>
-                    <li><a class="dropdown-item" href="deportistas">Deportistas</a></li>
-                    <li><a class="dropdown-item" href="gestion_eventos">Eventos</a></li>
-                    <li><a class="dropdown-item" href="reportes">Reportes</a></li>
-                    <li><a class="dropdown-item" href="productos">Productos</a></li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item" href="logout">Cerrar sesion</a></li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-
-    <div class="container">
+<div class="container my-5 pt-5">
         <div class="mb-3">
             <a href="dashboard" class="btn btn-secondary">Volver al panel</a>
         </div>
@@ -130,8 +98,4 @@ function normalize_image_src(string $value): string
                 </div>
             </div>
         </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+</div>

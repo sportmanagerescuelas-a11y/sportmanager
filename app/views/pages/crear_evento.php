@@ -38,7 +38,7 @@ $error = $viewData['error'] ?? null;
             </div>
             <div class="col-12 mt-3">
                 <button class="btn btn-success">Guardar</button>
-                <a href="dashboard.php" class="btn btn-secondary">Cancelar</a>
+                <a href="gestion_eventos" class="btn btn-secondary">Cancelar</a>
             </div>
         </div>
     </form>
