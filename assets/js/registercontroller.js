@@ -134,7 +134,7 @@ document.addEventListener("DOMContentLoaded", function() {
             const formData = new FormData();
             formData.append('id_usuario', id_usuario);
 
-            fetch('controllers/checkDocumentController.php', {
+            fetch('check-document', {
                 method: 'POST',
                 body: formData
             })
@@ -199,7 +199,7 @@ document.addEventListener("DOMContentLoaded", function() {
         const formData = new FormData();
         formData.append('email', email);
 
-        fetch('controllers/checkEmailController.php', {
+        fetch('check-email', {
             method: 'POST',
             body: formData
         })

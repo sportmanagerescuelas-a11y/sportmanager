@@ -7,7 +7,19 @@ class User
     public function __construct()
     {
         require_once dirname(__DIR__, 2) . "/config/conexion.php";
-        $this->db = $conexion;
+        if (isset($conexion) && $conexion instanceof PDO) {
+            $this->db = $conexion;
+            return;
+        }
+
+        if (class_exists('Database') && method_exists('Database', 'getConnection')) {
+            /** @var PDO $pdo */
+            $pdo = Database::getConnection();
+            $this->db = $pdo;
+            return;
+        }
+
+        throw new RuntimeException('No se pudo inicializar la conexion de base de datos en User.');
     }
 
     public static function existsByEmail(string $email): bool

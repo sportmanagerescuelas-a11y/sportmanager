@@ -4,6 +4,7 @@ if (date_default_timezone_get() !== 'America/Bogota') {
     date_default_timezone_set('America/Bogota');
 }
 
+if (!class_exists('Database')) {
 class Database {
     private static $instance = null;
 
@@ -104,6 +105,11 @@ class Database {
         <?php
     }
 }
+}
 
 // Compatibilidad con el resto del proyecto.
-$conexion = Database::getConnection();
+if (method_exists('Database', 'getConnection')) {
+    $conexion = Database::getConnection();
+} elseif (method_exists('Database', 'pdo')) {
+    $conexion = Database::pdo();
+}

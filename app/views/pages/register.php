@@ -7,6 +7,7 @@ $selectedSchool = (string)($_GET['id_escuela'] ?? '');
 $registerControllerPath = __DIR__ . '/../../../assets/js/registercontroller.js';
 $registerControllerVersion = is_file($registerControllerPath) ? (string)filemtime($registerControllerPath) : (string)time();
 $registerErrorCode = isset($_GET['error']) ? (string)$_GET['error'] : '';
+$registerDebug = isset($_GET['debug']) ? trim((string)$_GET['debug']) : '';
 $registerErrorMap = [
     '404' => 'La página solicitada no existe o fue movida.',
     'empty' => 'Debes completar todos los campos del formulario.',
@@ -79,6 +80,9 @@ $modalType = '';
 if ($registerErrorText !== '' && $activeFieldError['field'] === '') {
     $modalTitle = 'Fuera de juego';
     $modalMessage = $registerErrorText;
+    if ($registerErrorCode === 'db' && $registerDebug !== '') {
+        $modalMessage .= ' Detalle tecnico: ' . $registerDebug;
+    }
     $modalType = 'danger';
 } elseif ($registerSuccessText !== '') {
     $modalTitle = 'Registro completado';
@@ -111,7 +115,7 @@ if ($registerErrorText !== '' && $activeFieldError['field'] === '') {
             <p class="auth-subtitle text-center mb-0">Completa tus datos para comenzar.</p>
         </div>
         <div class="card-body">
-            <form action="controllers/registerController.php" method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+            <form action="registro-submit" method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
                 <div class="mb-3">
                     <label for="id_usuario" class="form-label">Numero de Documento</label>
                     <div class="position-relative">
@@ -228,6 +232,11 @@ if ($registerErrorText !== '' && $activeFieldError['field'] === '') {
         const modalElement = document.getElementById('registerMessageModal');
         if (modalElement && window.bootstrap && bootstrap.Modal) {
             const modal = new bootstrap.Modal(modalElement, { backdrop: 'static', keyboard: false });
+            modalElement.addEventListener('hidden.bs.modal', function () {
+                if (document.activeElement instanceof HTMLElement) {
+                    document.activeElement.blur();
+                }
+            });
             modal.show();
         }
     });
@@ -255,6 +264,11 @@ if ($registerErrorText !== '' && $activeFieldError['field'] === '') {
             const modalElement = document.getElementById('registerMessageModal');
             if (modalElement && window.bootstrap && bootstrap.Modal) {
                 const modal = new bootstrap.Modal(modalElement);
+                modalElement.addEventListener('hidden.bs.modal', function () {
+                    if (document.activeElement instanceof HTMLElement) {
+                        document.activeElement.blur();
+                    }
+                });
                 modal.show();
             }
         });
@@ -278,11 +292,12 @@ document.addEventListener('DOMContentLoaded', function () {
     const sync = function () {
         const isAdmin = roleSelect.value === '3';
         wrap.style.display = isAdmin ? '' : 'none';
-        schoolWrap.style.display = '';
+        schoolWrap.style.display = isAdmin ? 'none' : '';
         schoolSelect.required = !isAdmin;
         schoolSelect.disabled = isAdmin;
         if (isAdmin) {
             schoolSelect.value = '';
+            schoolSelect.classList.remove('is-invalid');
         }
     };
 

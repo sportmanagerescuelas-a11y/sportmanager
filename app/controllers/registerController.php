@@ -24,63 +24,54 @@ if (isset($_POST["register"])) {
     }
 
     if (empty($id_usuario) || empty($tipo_documento) || empty($nombres) || empty($apellidos) || empty($email) || empty($password) || empty($telefono) || empty($id_rol)) {
-        header("Location: ../register&error=empty");
+        header("Location: register?error=empty");
         exit();
     }
 
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        header("Location: ../register&error=invalidemail");
+        header("Location: register?error=invalidemail");
         exit();
     }
 
     if (!preg_match('/^\d{1,11}$/', $id_usuario)) {
-        header("Location: ../register&error=empty");
+        header("Location: register?error=empty");
         exit();
     }
 
     $usuarioModel = new Usuario($conexion);
 
     if (!preg_match('/^\d{10}$/', $telefono)) {
-        header("Location: ../register&error=phone");
+        header("Location: register?error=phone");
         exit();
     }
 
     if (!sm_password_is_valid($password)) {
-        header("Location: ../register&error=password");
+        header("Location: register?error=password");
         exit();
     }
 
     $stmtUserId = $conexion->prepare("SELECT 1 FROM usuarios WHERE id_usuario = ? LIMIT 1");
     $stmtUserId->execute([$id_usuario]);
     if ($stmtUserId->fetchColumn()) {
-        header("Location: ../register&error=duplicateid");
+        header("Location: register?error=duplicateid");
         exit();
     }
 
     $stmtEmail = $conexion->prepare("SELECT 1 FROM usuarios WHERE email = ? LIMIT 1");
     $stmtEmail->execute([$email]);
     if ($stmtEmail->fetchColumn()) {
-        header("Location: ../register&error=duplicateemail");
+        header("Location: register?error=duplicateemail");
         exit();
     }
 
     if ($id_rol !== 3 && !$usuarioModel->escuelaExiste($id_escuela)) {
-        header("Location: ../register&error=school");
+        header("Location: register?error=school");
         exit();
     }
 
     if ($id_rol === 3) {
-        // Para admin, si no selecciona escuela, asignamos una escuela valida por defecto
-        // para evitar fallos por restricciones de base de datos.
-        if ($id_escuela === '' || $id_escuela === null) {
-            $stmtDefaultSchool = $conexion->query("SELECT id_escuela FROM escuelas ORDER BY id_escuela ASC LIMIT 1");
-            $defaultSchoolId = $stmtDefaultSchool ? (int)$stmtDefaultSchool->fetchColumn() : 0;
-            if ($defaultSchoolId <= 0) {
-                header("Location: ../register&error=schoolnone");
-                exit();
-            }
-            $id_escuela = (string)$defaultSchoolId;
-        }
+        // Para admin no se exige escuela.
+        $id_escuela = null;
     }
 
     if ($usuarioModel->registrar($id_usuario, $tipo_documento, $id_escuela, $nombres, $apellidos, $email, $password, $telefono, $id_rol)) {
@@ -103,21 +94,31 @@ if (isset($_POST["register"])) {
                 'cantidad' => 1,
             ];
 
-            header("Location: ../iniciar?evento=Pago%20registro%20administrador&monto=35000&cantidad=1&return_to=register");
+            header("Location: iniciar?evento=Pago%20registro%20administrador&monto=35000&cantidad=1&return_to=register");
             exit();
         }
 
         if ($id_rol === 2) {
-            header("Location: ../register&success=pending");
+            header("Location: register?success=pending");
         } else {
-            header("Location: ../register&success=1");
+            header("Location: register?success=1");
         }
         exit();
     }
 
-    header("Location: ../register&error=db");
+    $debug = $usuarioModel->lastError();
+    if ($debug !== '') {
+        header("Location: register?error=db&debug=" . urlencode(substr($debug, 0, 220)));
+    } else {
+        header("Location: register?error=db");
+    }
     exit();
 }
 
-header("Location: ../register");
+header("Location: register");
 exit();
+    // La columna id_usuario en BD es INT firmado (max 2147483647).
+    if ((int)$id_usuario > 2147483647) {
+        header("Location: register?error=duplicateid");
+        exit();
+    }

@@ -112,6 +112,15 @@ switch ($route) {
             $controller->guardarPassword();
         }
         break;
+    case 'registro-submit':
+        require_once __DIR__ . '/app/controllers/registerController.php';
+        break;
+    case 'check-email':
+        require_once __DIR__ . '/app/controllers/checkEmailController.php';
+        break;
+    case 'check-document':
+        require_once __DIR__ . '/app/controllers/checkDocumentController.php';
+        break;
     case 'iniciar':
         require_once __DIR__ . '/app/bootstrap.php';
         require_once __DIR__ . '/app/controllers/IniciarController.php';

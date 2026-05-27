@@ -4,6 +4,7 @@ class Usuario
 {
 
     private PDO $conexion;
+    private string $lastError = '';
 
     public function __construct(PDO $conexion)
     {
@@ -35,6 +36,7 @@ class Usuario
 
     public function registrar(string|int $id_usuario, string $tipo_documento, string|int|null $id_escuela, string $nombres, string $apellidos, string $email, string $password, string $telefono, int $id_rol): bool
     {
+        $this->lastError = '';
 
         $passwordHash = password_hash($password, PASSWORD_DEFAULT);
 
@@ -50,18 +52,29 @@ class Usuario
             $habilitado = 1;
         }
 
-        try {
+        $insertUser = function (string|int|null $schoolId) use (
+            $id_usuario,
+            $tipo_documento,
+            $nombres,
+            $apellidos,
+            $email,
+            $passwordHash,
+            $telefono,
+            $id_rol,
+            $habilitado,
+            $estado
+        ): bool {
             $sql = $this->conexion->prepare("INSERT INTO usuarios 
-        (id_usuario, tipo_documento, id_escuela, nombres, apellidos, email, contrasena, telefono, id_rol, habilitado, estado) 
-        VALUES 
-        (:id_usuario, :tipo_documento, :id_escuela, :nombres, :apellidos, :email, :contrasena, :telefono, :id_rol, :habilitado, :estado)");
+            (id_usuario, tipo_documento, id_escuela, nombres, apellidos, email, contrasena, telefono, id_rol, habilitado, estado) 
+            VALUES 
+            (:id_usuario, :tipo_documento, :id_escuela, :nombres, :apellidos, :email, :contrasena, :telefono, :id_rol, :habilitado, :estado)");
 
             $sql->bindParam(":id_usuario", $id_usuario);
             $sql->bindParam(":tipo_documento", $tipo_documento);
-            if ($id_escuela === null || $id_escuela === '') {
+            if ($schoolId === null || $schoolId === '') {
                 $sql->bindValue(":id_escuela", null, PDO::PARAM_NULL);
             } else {
-                $sql->bindValue(":id_escuela", (int)$id_escuela, PDO::PARAM_INT);
+                $sql->bindValue(":id_escuela", (int)$schoolId, PDO::PARAM_INT);
             }
             $sql->bindParam(":nombres", $nombres);
             $sql->bindParam(":apellidos", $apellidos);
@@ -71,11 +84,36 @@ class Usuario
             $sql->bindParam(":id_rol", $id_rol);
             $sql->bindParam(":habilitado", $habilitado);
             $sql->bindParam(":estado", $estado);
-
             return $sql->execute();
+        };
+
+        try {
+            return $insertUser($id_escuela);
         } catch (PDOException $e) {
+            // En algunos entornos el esquema puede exigir escuela para admin.
+            if ($id_rol === 3 && ($id_escuela === null || $id_escuela === '')) {
+                try {
+                    $fallbackSchoolId = (int)$this->conexion->query("SELECT id_escuela FROM escuelas ORDER BY id_escuela ASC LIMIT 1")->fetchColumn();
+                    if ($fallbackSchoolId > 0) {
+                        return $insertUser($fallbackSchoolId);
+                    }
+                    $this->lastError = 'No existe escuela fallback para rol administrador.';
+                } catch (PDOException $fallbackEx) {
+                    error_log('Error fallback registro admin: ' . $fallbackEx->getMessage());
+                    $this->lastError = 'Fallback admin fallo: ' . $fallbackEx->getMessage();
+                }
+            }
+            error_log('Error al registrar usuario: ' . $e->getMessage());
+            if ($this->lastError === '') {
+                $this->lastError = $e->getMessage();
+            }
             return false;
         }
+    }
+
+    public function lastError(): string
+    {
+        return $this->lastError;
     }
 
     public function escuelaExiste(string|int $idEscuela): bool
