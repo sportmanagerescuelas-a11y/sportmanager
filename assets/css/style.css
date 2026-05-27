@@ -914,6 +914,14 @@ footer.site-footer::before {
     z-index: 4090 !important;
 }
 
+#loginMessageModal {
+    z-index: 5000 !important;
+}
+
+body.modal-open .modal-backdrop.show {
+    z-index: 4990 !important;
+}
+
 .modal.modal-top-right .modal-dialog {
     position: fixed !important;
     top: 16px;

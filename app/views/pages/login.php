@@ -78,7 +78,7 @@ if (!empty($_SESSION['flash_session_expired'])) {
 </div>
 <?php if ($loginModalMessage !== ''): ?>
     <?php if ($loginSessionExpired): ?>
-        <div class="modal fade" id="loginMessageModal" tabindex="-1" aria-labelledby="loginMessageModalLabel" aria-hidden="true">
+        <div class="modal fade" id="loginMessageModal" tabindex="-1" aria-labelledby="loginMessageModalLabel" aria-hidden="true" style="z-index: 5000;">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content" style="border: 2px solid #fd7e14;">
                     <div class="modal-header" style="background-color: #ffffff; border-bottom: 1px solid #fd7e14;">
@@ -99,6 +99,12 @@ if (!empty($_SESSION['flash_session_expired'])) {
         document.addEventListener('DOMContentLoaded', function () {
             const modalElement = document.getElementById('loginMessageModal');
             if (modalElement && window.bootstrap && bootstrap.Modal) {
+                document.body.classList.remove('modal-open');
+                document.body.style.removeProperty('padding-right');
+                document.querySelectorAll('.modal-backdrop').forEach(function (el) {
+                    el.remove();
+                });
+
                 const modal = bootstrap.Modal.getOrCreateInstance(modalElement, {
                     backdrop: true,
                     keyboard: true
