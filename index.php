@@ -32,6 +32,18 @@ if (isset($_GET['action'])) {
     exit;
 }
 
+if (
+    $_SERVER['REQUEST_METHOD'] === 'GET'
+    && !isset($_GET['url'])
+    && !isset($_GET['action'])
+) {
+    $requestUri = (string)($_SERVER['REQUEST_URI'] ?? '');
+    if (stripos($requestUri, 'index.php') !== false) {
+        header('Location: home', true, 302);
+        exit;
+    }
+}
+
 $url = $_GET['url'] ?? 'home';
 $path = trim((string)$url, '/');
 $route = preg_replace('/\.php$/', '', $path);

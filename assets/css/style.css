@@ -907,11 +907,11 @@ footer.site-footer::before {
 }
 
 .modal {
-    z-index: 1060 !important;
+    z-index: 4100 !important;
 }
 
 .modal-backdrop {
-    z-index: 1055 !important;
+    z-index: 4090 !important;
 }
 
 .modal.modal-top-right .modal-dialog {
@@ -1345,6 +1345,7 @@ footer {
             rgba(var(--school-secondary-rgb), 0.92) 100%);
     position: relative;
     isolation: isolate;
+    min-height: calc(100vh - 140px);
     padding: 220px 24px 64px;
     gap: 24px;
     justify-content: flex-start;
@@ -1382,7 +1383,7 @@ footer {
     filter: drop-shadow(0 0 22px rgba(var(--school-primary-rgb), 0.3));
 }
 
-.dashboard > :not(.modal):not(.alert-fijo) {
+.dashboard > :not(.modal):not(.alert-fijo):not(.dashboard-shield-watermark) {
     position: relative;
     z-index: 1;
 }
@@ -1392,6 +1393,7 @@ footer {
     inset: 0;
     z-index: 0;
     pointer-events: none;
+    background-image: var(--school-shield-image, none);
     background-repeat: no-repeat;
     background-position: center 52%;
     background-size: min(48vw, 560px);

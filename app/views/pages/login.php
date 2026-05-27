@@ -69,8 +69,8 @@ if (!empty($_SESSION['flash_session_expired'])) {
                     <button type="submit" name="login" class="btn btn-primary w-100 auth-action">Ingresar</button>
                 </form>
                 <div class="auth-links mt-3">
-                    <a href="index.php?url=recuperar" class="btn btn-link p-0">¿Olvidaste tu contraseña?</a>
-                    <a href="index.php?url=register" class="btn btn-link p-0">Crear cuenta</a>
+                    <a href="recuperar" class="btn btn-link p-0">¿Olvidaste tu contraseña?</a>
+                    <a href="register" class="btn btn-link p-0">Crear cuenta</a>
                 </div>
             </div>
         </section>
@@ -99,7 +99,20 @@ if (!empty($_SESSION['flash_session_expired'])) {
         document.addEventListener('DOMContentLoaded', function () {
             const modalElement = document.getElementById('loginMessageModal');
             if (modalElement && window.bootstrap && bootstrap.Modal) {
-                bootstrap.Modal.getOrCreateInstance(modalElement).show();
+                const modal = bootstrap.Modal.getOrCreateInstance(modalElement, {
+                    backdrop: true,
+                    keyboard: true
+                });
+
+                modalElement.addEventListener('hidden.bs.modal', function () {
+                    document.body.classList.remove('modal-open');
+                    document.body.style.removeProperty('padding-right');
+                    document.querySelectorAll('.modal-backdrop').forEach(function (el) {
+                        el.remove();
+                    });
+                });
+
+                modal.show();
             }
         });
         </script>
@@ -127,3 +140,4 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 </script>
+

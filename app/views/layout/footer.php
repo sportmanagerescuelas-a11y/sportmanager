@@ -22,16 +22,16 @@ $passwordToggleVersion = is_file($passwordTogglePath) ? (string)filemtime($passw
 
         <div class="site-footer__column">
             <h3>Explora</h3>
-            <a href="index.php#sobre-nosotros">Sobre nosotros</a>
-            <a href="index.php#planes">Planes</a>
-            <a href="index.php#beneficios">Beneficios</a>
-            <a href="index.php#contacto">Contacto</a>
+            <a href="home#sobre-nosotros">Sobre nosotros</a>
+            <a href="home#planes">Planes</a>
+            <a href="home#beneficios">Beneficios</a>
+            <a href="home#contacto">Contacto</a>
         </div>
 
         <div class="site-footer__column">
             <h3>Soporte</h3>
-            <a href="index.php?url=login">Iniciar sesión</a>
-            <a href="index.php?url=register">Crear cuenta</a>
+            <a href="login">Iniciar sesión</a>
+            <a href="register">Crear cuenta</a>
             <a href="mailto:sportmanager.escuelas@gmail.com">Escríbenos</a>
             <a href="https://www.instagram.com/sport_manager_escuelas/" target="_blank" rel="noopener">Instagram</a>
         </div>
@@ -145,3 +145,4 @@ $passwordToggleVersion = is_file($passwordTogglePath) ? (string)filemtime($passw
 </script>
 </body>
 </html>
+

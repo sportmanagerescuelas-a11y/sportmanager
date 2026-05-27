@@ -107,7 +107,7 @@
 
         <nav class="navbar navbar-expand-lg navbar-light custom-navbar" style="border-bottom: 4px solid <?= htmlspecialchars($schoolSecondaryColor, ENT_QUOTES, 'UTF-8') ?>;">
             <div class="container">
-                <a class="navbar-brand d-flex align-items-center brand-mark" href="index.php">
+                <a class="navbar-brand d-flex align-items-center brand-mark" href="home">
                     <img src="<?= htmlspecialchars($schoolShieldPath, ENT_QUOTES, 'UTF-8') ?>" alt="Logo" class="logo-nav me-2">
                     <span class="brand-text">
                         <span class="brand-name"><?= htmlspecialchars($brandName, ENT_QUOTES, 'UTF-8') ?></span>

@@ -13,8 +13,8 @@
                     en una plataforma clara, rapida y pensada para familias y entrenadores.
                 </p>
                 <div class="home-hero-actions">
-                    <a href="index.php?url=register" class="btn btn-primary">Comenzar hoy</a>
-                    <a href="index.php?url=login" class="btn home-btn-outline">Ya tengo cuenta</a>
+                    <a href="register" class="btn btn-primary">Comenzar hoy</a>
+                    <a href="login" class="btn home-btn-outline">Ya tengo cuenta</a>
                 </div>
                 <div class="home-hero-stats">
                     <div class="home-stat-card">
