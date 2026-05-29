@@ -98,28 +98,28 @@ if (!empty($_SESSION['flash_session_expired'])) {
         <script>
         document.addEventListener('DOMContentLoaded', function () {
             const modalElement = document.getElementById('loginMessageModal');
-            if (modalElement && window.bootstrap && bootstrap.Modal) {
+            if (!modalElement || !window.bootstrap || !bootstrap.Modal) {
+                return;
+            }
+
+            const cleanupModalState = function () {
                 document.body.classList.remove('modal-open');
                 document.body.style.removeProperty('padding-right');
                 document.querySelectorAll('.modal-backdrop').forEach(function (el) {
                     el.remove();
                 });
+            };
 
-                const modal = bootstrap.Modal.getOrCreateInstance(modalElement, {
-                    backdrop: true,
-                    keyboard: true
-                });
+            cleanupModalState();
 
-                modalElement.addEventListener('hidden.bs.modal', function () {
-                    document.body.classList.remove('modal-open');
-                    document.body.style.removeProperty('padding-right');
-                    document.querySelectorAll('.modal-backdrop').forEach(function (el) {
-                        el.remove();
-                    });
-                });
+            const modal = bootstrap.Modal.getOrCreateInstance(modalElement, {
+                backdrop: false,
+                keyboard: true
+            });
 
-                modal.show();
-            }
+            modalElement.addEventListener('hidden.bs.modal', cleanupModalState);
+
+            modal.show();
         });
         </script>
     <?php else: ?>
