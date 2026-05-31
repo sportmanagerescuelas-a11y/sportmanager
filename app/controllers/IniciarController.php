@@ -65,9 +65,18 @@ final class IniciarController
         }
 
         $usuarioSesion = $_SESSION['usuario'] ?? [];
-        $nombreUsuario = trim((string)($usuarioSesion['nombres'] ?? '') . ' ' . (string)($usuarioSesion['apellidos'] ?? ''));
-        $emailUsuario = (string)($usuarioSesion['email'] ?? '');
-        $telefonoUsuario = (string)($usuarioSesion['telefono'] ?? '');
+        $registroTemporal = isset($_SESSION['registro_temporal']) && is_array($_SESSION['registro_temporal'])
+            ? $_SESSION['registro_temporal']
+            : [];
+
+        $nombreUsuario = trim((string)($registroTemporal['nombre'] ?? $usuarioSesion['nombres'] ?? '') . ' ' . (string)($registroTemporal['apellidos'] ?? $usuarioSesion['apellidos'] ?? ''));
+        $emailUsuario = (string)($registroTemporal['email'] ?? $usuarioSesion['email'] ?? '');
+        $telefonoUsuario = (string)($registroTemporal['telefono'] ?? $usuarioSesion['telefono'] ?? '');
+        $dniUsuario = preg_replace('/\D+/', '', (string)($registroTemporal['id_usuario'] ?? $registroTemporal['dni'] ?? '')) ?? '';
+        $tipoDocumentoUsuario = strtoupper(trim((string)($registroTemporal['tipo_documento'] ?? 'CC')));
+        $tipoPersonaUsuario = in_array((string)($registroTemporal['tipo_persona'] ?? 'N'), ['N', 'J'], true)
+            ? (string)$registroTemporal['tipo_persona']
+            : 'N';
 
         if (!isset($_SESSION['registro_temporal']) || !is_array($_SESSION['registro_temporal'])) {
             $_SESSION['registro_temporal'] = [
@@ -89,6 +98,11 @@ final class IniciarController
             'error' => $_SESSION['error'] ?? '',
             'prefill' => [
                 'nombre' => $nombreUsuario,
+                'email' => $emailUsuario,
+                'telefono' => $telefonoUsuario,
+                'dni' => $dniUsuario,
+                'tipo_documento' => $tipoDocumentoUsuario,
+                'tipo_persona' => $tipoPersonaUsuario,
             ],
         ];
         unset($_SESSION['error']);

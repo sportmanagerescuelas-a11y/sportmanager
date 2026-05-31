@@ -64,26 +64,58 @@ final class ConfirmacionController
     /**
      * @param array<string,mixed> $result
      */
-    private function maybeCreateUserFromLegacyFlow(array $result): void
+    private function maybeCreateUserFromLegacyFlow(array $result): bool
     {
         $statusKey = (string)($result['status']['key'] ?? '');
         if ($statusKey !== 'approved') {
-            return;
+            return false;
         }
 
         $hasLoggedUser = isset($_SESSION['id_usuario']) && (int)$_SESSION['id_usuario'] > 0;
         if ($hasLoggedUser) {
-            return;
+            return false;
         }
 
         if (!isset($_SESSION['registro_temporal']) || !is_array($_SESSION['registro_temporal'])) {
-            return;
+            return false;
         }
 
         $usuario = $_SESSION['registro_temporal'];
+        $usuario['estado'] = 'crear_escuela';
+        $usuario['habilitado'] = 1;
+
         if (User::create($usuario)) {
             unset($_SESSION['registro_temporal']);
+            if ((int)($usuario['id_rol'] ?? 0) === 3) {
+                $this->initializeAdminSession($usuario);
+            }
+            return true;
         }
+
+        return false;
+    }
+
+    /**
+     * @param array<string,mixed> $usuario
+     */
+    private function initializeAdminSession(array $usuario): void
+    {
+        $_SESSION['id_usuario'] = (int)($usuario['id_usuario'] ?? 0);
+        $_SESSION['usuario'] = [
+            'id_usuario' => (int)($_SESSION['id_usuario'] ?? 0),
+            'tipo_documento' => (string)($usuario['tipo_documento'] ?? 'CC'),
+            'id_escuela' => null,
+            'nombres' => (string)($usuario['nombres'] ?? ($usuario['nombre'] ?? '')),
+            'apellidos' => (string)($usuario['apellidos'] ?? ''),
+            'email' => (string)($usuario['email'] ?? ''),
+            'telefono' => (string)($usuario['telefono'] ?? ''),
+            'id_rol' => 3,
+            'estado' => 'crear_escuela',
+            'habilitado' => 1,
+            'registros_disponibles' => isset($usuario['cantidad']) ? (int)$usuario['cantidad'] : 1,
+        ];
+        $_SESSION['rol'] = 3;
+        $_SESSION['nombre_rol'] = 'Administrador';
     }
 
     /**
@@ -92,32 +124,9 @@ final class ConfirmacionController
      */
     private function maybeMarkAdminPaymentVerified(array $context, array $result): void
     {
-        if ((string)($result['status']['key'] ?? '') !== 'approved') {
-            return;
-        }
-
-        if ((int)($context['id_rol'] ?? 0) !== 3) {
-            return;
-        }
-
-        $userId = (string)($context['id_usuario'] ?? '');
-        if ($userId === '' || !ctype_digit($userId)) {
-            return;
-        }
-
-        require APP_BASE_PATH . '/config/conexion.php';
-        if (!isset($conexion) || !($conexion instanceof \PDO)) {
-            return;
-        }
-
-        $stmt = $conexion->prepare("
-            UPDATE admin_payment_requests
-            SET estado = 'verificado', actualizado_en = NOW()
-            WHERE id_usuario = :id_usuario
-            ORDER BY id_request DESC
-            LIMIT 1
-        ");
-        $stmt->execute([':id_usuario' => (int)$userId]);
+        // Este flujo ya no utiliza la tabla admin_payment_requests.
+        // Se mantiene el método como no-op para compatibilidad.
+        return;
     }
 
     public function pagoIsn(): void
@@ -175,11 +184,22 @@ final class ConfirmacionController
             $result = $paymentFlow->buildResultFromRaw($raw, $context);
         }
 
+        $nextUrl = '';
         if (($result['status']['key'] ?? '') === 'approved') {
             $invoiceResult = $paymentFlow->persistInvoiceIfApproved($result, $context);
+            if ($this->maybeCreateUserFromLegacyFlow($result) && isset($_SESSION['rol']) && (int)$_SESSION['rol'] === 3) {
+                $nextUrl = 'crear_escuela';
+            }
+
+            if ($nextUrl === '') {
+                $idRolContext = isset($context['id_rol']) ? (int)$context['id_rol'] : 0;
+                $loggedRol = isset($_SESSION['rol']) ? (int)$_SESSION['rol'] : 0;
+                if ($idRolContext === 3 || $loggedRol === 3 || isset($_SESSION['registro_temporal'])) {
+                    $nextUrl = 'crear_escuela';
+                }
+            }
         }
 
-        $this->maybeCreateUserFromLegacyFlow($result);
         $this->maybeMarkAdminPaymentVerified($context, $result);
 
         $refreshUrl = '';
@@ -214,6 +234,7 @@ final class ConfirmacionController
             'invoiceResult' => $invoiceResult,
             'refreshUrl' => $refreshUrl,
             'retryUrl' => $retryUrl,
+            'nextUrl' => $nextUrl,
         ]);
     }
 }

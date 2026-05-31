@@ -21,20 +21,18 @@ if (isset($_POST["id_usuario"])) {
         if ($user) {
             $rol = (int)$user['id_rol'];
 
-            if ($rol === 3) {
-                $stmtPayment = $conexion->prepare("SELECT estado FROM admin_payment_requests WHERE id_usuario = :id_usuario ORDER BY id DESC LIMIT 1");
-                $stmtPayment->bindParam(":id_usuario", $id_usuario, PDO::PARAM_INT);
-                $stmtPayment->execute();
-                $paymentStatus = (string)$stmtPayment->fetchColumn();
-
-                if ($paymentStatus !== 'verificado') {
-                    header("Location: ../admin_usuarios&error=pago_no_verificado");
-                    exit();
-                }
-            }
-
             if ($rol !== 3) {
                 header("Location: ../admin_usuarios&error=solo_admin");
+                exit();
+            }
+
+            $stmtInvoice = $conexion->prepare("SELECT 1 FROM facturas WHERE id = :id_usuario LIMIT 1");
+            $stmtInvoice->bindParam(":id_usuario", $id_usuario, PDO::PARAM_INT);
+            $stmtInvoice->execute();
+            $hasInvoice = (bool)$stmtInvoice->fetchColumn();
+
+            if (!$hasInvoice) {
+                header("Location: ../admin_usuarios&error=sin_factura");
                 exit();
             }
 
@@ -45,18 +43,20 @@ if (isset($_POST["id_usuario"])) {
     }
 
     if (isset($_POST["verificar_pago"])) {
-        $sql = $conexion->prepare("UPDATE admin_payment_requests SET estado = 'verificado', verificado_por = :verificado_por, fecha_verificacion = NOW() WHERE id_usuario = :id_usuario AND estado = 'pendiente'");
-        $sql->bindParam(":id_usuario", $id_usuario, PDO::PARAM_INT);
-        $sql->bindParam(":verificado_por", $_SESSION['id_usuario'], PDO::PARAM_INT);
-        $sql->execute();
+        $stmtInvoice = $conexion->prepare("SELECT 1 FROM facturas WHERE id = :id_usuario LIMIT 1");
+        $stmtInvoice->bindParam(":id_usuario", $id_usuario, PDO::PARAM_INT);
+        $stmtInvoice->execute();
+        $hasInvoice = (bool)$stmtInvoice->fetchColumn();
 
-        $sqlUser = $conexion->prepare("UPDATE usuarios SET estado = 'pendiente' WHERE id_usuario = :id_usuario AND estado = 'pago_pendiente'");
-        $sqlUser->bindParam(":id_usuario", $id_usuario, PDO::PARAM_INT);
-        $sqlUser->execute();
+        if ($hasInvoice) {
+            $sqlUser = $conexion->prepare("UPDATE usuarios SET estado = 'pendiente' WHERE id_usuario = :id_usuario AND estado = 'pago_pendiente'");
+            $sqlUser->bindParam(":id_usuario", $id_usuario, PDO::PARAM_INT);
+            $sqlUser->execute();
+        }
     }
 
     if (isset($_POST["rechazar"])) {
-        $sql = $conexion->prepare("DELETE FROM admin_payment_requests WHERE id_usuario = :id_usuario");
+        $sql = $conexion->prepare("DELETE FROM facturas WHERE id = :id_usuario");
         $sql->bindParam(":id_usuario", $id_usuario, PDO::PARAM_INT);
         $sql->execute();
 

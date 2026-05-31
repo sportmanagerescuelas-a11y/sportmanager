@@ -20,13 +20,17 @@ $action = (string)($payuContext['action'] ?? 'procesar_pago');
 $returnTo = (string)($payuContext['return_to'] ?? 'pagos.php');
 $error = (string)($payuContext['error'] ?? '');
 $prefill = is_array($payuContext['prefill'] ?? null) ? $payuContext['prefill'] : [];
+$prefillDni = preg_replace('/\D+/', '', (string)($prefill['dni'] ?? $prefill['id_usuario'] ?? '')) ?? '';
+$prefillDocumentType = strtoupper(trim((string)($prefill['tipo_documento'] ?? 'CC')));
+$prefillTipoPersona = in_array((string)($prefill['tipo_persona'] ?? 'N'), ['N', 'J'], true) ? (string)$prefill['tipo_persona'] : 'N';
+$identityReadonly = $prefillDni !== '';
 ?>
 
 <?php if ($error !== ''): ?>
     <div class="alert alert-danger"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></div>
 <?php endif; ?>
 
-<form method="POST" action="<?= htmlspecialchars($action, ENT_QUOTES, 'UTF-8') ?>" id="payuForm" class="card border-0 shadow-sm rounded-4" target="_blank">
+<form method="POST" action="procesar-pago" id="payuForm" class="card border-0 shadow-sm rounded-4" target="_blank">
     <div class="card-body">
         <h5 class="card-title mb-3 text-primary fw-bold">Formulario de pago</h5>
 
@@ -75,22 +79,22 @@ $prefill = is_array($payuContext['prefill'] ?? null) ? $payuContext['prefill'] :
             </div>
             <div class="col-md-4">
                 <label class="form-label fw-semibold">Documento</label>
-                <input type="text" class="form-control" name="dni" maxlength="11" pattern="\d{1,11}" inputmode="numeric" required>
+                <input type="text" class="form-control" name="dni" maxlength="11" pattern="\d{1,11}" inputmode="numeric" value="<?= htmlspecialchars($prefillDni, ENT_QUOTES, 'UTF-8') ?>" <?= $identityReadonly ? 'readonly' : '' ?> required>
             </div>
             <div class="col-md-4">
                 <label class="form-label fw-semibold">Tipo documento</label>
                 <select class="form-select" name="tipo_documento" required>
-                    <option value="CC">CC</option>
-                    <option value="CE">CE</option>
-                    <option value="TI">TI</option>
-                    <option value="NIT">NIT</option>
+                    <option value="CC" <?= $prefillDocumentType === 'CC' ? 'selected' : '' ?>>CC</option>
+                    <option value="CE" <?= $prefillDocumentType === 'CE' ? 'selected' : '' ?>>CE</option>
+                    <option value="TI" <?= $prefillDocumentType === 'TI' ? 'selected' : '' ?>>TI</option>
+                    <option value="NIT" <?= $prefillDocumentType === 'NIT' ? 'selected' : '' ?>>NIT</option>
                 </select>
             </div>
             <div class="col-md-6">
                 <label class="form-label fw-semibold">Tipo persona</label>
                 <select class="form-select" name="tipo_persona" required>
-                    <option value="N">Natural</option>
-                    <option value="J">Juridica</option>
+                    <option value="N" <?= $prefillTipoPersona === 'N' ? 'selected' : '' ?>>Natural</option>
+                    <option value="J" <?= $prefillTipoPersona === 'J' ? 'selected' : '' ?>>Juridica</option>
                 </select>
             </div>
             <div class="col-md-6">

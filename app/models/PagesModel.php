@@ -62,10 +62,26 @@ class PagesModel
     public function pendingUsers(): array
     {
         $stmt = $this->db->query("
-            SELECT u.*, e.nombre AS nombre_escuela, apr.estado AS estado_pago_admin, apr.comprobante_path
+            SELECT u.*, e.nombre AS nombre_escuela,
+                   f.id_factura AS factura_id,
+                   f.numero_factura AS factura_numero,
+                   f.fecha_emision AS factura_fecha,
+                   f.monto AS factura_monto,
+                   f.descripcion AS factura_descripcion,
+                   f.tipo_pago AS factura_tipo_pago,
+                   f.id_evento AS factura_id_evento,
+                   f.id_deportista AS factura_id_deportista
             FROM usuarios u
             LEFT JOIN escuelas e ON e.id_escuela = u.id_escuela
-            LEFT JOIN admin_payment_requests apr ON apr.id_usuario = u.id_usuario
+            LEFT JOIN (
+                SELECT f1.*
+                FROM facturas f1
+                INNER JOIN (
+                    SELECT id, MAX(id_factura) AS max_factura
+                    FROM facturas
+                    GROUP BY id
+                ) f2 ON f1.id = f2.id AND f1.id_factura = f2.max_factura
+            ) f ON f.id = u.id_usuario
             WHERE u.id_rol = 3
               AND u.estado IN ('pendiente', 'pago_pendiente')
         ");
@@ -75,10 +91,25 @@ class PagesModel
     public function approvedUsers(): array
     {
         $stmt = $this->db->query("
-            SELECT u.*, e.nombre AS nombre_escuela, COUNT(d.id_deportista) AS total_deportistas
+            SELECT u.*, e.nombre AS nombre_escuela, COUNT(d.id_deportista) AS total_deportistas,
+                   f.id_factura AS factura_id,
+                   f.numero_factura AS factura_numero,
+                   f.fecha_emision AS factura_fecha,
+                   f.monto AS factura_monto,
+                   f.descripcion AS factura_descripcion,
+                   f.tipo_pago AS factura_tipo_pago
             FROM usuarios u
             LEFT JOIN escuelas e ON e.id_escuela = u.id_escuela
             LEFT JOIN deportistas d ON d.id_usuario = u.id_usuario
+            LEFT JOIN (
+                SELECT f1.*
+                FROM facturas f1
+                INNER JOIN (
+                    SELECT id, MAX(id_factura) AS max_factura
+                    FROM facturas
+                    GROUP BY id
+                ) f2 ON f1.id = f2.id AND f1.id_factura = f2.max_factura
+            ) f ON f.id = u.id_usuario
             WHERE u.estado IN ('aprobado', 'deshabilitado', 'crear_escuela')
               AND u.id_rol = 3
             GROUP BY u.id_usuario

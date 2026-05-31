@@ -30,25 +30,36 @@ function rol_nombre(int $rol): string
                     <td><?= htmlspecialchars(rol_nombre((int)$user['id_rol'])) ?></td>
                     <td>
                         <?php if ((int)$user['id_rol'] === 3): ?>
-                            <span class="badge <?= ($user['estado_pago_admin'] ?? '') === 'verificado' ? 'bg-success' : 'bg-warning text-dark' ?>">
-                                <?= htmlspecialchars((string)($user['estado_pago_admin'] ?? 'pendiente')) ?>
+                            <span class="badge <?= ($user['estado'] ?? '') === 'pago_pendiente' ? 'bg-warning text-dark' : 'bg-secondary' ?>">
+                                <?= htmlspecialchars((string)($user['estado'] ?? 'pendiente')) ?>
                             </span>
                         <?php else: ?>
                             N/A
                         <?php endif; ?>
                     </td>
                     <td>
-                        <?php if ((int)$user['id_rol'] === 3 && ($user['estado_pago_admin'] ?? '') !== 'verificado'): ?>
+                        <?php if ((int)$user['id_rol'] === 3 && ($user['estado'] ?? '') === 'pago_pendiente'): ?>
                             <button
                                 type="button"
-                                class="btn btn-warning btn-sm btn-open-verify-modal"
+                                class="btn btn-primary btn-sm btn-open-verify-modal"
                                 data-id-usuario="<?= htmlspecialchars((string)$user['id_usuario']) ?>"
-                                data-comprobante-path="<?= htmlspecialchars((string)($user['comprobante_path'] ?? ''), ENT_QUOTES, 'UTF-8') ?>"
+                                data-user-name="<?= htmlspecialchars((string)($user['nombres'] . ' ' . $user['apellidos']), ENT_QUOTES, 'UTF-8') ?>"
+                                data-factura-id="<?= htmlspecialchars((string)($user['factura_id'] ?? ''), ENT_QUOTES, 'UTF-8') ?>"
+                                data-factura-numero="<?= htmlspecialchars((string)($user['factura_numero'] ?? ''), ENT_QUOTES, 'UTF-8') ?>"
+                                data-factura-fecha="<?= htmlspecialchars((string)($user['factura_fecha'] ?? ''), ENT_QUOTES, 'UTF-8') ?>"
+                                data-factura-monto="<?= htmlspecialchars((string)($user['factura_monto'] ?? ''), ENT_QUOTES, 'UTF-8') ?>"
+                                data-factura-descripcion="<?= htmlspecialchars((string)($user['factura_descripcion'] ?? ''), ENT_QUOTES, 'UTF-8') ?>"
+                                data-factura-tipo-pago="<?= htmlspecialchars((string)($user['factura_tipo_pago'] ?? ''), ENT_QUOTES, 'UTF-8') ?>"
                             >
-                                Verificar pago
+                                Ver comprobante
                             </button>
                         <?php endif; ?>
-                        <?php if ((int)$user['id_rol'] === 3 && ($user['estado_pago_admin'] ?? '') !== 'verificado'): ?>
+
+                        <?php if (!empty($user['factura_id'])): ?>
+                            <a href="index.php?action=ver&id=<?= urlencode((string)$user['factura_id']) ?>" target="_blank" class="btn btn-info btn-sm">Ver factura</a>
+                        <?php endif; ?>
+
+                        <?php if ((int)$user['id_rol'] === 3 && ($user['estado'] ?? '') === 'pago_pendiente'): ?>
                             <button type="button" class="btn btn-success btn-sm" disabled title="Primero debes verificar el pago.">Aprobar</button>
                         <?php else: ?>
                             <form action="controllers/adminUsuarioController.php" method="POST" style="display:inline;">
@@ -86,6 +97,9 @@ function rol_nombre(int $rol): string
                     <td>
                         <a href="editar_usuario&id=<?= urlencode((string)$user['id_usuario']) ?>" class="btn btn-primary btn-sm">Editar</a>
                         <a href="ver_deportistas_usuario&id=<?= urlencode((string)$user['id_usuario']) ?>" class="btn btn-info btn-sm">Ver Deportistas</a>
+                        <?php if (!empty($user['factura_id'])): ?>
+                            <a href="index.php?action=ver&id=<?= urlencode((string)$user['factura_id']) ?>" target="_blank" class="btn btn-warning btn-sm">Ver factura</a>
+                        <?php endif; ?>
                     </td>
                 </tr>
             <?php endforeach; ?>
@@ -104,13 +118,28 @@ function rol_nombre(int $rol): string
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body">
-                <div id="verifyImageWrap" class="text-center d-none">
-                    <img id="verifyImagePreview" src="" alt="Comprobante de pago" class="img-fluid rounded border" style="max-height: 70vh;">
+                <div id="verifyInvoiceWrap" class="d-none">
+                    <div class="border rounded p-3 mb-3">
+                        <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
+                            <div>
+                                <h5 class="mb-1">Factura de pago</h5>
+                                <div class="small text-muted" id="verifyInvoiceDate"></div>
+                            </div>
+                            <div class="text-end">
+                                <span class="badge bg-success" id="verifyInvoiceType"></span>
+                                <div class="fw-semibold mt-2">$<span id="verifyInvoiceMonto"></span></div>
+                            </div>
+                        </div>
+                        <hr>
+                        <div><strong>Factura:</strong> <span id="verifyInvoiceNumber"></span></div>
+                        <div><strong>Usuario:</strong> <span id="verifyInvoiceUserName"></span></div>
+                        <div><strong>Concepto:</strong> <span id="verifyInvoiceDescripcion"></span></div>
+                    </div>
                 </div>
-                <div id="verifyPdfWrap" class="d-none">
-                    <iframe id="verifyPdfPreview" src="" title="Comprobante PDF" class="w-100 border rounded" style="height: 70vh;"></iframe>
+                <p id="verifyInvoiceFallback" class="text-muted mb-0 d-none">No hay factura disponible para este usuario.</p>
+                <div id="verifyInvoiceActions" class="mt-3 d-none">
+                    <a href="#" id="verifyInvoiceLink" target="_blank" class="btn btn-outline-primary">Abrir factura completa</a>
                 </div>
-                <p id="verifyImageFallback" class="text-muted mb-0 d-none">No hay imagen de comprobante disponible para este usuario.</p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -124,49 +153,54 @@ function rol_nombre(int $rol): string
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function () {
+window.addEventListener('load', function () {
     const modalElement = document.getElementById('verifyPaymentModal');
     if (!modalElement || !window.bootstrap || !bootstrap.Modal) return;
 
     const modal = new bootstrap.Modal(modalElement);
     const userIdInput = document.getElementById('verifyPaymentUserId');
-    const image = document.getElementById('verifyImagePreview');
-    const imageWrap = document.getElementById('verifyImageWrap');
-    const pdf = document.getElementById('verifyPdfPreview');
-    const pdfWrap = document.getElementById('verifyPdfWrap');
-    const fallback = document.getElementById('verifyImageFallback');
+    const invoiceWrap = document.getElementById('verifyInvoiceWrap');
+    const invoiceNumber = document.getElementById('verifyInvoiceNumber');
+    const invoiceDate = document.getElementById('verifyInvoiceDate');
+    const invoiceUserName = document.getElementById('verifyInvoiceUserName');
+    const invoiceDescripcion = document.getElementById('verifyInvoiceDescripcion');
+    const invoiceMonto = document.getElementById('verifyInvoiceMonto');
+    const invoiceType = document.getElementById('verifyInvoiceType');
+    const invoiceLink = document.getElementById('verifyInvoiceLink');
+    const invoiceActions = document.getElementById('verifyInvoiceActions');
+    const invoiceFallback = document.getElementById('verifyInvoiceFallback');
     const verifyForm = document.getElementById('verifyPaymentForm');
     const verifyButton = verifyForm.querySelector('button[name="verificar_pago"]');
 
     document.querySelectorAll('.btn-open-verify-modal').forEach(function (btn) {
         btn.addEventListener('click', function () {
             const userId = btn.getAttribute('data-id-usuario') || '';
-            const comprobantePath = btn.getAttribute('data-comprobante-path') || '';
-            const lowerPath = comprobantePath.toLowerCase();
-            const isPdf = lowerPath.endsWith('.pdf');
-            const isImage = /\.(jpg|jpeg|png|webp|gif|bmp)$/i.test(comprobantePath);
+            const userName = btn.getAttribute('data-user-name') || '';
+            const facturaId = btn.getAttribute('data-factura-id') || '';
+            const facturaNumero = btn.getAttribute('data-factura-numero') || '';
+            const facturaFecha = btn.getAttribute('data-factura-fecha') || '';
+            const facturaMonto = btn.getAttribute('data-factura-monto') || '';
+            const facturaDescripcion = btn.getAttribute('data-factura-descripcion') || '';
+            const facturaTipoPago = btn.getAttribute('data-factura-tipo-pago') || '';
 
             userIdInput.value = userId;
-            if (comprobantePath !== '' && isPdf) {
-                pdf.src = comprobantePath;
-                pdfWrap.classList.remove('d-none');
-                image.removeAttribute('src');
-                imageWrap.classList.add('d-none');
-                fallback.classList.add('d-none');
-                verifyButton.disabled = false;
-            } else if (comprobantePath !== '' && isImage) {
-                image.src = comprobantePath;
-                imageWrap.classList.remove('d-none');
-                pdf.removeAttribute('src');
-                pdfWrap.classList.add('d-none');
-                fallback.classList.add('d-none');
+            invoiceNumber.textContent = facturaNumero !== '' ? facturaNumero : 'N/A';
+            invoiceDate.textContent = facturaFecha !== '' ? facturaFecha : '';
+            invoiceUserName.textContent = userName;
+            invoiceDescripcion.textContent = facturaDescripcion !== '' ? facturaDescripcion : 'Sin descripcion';
+            invoiceMonto.textContent = facturaMonto !== '' ? parseFloat(facturaMonto).toFixed(2) : '0.00';
+            invoiceType.textContent = facturaTipoPago !== '' ? facturaTipoPago.toUpperCase() : 'PAGO';
+            invoiceLink.href = facturaId !== '' ? 'index.php?action=ver&id=' + encodeURIComponent(facturaId) : '#';
+
+            if (facturaId !== '') {
+                invoiceWrap.classList.remove('d-none');
+                invoiceActions.classList.remove('d-none');
+                invoiceFallback.classList.add('d-none');
                 verifyButton.disabled = false;
             } else {
-                image.removeAttribute('src');
-                imageWrap.classList.add('d-none');
-                pdf.removeAttribute('src');
-                pdfWrap.classList.add('d-none');
-                fallback.classList.remove('d-none');
+                invoiceWrap.classList.add('d-none');
+                invoiceActions.classList.add('d-none');
+                invoiceFallback.classList.remove('d-none');
                 verifyButton.disabled = true;
             }
 

@@ -70,34 +70,35 @@ if (isset($_POST["register"])) {
     }
 
     if ($id_rol === 3) {
-        // Para admin no se exige escuela.
+        // Para admin no se exige escuela y el usuario no se guarda hasta que el pago sea aprobado.
         $id_escuela = null;
-    }
-
-    if ($usuarioModel->registrar($id_usuario, $tipo_documento, $id_escuela, $nombres, $apellidos, $email, $password, $telefono, $id_rol)) {
-        if ($id_rol === 3) {
-            // Solicitud creada para seguimiento interno; se marcara como verificada
-            // tras la confirmacion exitosa en pasarela.
-            $usuarioModel->crearSolicitudPagoAdmin($id_usuario, 'pasarela');
-
-            $_SESSION['registro_temporal'] = [
-                'id_usuario' => $id_usuario,
-                'tipo_documento' => $tipo_documento,
-                'id_escuela' => null,
-                'nombres' => $nombres,
-                'apellidos' => $apellidos,
-                'nombre' => trim($nombres . ' ' . $apellidos),
-                'email' => $email,
-                'password' => $password,
-                'telefono' => $telefono,
-                'id_rol' => 3,
-                'cantidad' => 1,
-            ];
-
-            header("Location: iniciar?evento=Pago%20registro%20administrador&monto=35000&cantidad=1&return_to=register");
+        $passwordHash = password_hash($password, PASSWORD_DEFAULT);
+        if ($passwordHash === false) {
+            header("Location: register?error=db");
             exit();
         }
 
+        $_SESSION['registro_temporal'] = [
+            'id_usuario' => $id_usuario,
+            'tipo_documento' => $tipo_documento,
+            'id_escuela' => null,
+            'nombres' => $nombres,
+            'apellidos' => $apellidos,
+            'nombre' => trim($nombres . ' ' . $apellidos),
+            'email' => $email,
+            'password' => $passwordHash,
+            'telefono' => $telefono,
+            'id_rol' => 3,
+            'cantidad' => 1,
+            'tipo_persona' => 'N',
+        ];
+
+        $returnTo = urlencode('iniciar?evento=Pago registro administrador&monto=35000&cantidad=1');
+        header("Location: iniciar?evento=Pago%20registro%20administrador&monto=35000&cantidad=1&return_to={$returnTo}");
+        exit();
+    }
+
+    if ($usuarioModel->registrar($id_usuario, $tipo_documento, $id_escuela, $nombres, $apellidos, $email, $password, $telefono, $id_rol)) {
         if ($id_rol === 2) {
             header("Location: register?success=pending");
         } else {

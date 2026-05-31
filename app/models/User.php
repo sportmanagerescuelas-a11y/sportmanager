@@ -58,6 +58,9 @@ class User
             $password = password_hash(bin2hex(random_bytes(16)), PASSWORD_DEFAULT);
         }
 
+        $estado = (string)($data['estado'] ?? 'aprobado');
+        $habilitado = isset($data['habilitado']) ? (int)$data['habilitado'] : 1;
+
         $stmt = $model->db->prepare(
             "INSERT INTO usuarios
              (id_usuario, tipo_documento, id_escuela, nombres, apellidos, email, contrasena, telefono, id_rol, registros_disponibles, habilitado, estado)
@@ -77,8 +80,8 @@ class User
                 ':telefono' => (string)($data['telefono'] ?? ''),
                 ':id_rol' => isset($data['id_rol']) ? (int)$data['id_rol'] : 1,
                 ':registros_disponibles' => isset($data['cantidad']) ? (int)$data['cantidad'] : null,
-                ':habilitado' => 1,
-                ':estado' => 'aprobado',
+                ':habilitado' => $habilitado,
+                ':estado' => $estado,
             ]);
         } catch (PDOException $e) {
             error_log('No se pudo crear usuario: ' . $e->getMessage());

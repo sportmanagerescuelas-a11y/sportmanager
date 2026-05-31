@@ -6,6 +6,7 @@ $paymentError = (string)($viewData['paymentError'] ?? '');
 $invoiceResult = is_array($viewData['invoiceResult'] ?? null) ? $viewData['invoiceResult'] : [];
 $refreshUrl = (string)($viewData['refreshUrl'] ?? '');
 $retryUrl = (string)($viewData['retryUrl'] ?? 'iniciar');
+$nextUrl = (string)($viewData['nextUrl'] ?? '');
 
 $status = is_array($paymentResult['status'] ?? null) ? $paymentResult['status'] : [];
 $statusTone = (string)($status['tone'] ?? 'secondary');
@@ -54,13 +55,11 @@ if ($statusTone === 'success') {
         <div class="d-flex flex-wrap gap-2">
             <?php if ($statusKey === 'pending' && $refreshUrl !== ''): ?>
                 <a href="<?= htmlspecialchars($refreshUrl, ENT_QUOTES, 'UTF-8') ?>" class="btn btn-warning">Consultar estado</a>
-            <?php endif; ?>
-
-            <?php if ($statusKey === 'rejected' || $statusKey === 'error'): ?>
+            <?php elseif ($statusKey === 'rejected' || $statusKey === 'error'): ?>
                 <a href="<?= htmlspecialchars($retryUrl, ENT_QUOTES, 'UTF-8') ?>" class="btn btn-outline-primary">Intentar de nuevo</a>
+            <?php elseif ($nextUrl !== ''): ?>
+                <a href="<?= htmlspecialchars($nextUrl, ENT_QUOTES, 'UTF-8') ?>" class="btn btn-success">Continuar registro de escuela</a>
             <?php endif; ?>
-
-            <a href="dashboard.php" class="btn btn-primary">Volver al dashboard</a>
         </div>
     </div>
 </div>
