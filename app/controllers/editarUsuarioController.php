@@ -15,14 +15,17 @@ $accion = $_POST["accion"];
 if ($accion == "activar" || $accion == "deshabilitar") {
 
     $nuevoEstado = ($accion == "activar") ? "aprobado" : "deshabilitado";
+    $nuevoHabilitado = ($accion == "activar") ? 1 : 0;
 
     $sql = $conexion->prepare("
         UPDATE usuarios 
-        SET estado = :estado 
+        SET estado = :estado,
+            habilitado = :habilitado
         WHERE id_usuario = :id
     ");
 
     $sql->bindParam(":estado", $nuevoEstado);
+    $sql->bindParam(":habilitado", $nuevoHabilitado, PDO::PARAM_INT);
     $sql->bindParam(":id", $id);
     $sql->execute();
 } else {

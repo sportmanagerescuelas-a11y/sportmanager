@@ -10,8 +10,8 @@ $categorias = is_array($viewData['categorias'] ?? null) ? $viewData['categorias'
 $jornadas = is_array($viewData['jornadas'] ?? null) ? $viewData['jornadas'] : [];
 $ok = (bool)($viewData['ok'] ?? false);
 $error = $viewData['error'] ?? null;
-$errorFecha = $viewData['errorFecha'] ?? '';
-$errorCount = (int)($viewData['errorCount'] ?? 0);
+$fechaSeleccionada = (string)($viewData['fechaSeleccionada'] ?? '');
+$existingAttendance = is_array($viewData['existingAttendance'] ?? null) ? $viewData['existingAttendance'] : [];
 
 $search = (string)($filters['search'] ?? '');
 $categoriaActual = (string)($filters['categoria'] ?? '');
@@ -25,14 +25,15 @@ $queryParams = [
 if ($search !== '') $queryParams['search'] = $search;
 if ($categoriaActual !== '') $queryParams['categoria'] = $categoriaActual;
 if ($jornadaActual !== '') $queryParams['jornada'] = $jornadaActual;
+if ($fechaSeleccionada !== '') $queryParams['fecha'] = $fechaSeleccionada;
 $queryBase = 'index.php?' . http_build_query($queryParams);
 ?>
 <?php if (!empty($ok)): ?>
-    <div class="alert alert-success">Asistencia guardada correctamente.</div>
+    <div class="alert alert-success">Asistencia guardada correctamente para la fecha seleccionada.</div>
 <?php endif; ?>
-<?php if (!empty($error) && $error === 'duplicado'): ?>
-    <div class="alert alert-danger">
-        Ya existe asistencia para <?= htmlspecialchars((string)$errorFecha) ?>. Registros duplicados: <?= (int)$errorCount ?>.
+<?php if ($fechaSeleccionada !== '' && !empty($existingAttendance)): ?>
+    <div class="alert alert-info">
+        Estás editando la asistencia de <?= htmlspecialchars($fechaSeleccionada, ENT_QUOTES, 'UTF-8') ?>. Los cambios reemplazan lo guardado para los deportistas visibles.
     </div>
 <?php endif; ?>
 
@@ -44,6 +45,7 @@ $queryBase = 'index.php?' . http_build_query($queryParams);
                 <form method="get" action="index.php" class="attendance-filter-form">
                     <input type="hidden" name="url" value="registrar-asistencia">
                     <input type="hidden" name="per_page" value="<?= (int)$perPage ?>">
+                    <input type="hidden" name="fecha" value="<?= htmlspecialchars($fechaSeleccionada, ENT_QUOTES, 'UTF-8') ?>">
                     <div>
                         <label for="search" class="form-label small mb-1">Nombre o documento</label>
                         <input type="search" id="search" name="search" class="form-control form-control-sm" value="<?= htmlspecialchars($search, ENT_QUOTES, 'UTF-8') ?>" placeholder="Buscar deportista">
@@ -94,14 +96,14 @@ $queryBase = 'index.php?' . http_build_query($queryParams);
                     <div class="attendance-actions">
                         <button type="submit" class="btn btn-success" id="submitAsistencia" disabled>Guardar asistencia</button>
                         <button type="button" class="btn btn-outline-secondary" id="clearAsistencia">Limpiar</button>
-                        <a href="dashboard" class="btn btn-outline-primary">Volver</a>
+                        <a href="dashboard" class="btn btn-outline-primary">Menú principal</a>
                     </div>
                 </div>
 
                 <div class="attendance-controls">
                     <div>
                         <label for="fechaAsistencia" class="form-label small mb-1">Fecha de asistencia</label>
-                        <input type="date" id="fechaAsistencia" class="form-control form-control-sm">
+                        <input type="date" id="fechaAsistencia" class="form-control form-control-sm" value="<?= htmlspecialchars($fechaSeleccionada, ENT_QUOTES, 'UTF-8') ?>">
                     </div>
                     <div>
                         <label for="perPage" class="form-label small mb-1">Registros por pagina</label>
@@ -127,8 +129,9 @@ $queryBase = 'index.php?' . http_build_query($queryParams);
                     $foto = trim((string)($row['foto'] ?? ''));
                     $fotoPath = $foto !== '' ? 'fotos/' . $foto : 'fotos/default.png';
                     $nombreCompleto = trim((string)($row['nombres'] ?? '') . ' ' . (string)($row['apellidos'] ?? ''));
+                    $registro = $existingAttendance[$id] ?? ['estado' => '', 'comentario' => ''];
                     ?>
-                    <article class="attendance-card" data-id="<?= $id ?>">
+                    <article class="attendance-card" data-id="<?= $id ?>" data-existing-estado="<?= htmlspecialchars((string)($registro['estado'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" data-existing-comentario="<?= htmlspecialchars((string)($registro['comentario'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
                         <div class="attendance-person">
                             <img src="<?= htmlspecialchars($fotoPath, ENT_QUOTES, 'UTF-8') ?>" alt="Foto deportista">
                             <div class="attendance-person-main">

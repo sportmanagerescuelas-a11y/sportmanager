@@ -23,7 +23,7 @@ function sm_attendance_badge(string $estado): string
                     <h1 class="h4 mb-1">Asistencias de mis hijos</h1>
                     <div class="text-muted small">Consulta los registros por fecha.</div>
                 </div>
-                <a href="dashboard" class="btn btn-outline-primary">Volver</a>
+                <a href="dashboard" class="btn btn-outline-primary">Menú principal</a>
             </div>
 
             <form method="get" action="index.php" class="attendance-guardian-filter">

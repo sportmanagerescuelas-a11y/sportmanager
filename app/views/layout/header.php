@@ -61,24 +61,8 @@
         ];
     };
 
-    $mixWith = static function (string $hex, int $target, float $amount) use ($hexToRgb): string {
-        $amount = max(0, min(1, $amount));
-        [$r, $g, $b] = $hexToRgb($hex);
-        $r = (int)round($r + (($target - $r) * $amount));
-        $g = (int)round($g + (($target - $g) * $amount));
-        $b = (int)round($b + (($target - $b) * $amount));
-        return sprintf('#%02x%02x%02x', max(0, min(255, $r)), max(0, min(255, $g)), max(0, min(255, $b)));
-    };
-
     $primaryRgb = $hexToRgb($schoolPrimaryColor);
     $secondaryRgb = $hexToRgb($schoolSecondaryColor);
-    $smBlue900 = $mixWith($schoolPrimaryColor, 0, 0.38);
-    $smBlue800 = $mixWith($schoolPrimaryColor, 0, 0.24);
-    $smBlue700 = $schoolPrimaryColor;
-    $smBlue600 = $mixWith($schoolPrimaryColor, 255, 0.12);
-    $smGray800 = $mixWith($schoolSecondaryColor, 0, 0.28);
-    $smGray700 = $schoolSecondaryColor;
-    $smGray500 = $mixWith($schoolSecondaryColor, 255, 0.22);
     $shieldCssPath = str_replace('\\', '/', trim((string)$schoolShieldPath));
     $shieldCssPath = str_replace(['"', "'", ' '], ['%22', '%27', '%20'], $shieldCssPath);
     $schoolShieldCssImage = $shieldCssPath !== '' ? "url({$shieldCssPath})" : 'none';
@@ -92,15 +76,19 @@
     <link rel="stylesheet" href="assets/css/style.css?v=<?= urlencode($styleVersion) ?>">
 </head>
 
-<body style="--school-primary-color: <?= htmlspecialchars($schoolPrimaryColor, ENT_QUOTES, 'UTF-8') ?>; --school-secondary-color: <?= htmlspecialchars($schoolSecondaryColor, ENT_QUOTES, 'UTF-8') ?>; --school-primary-rgb: <?= (int)$primaryRgb[0] ?>, <?= (int)$primaryRgb[1] ?>, <?= (int)$primaryRgb[2] ?>; --school-secondary-rgb: <?= (int)$secondaryRgb[0] ?>, <?= (int)$secondaryRgb[1] ?>, <?= (int)$secondaryRgb[2] ?>; --school-shield-image: <?= htmlspecialchars($schoolShieldCssImage, ENT_QUOTES, 'UTF-8') ?>; --sm-blue-900: <?= htmlspecialchars($smBlue900, ENT_QUOTES, 'UTF-8') ?>; --sm-blue-800: <?= htmlspecialchars($smBlue800, ENT_QUOTES, 'UTF-8') ?>; --sm-blue-700: <?= htmlspecialchars($smBlue700, ENT_QUOTES, 'UTF-8') ?>; --sm-blue-600: <?= htmlspecialchars($smBlue600, ENT_QUOTES, 'UTF-8') ?>; --sm-gray-800: <?= htmlspecialchars($smGray800, ENT_QUOTES, 'UTF-8') ?>; --sm-gray-700: <?= htmlspecialchars($smGray700, ENT_QUOTES, 'UTF-8') ?>; --sm-gray-500: <?= htmlspecialchars($smGray500, ENT_QUOTES, 'UTF-8') ?>;">
+    <body style="--school-primary-color: <?= htmlspecialchars($schoolPrimaryColor, ENT_QUOTES, 'UTF-8') ?>; --school-secondary-color: <?= htmlspecialchars($schoolSecondaryColor, ENT_QUOTES, 'UTF-8') ?>; --school-primary-rgb: <?= (int)$primaryRgb[0] ?>, <?= (int)$primaryRgb[1] ?>, <?= (int)$primaryRgb[2] ?>; --school-secondary-rgb: <?= (int)$secondaryRgb[0] ?>, <?= (int)$secondaryRgb[1] ?>, <?= (int)$secondaryRgb[2] ?>; --school-shield-image: <?= htmlspecialchars($schoolShieldCssImage, ENT_QUOTES, 'UTF-8') ?>;">
     <header>
-        <div class="top-bar text-white py-1" style="background-color: <?= htmlspecialchars($schoolPrimaryColor, ENT_QUOTES, 'UTF-8') ?>;">
-            <div class="container d-flex justify-content-between">
-                <span>Email: sportmanager.escuelas@gmail.com | Tel: 601 577 1818</span>
-                <div>
-                    <a href="https://www.facebook.com/profile.php?id=100083328903404" target="blank_" class="text-white me-2">Facebook</a>
-                    <a href="https://x.com/spmanager20" target="blank_" class="text-white me-2">X</a>
-                    <a href="https://www.instagram.com/sport_manager_escuelas/" target="blank_" class="text-white">Instagram</a>
+        <div class="top-bar top-bar--brand text-white py-1">
+            <div class="container top-bar__inner">
+                <div class="top-bar__contact">
+                    <span>Email: sportmanager.escuelas@gmail.com</span>
+                    <span>Tel: 601 577 1818</span>
+                </div>
+                <div class="top-bar__social">
+                    <span class="top-bar__social-label">Síguenos</span>
+                    <a href="https://www.facebook.com/profile.php?id=100083328903404" target="_blank" rel="noopener noreferrer" class="top-bar__social-link top-bar__social-link--facebook">Facebook</a>
+                    <a href="https://x.com/spmanager20" target="_blank" rel="noopener noreferrer" class="top-bar__social-link top-bar__social-link--x">X</a>
+                    <a href="https://www.instagram.com/sport_manager_escuelas/" target="_blank" rel="noopener noreferrer" class="top-bar__social-link top-bar__social-link--instagram">Instagram</a>
                 </div>
             </div>
         </div>
@@ -126,6 +114,7 @@
                     $esPaginaPrincipal = ($archivoActual === 'index.php' && ($urlParam === 'home' || $urlParam === '') && !isset($_GET['action']));
                     $usuarioLogueado = isset($_SESSION['usuario']);
                     $rolUsuario = (int)($_SESSION['rol'] ?? 0);
+                    $rolEtiqueta = [1 => 'Acudiente', 2 => 'Entrenador', 3 => 'Administrador', 4 => 'Superadmin'][$rolUsuario] ?? 'Usuario';
                     $nombreUsuario = htmlspecialchars(
                         (string)(($_SESSION['usuario']['nombres'] ?? '') . ' ' . ($_SESSION['usuario']['apellidos'] ?? ''))
                     );
@@ -163,7 +152,7 @@
                     $opcionesMenu = $menuPorRol[$rolUsuario] ?? [['label' => 'Mi panel', 'href' => 'dashboard']];
                     ?>
 
-                    <ul class="navbar-nav ms-auto">
+                    <ul class="navbar-nav ms-auto align-items-lg-center">
                         <?php if ($esPaginaPrincipal): ?>
                             <li class="nav-item"><a class="nav-link" href="home#sobre-nosotros">Sobre nosotros</a></li>
                             <li class="nav-item"><a class="nav-link" href="home#planes">Planes</a></li>
@@ -177,6 +166,8 @@
                                     Menu del rol
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="menuRolDropdown">
+                                    <li><span class="dropdown-item-text text-uppercase small text-muted">Rol: <?= htmlspecialchars($rolEtiqueta, ENT_QUOTES, 'UTF-8') ?></span></li>
+                                    <li><hr class="dropdown-divider"></li>
                                     <?php foreach ($opcionesMenu as $item): ?>
                                         <li><a class="dropdown-item" href="<?= htmlspecialchars((string)$item['href']) ?>"><?= htmlspecialchars((string)$item['label']) ?></a></li>
                                     <?php endforeach; ?>

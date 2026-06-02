@@ -33,19 +33,21 @@ if (isset($_POST["login"])) {
             exit();
         }
 
-        // ???? Verificar estado
-        if ($usuario['estado'] == 'pendiente') {
-            header("Location: ../login&error=pending");
-            exit();
-        }
-        if ($usuario['estado'] == 'pago_pendiente') {
-            header("Location: ../login&error=payment_pending");
+        $estadoUsuario = trim((string)($usuario['estado'] ?? ''));
+        $habilitadoUsuario = (int)($usuario['habilitado'] ?? 1);
+
+        // Verificar estado real de la cuenta
+        if ($estadoUsuario === 'deshabilitado' || $habilitadoUsuario === 0) {
+            header("Location: ../login&error=disabled");
             exit();
         }
 
-        // ???? Opcional: usuario deshabilitado
-        if ($usuario['habilitado'] == 0) {
-            header("Location: ../login&error=disabled");
+        if ($estadoUsuario === 'pendiente') {
+            header("Location: ../login&error=pending");
+            exit();
+        }
+        if ($estadoUsuario === 'pago_pendiente') {
+            header("Location: ../login&error=payment_pending");
             exit();
         }
 

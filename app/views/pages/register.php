@@ -1,5 +1,3 @@
-<br>
-<br>
 <?php
 $viewData = get_defined_vars();
 $schools = is_array($viewData['schools'] ?? null) ? $viewData['schools'] : [];
@@ -94,8 +92,8 @@ if ($registerErrorText !== '' && $activeFieldError['field'] === '') {
     $modalType = 'warning';
 }
 ?>
-<div class="auth-page py-4 py-lg-5">
-<div class="auth-shell container my-4 my-lg-5">
+<div class="auth-page auth-page--register py-2 py-lg-3">
+<div class="auth-shell auth-shell--register container">
     <section class="auth-panel reveal-up">
         <div class="auth-kicker">Nuevo registro</div>
         <h1 class="auth-title">Crea tu cuenta y entra al ecosistema deportivo.</h1>
@@ -109,102 +107,107 @@ if ($registerErrorText !== '' && $activeFieldError['field'] === '') {
         </div>
     </section>
 
-    <section class="auth-card card reveal-up delay-1">
+    <section class="auth-card auth-card--register card reveal-up delay-1">
         <div class="card-header">
+            <div class="auth-kicker auth-kicker--dark mx-auto mb-2">Nuevo registro</div>
             <h2 class="text-center mb-1">Crear cuenta</h2>
             <p class="auth-subtitle text-center mb-0">Completa tus datos para comenzar.</p>
         </div>
         <div class="card-body">
-            <form action="registro-submit" method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
-                <div class="mb-3">
-                    <label for="id_usuario" class="form-label">Numero de Documento</label>
-                    <div class="position-relative">
-                        <input type="text" class="form-control auth-input" id="id_usuario" name="id_usuario" placeholder="Tu numero de documento" maxlength="11" pattern="\d{1,11}" inputmode="numeric" required>
-                        <span id="idSpinner" class="spinner-border spinner-border-sm text-primary position-absolute top-50 end-0 translate-middle-y me-3" style="display:none;" role="status" aria-hidden="true"></span>
+            <form action="registro-submit" method="POST" enctype="multipart/form-data" class="needs-validation auth-form-grid" novalidate>
+                <div class="row g-2 g-lg-3 auth-register-grid">
+                    <div class="col-12 col-lg-4">
+                        <label for="id_usuario" class="form-label">Numero de Documento</label>
+                        <div class="position-relative">
+                            <input type="text" class="form-control auth-input" id="id_usuario" name="id_usuario" placeholder="Tu numero de documento" maxlength="11" pattern="\d{1,11}" inputmode="numeric" required>
+                            <span id="idSpinner" class="spinner-border spinner-border-sm text-primary position-absolute top-50 end-0 translate-middle-y me-3" style="display:none;" role="status" aria-hidden="true"></span>
+                        </div>
+                        <div class="invalid-feedback" id="id_usuarioFeedback">Por favor ingrese su numero de documento.</div>
                     </div>
-                    <div class="invalid-feedback" id="id_usuarioFeedback">Por favor ingrese su numero de documento.</div>
-                </div>
-                <div class="mb-3">
-                    <label for="tipo_documento" class="form-label">Tipo de Documento</label>
-                    <select class="form-select auth-input" id="tipo_documento" name="tipo_documento" required>
-                        <option value="" selected disabled>Selecciona un tipo...</option>
-                        <option value="CC">CC - Cedula de Ciudadania</option>
-                        <option value="TI">TI - Tarjeta de Identidad</option>
-                        <option value="CE">CE - Cedula de Extranjeria</option>
-                        <option value="PAS">PAS - Pasaporte</option>
-                        <option value="PEP">PEP - Permiso Especial de Permanencia</option>
-                    </select>
-                    <div class="invalid-feedback" id="tipo_documentoFeedback">Seleccione un tipo de documento.</div>
-                </div>
-                <div class="mb-3">
-                    <label for="nombres" class="form-label">Nombres</label>
-                    <input type="text" class="form-control auth-input" id="nombres" name="nombres" placeholder="Tu nombre" required>
-                    <div class="invalid-feedback" id="nombresFeedback">Debes ingresar tus nombres.</div>
-                </div>
-                <div class="mb-3">
-                    <label for="apellidos" class="form-label">Apellidos</label>
-                    <input type="text" class="form-control auth-input" id="apellidos" name="apellidos" placeholder="Tus apellidos" required>
-                    <div class="invalid-feedback" id="apellidosFeedback">Debes ingresar tus apellidos.</div>
-                </div>
-                <div class="mb-3">
-                    <label for="email" class="form-label">Correo Electronico</label>
-                    <div class="position-relative">
-                        <input type="email" class="form-control auth-input" id="email" name="email" placeholder="tu@correo.com" required>
-                        <span id="emailSpinner" class="spinner-border spinner-border-sm text-primary position-absolute top-50 end-0 translate-middle-y me-3" style="display:none;" role="status" aria-hidden="true"></span>
+                    <div class="col-12 col-lg-4">
+                        <label for="tipo_documento" class="form-label">Tipo de Documento</label>
+                        <select class="form-select auth-input" id="tipo_documento" name="tipo_documento" required>
+                            <option value="" selected disabled>Selecciona un tipo...</option>
+                            <option value="CC">CC - Cedula de Ciudadania</option>
+                            <option value="TI">TI - Tarjeta de Identidad</option>
+                            <option value="CE">CE - Cedula de Extranjeria</option>
+                            <option value="PAS">PAS - Pasaporte</option>
+                            <option value="PEP">PEP - Permiso Especial de Permanencia</option>
+                        </select>
+                        <div class="invalid-feedback" id="tipo_documentoFeedback">Seleccione un tipo de documento.</div>
                     </div>
-                    <div id="emailFeedback" class="invalid-feedback">Este correo ya esta registrado.</div>
-                    <div id="emailHelp" class="form-text"></div>
-                </div>
-                <div class="mb-3">
-                    <label for="password" class="form-label">Contrasena</label>
-                    <input type="password" class="form-control auth-input" id="password" name="password" placeholder="Crea una contrasena" required>
-                    <div class="invalid-feedback" id="passwordFeedback">Debes ingresar una contrasena valida.</div>
-                    <div id="passwordRequirementsBox" class="border rounded p-3 mt-2 bg-white shadow-sm d-none">
-    <small id="passwordHelp" class="form-text text-muted">
-        La contrasena debe cumplir todos estos requisitos:
-    </small>
-    <ul id="passwordRequirements" class="mt-2 mb-0 ps-3 small">
-        <li id="req-length" class="text-danger">- Minimo 8 caracteres</li>
-        <li id="req-upper" class="text-danger">- Una letra mayuscula</li>
-        <li id="req-lower" class="text-danger">- Una letra minuscula</li>
-        <li id="req-number" class="text-danger">- Un numero</li>
-        <li id="req-special" class="text-danger">- Un caracter especial (@$!%*?&._-)</li>
-    </ul>
-</div>
-                    <div id="passwordMissing" class="mt-2 small text-danger"></div>
-                </div>
-                <div class="mb-3">
-                    <label for="telefono" class="form-label">Telefono</label>
-                    <input type="tel" class="form-control auth-input" id="telefono" name="telefono" placeholder="Tu telefono" maxlength="10" pattern="\d{10}" inputmode="numeric" required>
-                    <div class="invalid-feedback" id="telefonoFeedback">Debes ingresar un telefono valido.</div>
-                </div>
-                <div class="mb-3">
-                    <label for="id_rol" class="form-label">Rol</label>
-                    <select class="form-select auth-input" id="id_rol" name="id_rol" required>
-                        <option value="1">Acudiente</option>
-                        <option value="2">Formador (requiere aprobacion)</option>
-                        <option value="3">Administrador de escuela (requiere validacion de pago)</option>
-                    </select>
-                </div>
-                <div class="mb-3" id="schoolWrap">
-                    <label for="id_escuela" class="form-label">Escuela</label>
-                    <select class="form-select auth-input" id="id_escuela" name="id_escuela">
-                        <option value="" selected disabled>Selecciona tu escuela...</option>
-                        <?php foreach ($schools as $school): ?>
-                            <?php $value = (string)($school->id_escuela ?? ''); ?>
-                            <option value="<?= htmlspecialchars($value, ENT_QUOTES, 'UTF-8') ?>" <?= $selectedSchool === $value ? 'selected' : '' ?>>
-                                <?= htmlspecialchars((string)(($school->nombre ?? '') . ' - ' . ($school->disciplina ?? '')), ENT_QUOTES, 'UTF-8') ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                    <div class="invalid-feedback" id="id_escuelaFeedback">Debes seleccionar una escuela.</div>
-                </div>
-                <div class="mb-3" id="comprobantePagoWrap" style="display:none;">
-                    <div class="alert alert-info mb-0">
-                        Para administrador ya no necesitas subir comprobante. Al registrarte te llevaremos a la pasarela de pago.
+                    <div class="col-12 col-lg-4">
+                        <label for="nombres" class="form-label">Nombres</label>
+                        <input type="text" class="form-control auth-input" id="nombres" name="nombres" placeholder="Tu nombre" required>
+                        <div class="invalid-feedback" id="nombresFeedback">Debes ingresar tus nombres.</div>
+                    </div>
+                    <div class="col-12 col-lg-4">
+                        <label for="apellidos" class="form-label">Apellidos</label>
+                        <input type="text" class="form-control auth-input" id="apellidos" name="apellidos" placeholder="Tus apellidos" required>
+                        <div class="invalid-feedback" id="apellidosFeedback">Debes ingresar tus apellidos.</div>
+                    </div>
+                    <div class="col-12 col-lg-4">
+                        <label for="email" class="form-label">Correo Electronico</label>
+                        <div class="position-relative">
+                            <input type="email" class="form-control auth-input" id="email" name="email" placeholder="tu@correo.com" required>
+                            <span id="emailSpinner" class="spinner-border spinner-border-sm text-primary position-absolute top-50 end-0 translate-middle-y me-3" style="display:none;" role="status" aria-hidden="true"></span>
+                        </div>
+                        <div id="emailFeedback" class="invalid-feedback">Este correo ya esta registrado.</div>
+                        <div id="emailHelp" class="form-text"></div>
+                    </div>
+                    <div class="col-12 col-lg-4">
+                        <label for="password" class="form-label">Contrasena</label>
+                        <input type="password" class="form-control auth-input" id="password" name="password" placeholder="Crea una contrasena" required>
+                        <div class="invalid-feedback" id="passwordFeedback">Debes ingresar una contrasena valida.</div>
+                        <div id="passwordRequirementsBox" class="border rounded-3 p-3 mt-2 bg-white shadow-sm d-none">
+                            <small id="passwordHelp" class="form-text text-muted d-block">
+                                La contrasena debe cumplir todos estos requisitos:
+                            </small>
+                            <ul id="passwordRequirements" class="mt-2 mb-0 ps-3 small">
+                                <li id="req-length" class="text-danger">- Minimo 8 caracteres</li>
+                                <li id="req-upper" class="text-danger">- Una letra mayuscula</li>
+                                <li id="req-lower" class="text-danger">- Una letra minuscula</li>
+                                <li id="req-number" class="text-danger">- Un numero</li>
+                                <li id="req-special" class="text-danger">- Un caracter especial (@$!%*?&._-)</li>
+                            </ul>
+                        </div>
+                        <div id="passwordMissing" class="mt-2 small text-danger"></div>
+                    </div>
+                    <div class="col-12 col-lg-4">
+                        <label for="telefono" class="form-label">Telefono</label>
+                        <input type="tel" class="form-control auth-input" id="telefono" name="telefono" placeholder="Tu telefono" maxlength="10" pattern="\d{10}" inputmode="numeric" required>
+                        <div class="invalid-feedback" id="telefonoFeedback">Debes ingresar un telefono valido.</div>
+                    </div>
+                    <div class="col-12 col-lg-4">
+                        <label for="id_rol" class="form-label">Rol</label>
+                        <select class="form-select auth-input" id="id_rol" name="id_rol" required>
+                            <option value="1">Acudiente</option>
+                            <option value="2">Formador (requiere aprobacion)</option>
+                            <option value="3">Administrador de escuela (requiere validacion de pago)</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-lg-4" id="schoolWrap">
+                        <label for="id_escuela" class="form-label">Escuela</label>
+                        <select class="form-select auth-input" id="id_escuela" name="id_escuela">
+                            <option value="" selected disabled>Selecciona tu escuela...</option>
+                            <?php foreach ($schools as $school): ?>
+                                <?php $value = (string)($school->id_escuela ?? ''); ?>
+                                <option value="<?= htmlspecialchars($value, ENT_QUOTES, 'UTF-8') ?>" <?= $selectedSchool === $value ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars((string)(($school->nombre ?? '') . ' - ' . ($school->disciplina ?? '')), ENT_QUOTES, 'UTF-8') ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                        <div class="invalid-feedback" id="id_escuelaFeedback">Debes seleccionar una escuela.</div>
+                    </div>
+                    <div class="col-12" id="comprobantePagoWrap" style="display:none;">
+                        <div class="alert alert-info mb-0 py-2">
+                            Para administrador ya no necesitas subir comprobante. Al registrarte te llevaremos a la pasarela de pago.
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <button type="submit" name="register" class="btn btn-primary w-100 auth-action">Registrarse</button>
                     </div>
                 </div>
-                <button type="submit" name="register" class="btn btn-primary w-100 auth-action">Registrarse</button>
             </form>
         </div>
     </section>

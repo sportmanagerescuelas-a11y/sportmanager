@@ -33,6 +33,52 @@ class Asistencia
     }
 
     /**
+     * @param array<int,int> $ids
+     * @return array<int,array{estado:string,comentario:string}>
+     */
+    public static function forDateAndIds(string $fecha, array $ids): array
+    {
+        if (empty($ids)) {
+            return [];
+        }
+
+        $pdo = Database::pdo();
+
+        $placeholders = [];
+        $params = [':fecha' => $fecha];
+        foreach ($ids as $i => $id) {
+            $key = ':id' . $i;
+            $placeholders[] = $key;
+            $params[$key] = $id;
+        }
+
+        $sql = 'SELECT id_deportista, estado, COALESCE(comentario, "") AS comentario
+                FROM asistencia
+                WHERE DATE(fecha) = :fecha
+                  AND id_deportista IN (' . implode(',', $placeholders) . ')';
+        $stmt = $pdo->prepare($sql);
+        foreach ($params as $key => $value) {
+            $type = $key === ':fecha' ? PDO::PARAM_STR : PDO::PARAM_INT;
+            $stmt->bindValue($key, $value, $type);
+        }
+        $stmt->execute();
+
+        $rows = [];
+        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+            $id = (int)($row['id_deportista'] ?? 0);
+            if ($id <= 0) {
+                continue;
+            }
+            $rows[$id] = [
+                'estado' => trim((string)($row['estado'] ?? '')),
+                'comentario' => trim((string)($row['comentario'] ?? '')),
+            ];
+        }
+
+        return $rows;
+    }
+
+    /**
      * @param array<int,array{id_deportista:int,estado:string,comentario:?string}> $rows
      */
     public static function insertMany(array $rows, string $fecha): void
@@ -52,6 +98,60 @@ class Asistencia
                 ':fecha' => $fechaCompleta,
                 ':estado' => $row['estado'],
                 ':comentario' => $row['comentario'],
+            ]);
+        }
+
+        $pdo->commit();
+    }
+
+    /**
+     * @param array<int,array{id_deportista:int,estado:string,comentario:?string}> $rows
+     */
+    public static function replaceMany(array $rows, string $fecha): void
+    {
+        if (empty($rows)) {
+            return;
+        }
+
+        $pdo = Database::pdo();
+        $pdo->beginTransaction();
+
+        $ids = array_values(array_filter(array_map(static fn(array $row): int => (int)($row['id_deportista'] ?? 0), $rows), static fn(int $id): bool => $id > 0));
+        if (!empty($ids)) {
+            $placeholders = [];
+            $params = [':fecha' => $fecha];
+            foreach ($ids as $i => $id) {
+                $key = ':id' . $i;
+                $placeholders[] = $key;
+                $params[$key] = $id;
+            }
+
+            $deleteSql = 'DELETE FROM asistencia WHERE DATE(fecha) = :fecha AND id_deportista IN (' . implode(',', $placeholders) . ')';
+            $deleteStmt = $pdo->prepare($deleteSql);
+            foreach ($params as $key => $value) {
+                $type = $key === ':fecha' ? PDO::PARAM_STR : PDO::PARAM_INT;
+                $deleteStmt->bindValue($key, $value, $type);
+            }
+            $deleteStmt->execute();
+        }
+
+        $stmt = $pdo->prepare(
+            'INSERT INTO asistencia (id_deportista, fecha, estado, comentario) VALUES (:id_deportista, :fecha, :estado, :comentario)'
+        );
+
+        $fechaCompleta = $fecha . ' 00:00:00';
+        foreach ($rows as $row) {
+            $id = (int)($row['id_deportista'] ?? 0);
+            $estado = trim((string)($row['estado'] ?? ''));
+            if ($id <= 0 || $estado === '') {
+                continue;
+            }
+
+            $stmt->execute([
+                ':id_deportista' => $id,
+                ':fecha' => $fechaCompleta,
+                ':estado' => $estado,
+                ':comentario' => $row['comentario'] ?? null,
             ]);
         }
 

@@ -12,6 +12,40 @@ $dashboardShieldPath = isset($schoolShieldPath) && is_string($schoolShieldPath) 
     : 'assets/img/balonfutbol.png';
 $dashboardShieldPath = str_replace('\\', '/', $dashboardShieldPath);
 $dashboardShieldPath = str_replace(['"', "'", ' '], ['%22', '%27', '%20'], $dashboardShieldPath);
+
+$dashboardActions = [];
+if ($rol === 4) {
+    $dashboardActions = [
+        ['href' => 'admin_usuarios', 'label' => 'Validar Pagos Admin'],
+        ['href' => 'gestion_escuelas', 'label' => 'Gestionar Escuelas'],
+    ];
+} elseif ($rol === 3) {
+    $dashboardActions = [
+        ['href' => 'admin_usuarios', 'label' => 'Gestionar Usuarios'],
+        ['href' => 'deportistas', 'label' => 'Gestionar Deportistas'],
+        ['href' => 'index.php?action=listar', 'label' => 'Reporte de Pago'],
+        ['href' => 'productos', 'label' => 'Productos'],
+        ['href' => 'reportes', 'label' => 'Reportes Generales'],
+        ['href' => 'gestion_eventos', 'label' => 'Eventos'],
+        ['href' => 'uniformes', 'label' => 'Uniformes'],
+    ];
+} elseif ($rol === 2) {
+    $dashboardActions = [
+        ['href' => 'deportistas', 'label' => 'Ver Deportistas'],
+        ['href' => 'registrar-asistencia', 'label' => 'Registrar Asistencia'],
+        ['href' => 'reportes', 'label' => 'Reportes'],
+        ['href' => 'uniformes', 'label' => 'Uniformes'],
+    ];
+} else {
+    $dashboardActions = [
+        ['href' => 'deportistas', 'label' => 'Registrar Deportista'],
+        ['href' => 'asistencia-hijos', 'label' => 'Ver Asistencias'],
+        ['href' => 'pagos', 'label' => 'Mis Pagos'],
+        ['href' => 'uniformes', 'label' => 'Uniformes'],
+    ];
+}
+
+$dashboardActionChunks = array_chunk($dashboardActions, $rol === 3 ? 3 : 2);
 ?>
 <style>
     main { padding-bottom: 0 !important; }
@@ -19,10 +53,8 @@ $dashboardShieldPath = str_replace(['"', "'", ' '], ['%22', '%27', '%20'], $dash
 </style>
 <div class="dashboard position-relative">
     <div class="dashboard-shield-watermark" style="background-image: url(<?= htmlspecialchars($dashboardShieldPath, ENT_QUOTES, 'UTF-8') ?>);"></div>
-    <div class="rol-box"><?= htmlspecialchars($rolLabel) ?></div>
-
     <?php if (count($events) > 0): ?>
-        <div class="alert alert-success alert-fijo" id="eventosAlert">
+        <div class="alert alert-success" id="eventosAlert">
             <span>Tienes <?= count($events) ?> evento(s) disponible(s)</span>
             <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#seleccionarEventoModal">Ver</button>
         </div>
@@ -56,6 +88,16 @@ $dashboardShieldPath = str_replace(['"', "'", ' '], ['%22', '%27', '%20'], $dash
             </div>
         </div>
     <?php endif; ?>
+
+    <div class="dashboard-role-banner">
+        <span class="dashboard-role-banner__tag">ROL</span>
+        <span class="dashboard-role-banner__value"><?= htmlspecialchars($rolLabel, ENT_QUOTES, 'UTF-8') ?></span>
+    </div>
+
+    <div class="dashboard-search">
+        <label for="dashboardSearch" class="dashboard-search__label">Buscar accesos</label>
+        <input type="search" id="dashboardSearch" class="form-control dashboard-search__input" placeholder="Escribe para filtrar opciones">
+    </div>
 
     <?php foreach ($events as $e): ?>
         <?php
@@ -123,31 +165,17 @@ $dashboardShieldPath = str_replace(['"', "'", ' '], ['%22', '%27', '%20'], $dash
     <div class="subtitulo">
         <h2>BIENVENID@, <?= htmlspecialchars(($_SESSION['usuario']['nombres'] ?? '') . ' ' . ($_SESSION['usuario']['apellidos'] ?? '')) ?></h2>
     </div>
-    <br>
 
-    <div class="opciones">
-        <?php if ($rol === 4): ?>
-            <a href="admin_usuarios" class="card-dashboard">Validar Pagos Admin</a>
-            <a href="gestion_escuelas" class="card-dashboard">Gestionar Escuelas</a>
-        <?php elseif ($rol === 3): ?>
-            <a href="admin_usuarios" class="card-dashboard">Gestionar Usuarios</a>
-            <a href="deportistas" class="card-dashboard">Gestionar Deportistas</a>
-            <a href="index.php?action=listar" class="card-dashboard">Reporte de Pago</a>
-            <a href="productos" class="card-dashboard">Productos</a>
-            <a href="reportes" class="card-dashboard">Reportes Generales</a>
-            <a href="gestion_eventos" class="card-dashboard">Eventos</a>
-            <a href="uniformes" class="card-dashboard">Uniformes</a>
-        <?php elseif ($rol === 2): ?>
-            <a href="deportistas" class="card-dashboard">Ver Deportistas</a>
-            <a href="registrar-asistencia" class="card-dashboard">Registrar Asistencia</a>
-            <a href="reportes" class="card-dashboard">Reportes</a>
-            <a href="uniformes" class="card-dashboard">Uniformes</a>
-        <?php else: ?>
-            <a href="deportistas" class="card-dashboard">Registrar Deportista</a>
-            <a href="asistencia-hijos" class="card-dashboard">Ver Asistencias</a>
-            <a href="pagos" class="card-dashboard">Mis Pagos</a>
-            <a href="uniformes" class="card-dashboard">Uniformes</a>
-        <?php endif; ?>
+    <div class="opciones opciones--dashboard">
+        <?php foreach ($dashboardActionChunks as $group): ?>
+            <div class="dashboard-group">
+                <?php foreach ($group as $action): ?>
+                    <a href="<?= htmlspecialchars($action['href'], ENT_QUOTES, 'UTF-8') ?>" class="card-dashboard" data-dashboard-action="1">
+                        <?= htmlspecialchars($action['label'], ENT_QUOTES, 'UTF-8') ?>
+                    </a>
+                <?php endforeach; ?>
+            </div>
+        <?php endforeach; ?>
     </div>
 </div>
 
@@ -300,5 +328,27 @@ $dashboardShieldPath = str_replace(['"', "'", ' '], ['%22', '%27', '%20'], $dash
                 modal.show();
             });
         });
+
+        const dashboardSearch = document.getElementById("dashboardSearch");
+        const dashboardCards = Array.from(document.querySelectorAll(".card-dashboard[data-dashboard-action='1']"));
+        const dashboardGroups = Array.from(document.querySelectorAll(".dashboard-group"));
+
+        function syncDashboardGroups() {
+            dashboardGroups.forEach((group) => {
+                const visibleCards = Array.from(group.querySelectorAll(".card-dashboard[data-dashboard-action='1']")).filter((card) => card.style.display !== "none");
+                group.style.display = visibleCards.length > 0 ? "" : "none";
+            });
+        }
+
+        if (dashboardSearch && dashboardCards.length > 0) {
+            dashboardSearch.addEventListener("input", function () {
+                const term = dashboardSearch.value.trim().toLowerCase();
+                dashboardCards.forEach((card) => {
+                    const label = (card.textContent || "").trim().toLowerCase();
+                    card.style.display = term === "" || label.includes(term) ? "" : "none";
+                });
+                syncDashboardGroups();
+            });
+        }
     });
 </script>

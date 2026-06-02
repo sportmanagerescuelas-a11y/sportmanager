@@ -37,6 +37,11 @@ class DeportistasController extends Controller
 
         $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
         $perPage = isset($_GET['per_page']) ? (int)$_GET['per_page'] : 10;
+        $fechaSeleccionada = trim((string)($_GET['fecha'] ?? ''));
+        $fechaValida = DateTime::createFromFormat('Y-m-d', $fechaSeleccionada);
+        if ($fechaSeleccionada === '' || !$fechaValida || $fechaValida->format('Y-m-d') !== $fechaSeleccionada) {
+            $fechaSeleccionada = (new DateTimeImmutable('now', new DateTimeZone('America/Bogota')))->format('Y-m-d');
+        }
         $filters = [
             'search' => trim((string)($_GET['search'] ?? '')),
             'categoria' => trim((string)($_GET['categoria'] ?? '')),
@@ -45,6 +50,10 @@ class DeportistasController extends Controller
 
         $data = Deportista::paginate($page, $perPage, $filters);
         $totalPages = (int)ceil($data['total'] / max(1, $perPage));
+        $existingAttendance = Asistencia::forDateAndIds($fechaSeleccionada, array_map(
+            static fn($row): int => (int)($row['id_deportista'] ?? 0),
+            is_array($data['rows']) ? $data['rows'] : []
+        ));
 
         $this->render('deportistas/registrar_asistencia', [
             'title' => 'Deportistas',
@@ -60,6 +69,8 @@ class DeportistasController extends Controller
             'error' => $_GET['error'] ?? null,
             'errorCount' => isset($_GET['count']) ? (int)$_GET['count'] : 0,
             'errorFecha' => $_GET['fecha'] ?? null,
+            'fechaSeleccionada' => $fechaSeleccionada,
+            'existingAttendance' => $existingAttendance,
         ]);
     }
 
@@ -137,17 +148,9 @@ class DeportistasController extends Controller
             return;
         }
 
-        $existentes = Asistencia::findExisting($fecha, $ids);
-        if (!empty($existentes)) {
-            $count = count($existentes);
-            $fechaParam = urlencode($fecha);
-            header('Location: registrar-asistencia&error=duplicado&count=' . $count . '&fecha=' . $fechaParam);
-            return;
-        }
+        Asistencia::replaceMany($clean, $fecha);
 
-        Asistencia::insertMany($clean, $fecha);
-
-        header('Location: registrar-asistencia&ok=1');
+        header('Location: registrar-asistencia&ok=1&fecha=' . urlencode($fecha));
     }
 }
 

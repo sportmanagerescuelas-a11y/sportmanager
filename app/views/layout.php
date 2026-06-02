@@ -15,6 +15,7 @@ $schoolPrimaryColor = '#212529';
 $schoolSecondaryColor = '#001285';
 $schoolShieldPath = 'assets/img/balonfutbol.png';
 $currentRole = (int)($_SESSION['rol'] ?? 0);
+$roleLabel = [1 => 'Acudiente', 2 => 'Entrenador', 3 => 'Administrador', 4 => 'Superadmin'][$currentRole] ?? 'Usuario';
 if ($currentRole !== 4 && isset($_SESSION['usuario']['id_escuela']) && (int)$_SESSION['usuario']['id_escuela'] > 0) {
     try {
         require_once __DIR__ . '/../../config/conexion.php';
@@ -54,24 +55,8 @@ $hexToRgb = static function (string $hex): array {
     ];
 };
 
-$mixWith = static function (string $hex, int $target, float $amount) use ($hexToRgb): string {
-    $amount = max(0, min(1, $amount));
-    [$r, $g, $b] = $hexToRgb($hex);
-    $r = (int)round($r + (($target - $r) * $amount));
-    $g = (int)round($g + (($target - $g) * $amount));
-    $b = (int)round($b + (($target - $b) * $amount));
-    return sprintf('#%02x%02x%02x', max(0, min(255, $r)), max(0, min(255, $g)), max(0, min(255, $b)));
-};
-
 $primaryRgb = $hexToRgb($schoolPrimaryColor);
 $secondaryRgb = $hexToRgb($schoolSecondaryColor);
-$smBlue900 = $mixWith($schoolPrimaryColor, 0, 0.38);
-$smBlue800 = $mixWith($schoolPrimaryColor, 0, 0.24);
-$smBlue700 = $schoolPrimaryColor;
-$smBlue600 = $mixWith($schoolPrimaryColor, 255, 0.12);
-$smGray800 = $mixWith($schoolSecondaryColor, 0, 0.28);
-$smGray700 = $schoolSecondaryColor;
-$smGray500 = $mixWith($schoolSecondaryColor, 255, 0.22);
 $shieldCssPath = str_replace('\\', '/', trim((string)$schoolShieldPath));
 $shieldCssPath = str_replace(['"', "'", ' '], ['%22', '%27', '%20'], $shieldCssPath);
 $schoolShieldCssImage = $shieldCssPath !== '' ? "url({$shieldCssPath})" : 'none';
@@ -88,9 +73,9 @@ $schoolShieldCssImage = $shieldCssPath !== '' ? "url({$shieldCssPath})" : 'none'
     <link href="assets/css/app.css?v=<?= urlencode($appCssVersion) ?>" rel="stylesheet">
     <link href="assets/css/style.css?v=<?= urlencode($styleCssVersion) ?>" rel="stylesheet">
 </head>
-<body class="bg-light d-flex flex-column min-vh-100" style="--school-primary-color: <?= htmlspecialchars($schoolPrimaryColor, ENT_QUOTES, 'UTF-8') ?>; --school-secondary-color: <?= htmlspecialchars($schoolSecondaryColor, ENT_QUOTES, 'UTF-8') ?>; --school-primary-rgb: <?= (int)$primaryRgb[0] ?>, <?= (int)$primaryRgb[1] ?>, <?= (int)$primaryRgb[2] ?>; --school-secondary-rgb: <?= (int)$secondaryRgb[0] ?>, <?= (int)$secondaryRgb[1] ?>, <?= (int)$secondaryRgb[2] ?>; --school-shield-image: <?= htmlspecialchars($schoolShieldCssImage, ENT_QUOTES, 'UTF-8') ?>; --sm-blue-900: <?= htmlspecialchars($smBlue900, ENT_QUOTES, 'UTF-8') ?>; --sm-blue-800: <?= htmlspecialchars($smBlue800, ENT_QUOTES, 'UTF-8') ?>; --sm-blue-700: <?= htmlspecialchars($smBlue700, ENT_QUOTES, 'UTF-8') ?>; --sm-blue-600: <?= htmlspecialchars($smBlue600, ENT_QUOTES, 'UTF-8') ?>; --sm-gray-800: <?= htmlspecialchars($smGray800, ENT_QUOTES, 'UTF-8') ?>; --sm-gray-700: <?= htmlspecialchars($smGray700, ENT_QUOTES, 'UTF-8') ?>; --sm-gray-500: <?= htmlspecialchars($smGray500, ENT_QUOTES, 'UTF-8') ?>;">
+<body class="bg-light d-flex flex-column min-vh-100" style="--school-primary-color: <?= htmlspecialchars($schoolPrimaryColor, ENT_QUOTES, 'UTF-8') ?>; --school-secondary-color: <?= htmlspecialchars($schoolSecondaryColor, ENT_QUOTES, 'UTF-8') ?>; --school-primary-rgb: <?= (int)$primaryRgb[0] ?>, <?= (int)$primaryRgb[1] ?>, <?= (int)$primaryRgb[2] ?>; --school-secondary-rgb: <?= (int)$secondaryRgb[0] ?>, <?= (int)$secondaryRgb[1] ?>, <?= (int)$secondaryRgb[2] ?>; --school-shield-image: <?= htmlspecialchars($schoolShieldCssImage, ENT_QUOTES, 'UTF-8') ?>;">
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top shadow-sm">
-        <div class="container-fluid px-3 px-lg-4">
+        <div class="container-fluid px-3 px-lg-4 gap-2">
             <span class="navbar-brand fw-semibold">Asistencia - Deportistas</span>
         </div>
     </nav>

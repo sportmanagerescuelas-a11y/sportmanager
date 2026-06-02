@@ -14,12 +14,15 @@ $loginModalTitle = '';
 $loginModalMessage = '';
 $loginModalType = '';
 $loginSessionExpired = false;
+$loginInlineAlert = ['title' => '', 'message' => '', 'variant' => 'danger'];
 $loginFieldError = ['field' => '', 'message' => ''];
 
 if (!empty($_SESSION['flash_session_expired'])) {
-    $loginModalTitle = 'Sesion finalizada';
-    $loginModalMessage = 'Tu sesion expiro por inactividad. Inicia sesion de nuevo.';
-    $loginModalType = 'warning';
+    $loginInlineAlert = [
+        'title' => 'Sesion finalizada',
+        'message' => 'Tu sesion expiro por inactividad. Inicia sesion de nuevo.',
+        'variant' => 'warning',
+    ];
     $loginSessionExpired = true;
     unset($_SESSION['flash_session_expired']);
 } elseif ($loginErrorCode === 'invalidemail') {
@@ -29,9 +32,11 @@ if (!empty($_SESSION['flash_session_expired'])) {
 } elseif ($loginErrorCode === 'invalid') {
     $loginFieldError = ['field' => 'password', 'message' => 'Usuario o contrasena incorrectos.'];
 } elseif ($loginErrorText !== '') {
-    $loginModalTitle = 'No fue posible iniciar';
-    $loginModalMessage = $loginErrorText;
-    $loginModalType = 'danger';
+    $loginInlineAlert = [
+        'title' => 'No fue posible iniciar',
+        'message' => $loginErrorText,
+        'variant' => 'danger',
+    ];
 }
 ?>
 <div class="auth-page py-4 py-lg-5">
@@ -55,6 +60,9 @@ if (!empty($_SESSION['flash_session_expired'])) {
                 <p class="auth-subtitle text-center mb-0">Ingresa tus credenciales para continuar.</p>
             </div>
             <div class="card-body">
+                <?php if ($loginInlineAlert['message'] !== ''): ?>
+                    <?php sm_render_alert($loginInlineAlert['message'], $loginInlineAlert['title'], $loginInlineAlert['variant'], true); ?>
+                <?php endif; ?>
                 <form action="controllers/loginController.php" method="POST">
                     <div class="mb-3">
                         <label for="email" class="form-label">Correo Electrónico</label>
@@ -76,56 +84,6 @@ if (!empty($_SESSION['flash_session_expired'])) {
         </section>
     </div>
 </div>
-<?php if ($loginModalMessage !== ''): ?>
-    <?php if ($loginSessionExpired): ?>
-        <div class="modal fade" id="loginMessageModal" tabindex="-1" aria-labelledby="loginMessageModalLabel" aria-hidden="true" style="z-index: 5000;">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content" style="border: 2px solid #fd7e14;">
-                    <div class="modal-header" style="background-color: #ffffff; border-bottom: 1px solid #fd7e14;">
-                        <h5 class="modal-title w-100 text-center" id="loginMessageModalLabel"><?= htmlspecialchars($loginModalTitle, ENT_QUOTES, 'UTF-8') ?></h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                    </div>
-                    <div class="modal-body text-center" style="background-color: #ffffff;">
-                        <img src="assets/img/reloj.gif" alt="Sesion expirada" class="img-fluid mb-3" style="max-height: 180px;">
-                        <p class="mb-0"><?= htmlspecialchars($loginModalMessage, ENT_QUOTES, 'UTF-8') ?></p>
-                    </div>
-                    <div class="modal-footer" style="background-color: #ffffff; border-top: 1px solid #fd7e14;">
-                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const modalElement = document.getElementById('loginMessageModal');
-            if (!modalElement || !window.bootstrap || !bootstrap.Modal) {
-                return;
-            }
-
-            const cleanupModalState = function () {
-                document.body.classList.remove('modal-open');
-                document.body.style.removeProperty('padding-right');
-                document.querySelectorAll('.modal-backdrop').forEach(function (el) {
-                    el.remove();
-                });
-            };
-
-            cleanupModalState();
-
-            const modal = bootstrap.Modal.getOrCreateInstance(modalElement, {
-                backdrop: false,
-                keyboard: true
-            });
-
-            modalElement.addEventListener('hidden.bs.modal', cleanupModalState);
-
-            modal.show();
-        });
-        </script>
-    <?php else: ?>
-        <?php sm_render_modal_message('loginMessageModal', $loginModalTitle, $loginModalMessage, $loginModalType); ?>
-    <?php endif; ?>
-<?php endif; ?>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const field = '<?= htmlspecialchars($loginFieldError['field'], ENT_QUOTES, 'UTF-8') ?>';
