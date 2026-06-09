@@ -13,13 +13,20 @@ $idEvento = (int)($viewData['idEvento'] ?? 0);
         </div>
         <div class="d-flex flex-wrap gap-2">
             <?php if ($idEvento > 0): ?>
-                <a href="iniciar&id_evento=<?= urlencode((string)$idEvento) ?>" class="btn btn-primary">
+                <a href="pago_evento&id_evento=<?= urlencode((string)$idEvento) ?>" class="btn btn-primary">
                     Pagar evento
                 </a>
             <?php endif; ?>
             <a href="dashboard" class="btn btn-outline-secondary">Volver al dashboard</a>
         </div>
     </div>
+
+    <?php if (!empty($_SESSION['flash_payment_success'])): ?>
+        <?php
+        sm_render_alert((string)$_SESSION['flash_payment_success'], 'Pago registrado', 'success', true);
+        unset($_SESSION['flash_payment_success']);
+        ?>
+    <?php endif; ?>
 
     <div class="card border-0 shadow-sm rounded-4">
         <div class="card-header bg-white border-0 pt-4 px-4 pb-0">

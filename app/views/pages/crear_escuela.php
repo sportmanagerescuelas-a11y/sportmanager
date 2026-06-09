@@ -22,7 +22,26 @@ $formData = array_merge([
     'firma_path' => '',
     'color_primario' => '#0d6efd',
     'color_secundario' => '#198754',
+    'metodos_pago' => [
+        [
+            'id_metodo' => '',
+            'nombre_entidad' => '',
+            'tipo' => 'offline',
+            'qr_path' => '',
+        ],
+    ],
 ], $formData);
+$metodosPago = is_array($formData['metodos_pago'] ?? null) ? $formData['metodos_pago'] : [];
+if ($metodosPago === []) {
+    $metodosPago = [
+        [
+            'id_metodo' => '',
+            'nombre_entidad' => '',
+            'tipo' => 'offline',
+            'qr_path' => '',
+        ],
+    ];
+}
 ?>
 <div class="container mt-5 mb-5">
     <div class="row justify-content-center">
@@ -103,6 +122,61 @@ $formData = array_merge([
                                 <input type="text" class="form-control" id="firma_path" name="firma_path" maxlength="255" value="<?= htmlspecialchars((string)$formData['firma_path'], ENT_QUOTES, 'UTF-8') ?>" placeholder="assets/img/firma.png">
                             </div>
                         </div>
+                        <div class="mt-4 border-top pt-4">
+                            <div class="d-flex justify-content-between align-items-center gap-3 mb-3">
+                                <h5 class="mb-0">Metodos de pago</h5>
+                                <button type="button" class="btn btn-outline-primary btn-sm" id="addPaymentMethod">+ Agregar metodo</button>
+                            </div>
+                            <div id="paymentMethods" class="d-grid gap-3">
+                                <?php foreach ($metodosPago as $index => $method): ?>
+                                    <?php
+                                    $methodId = (string)($method['id_metodo'] ?? '');
+                                    $methodName = (string)($method['nombre_entidad'] ?? '');
+                                    $methodType = (string)($method['tipo'] ?? 'offline');
+                                    $methodQr = (string)($method['qr_path'] ?? '');
+                                    ?>
+                                    <div class="payment-method-row border rounded p-3">
+                                        <input type="hidden" name="metodos_pago[id_metodo][]" value="<?= htmlspecialchars($methodId, ENT_QUOTES, 'UTF-8') ?>">
+                                        <input type="hidden" name="metodos_pago[qr_path][]" value="<?= htmlspecialchars($methodQr, ENT_QUOTES, 'UTF-8') ?>">
+                                        <div class="row g-3 align-items-end">
+                                            <div class="col-md-5">
+                                                <label class="form-label">Entidad o metodo</label>
+                                                <input type="text" class="form-control" name="metodos_pago[nombre_entidad][]" maxlength="50" value="<?= htmlspecialchars($methodName, ENT_QUOTES, 'UTF-8') ?>" <?= $index === 0 ? 'required' : '' ?>>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label">Tipo</label>
+                                                <select class="form-select" name="metodos_pago[tipo][]">
+                                                    <?php
+                                                    $types = [
+                                                        'offline' => 'General',
+                                                        'transferencia' => 'Transferencia',
+                                                        'bancolombia' => 'Bancolombia',
+                                                        'nequi' => 'Nequi',
+                                                        'daviplata' => 'Daviplata',
+                                                        'efectivo' => 'Efectivo',
+                                                    ];
+                                                    ?>
+                                                    <?php foreach ($types as $value => $label): ?>
+                                                        <option value="<?= htmlspecialchars($value, ENT_QUOTES, 'UTF-8') ?>" <?= $methodType === $value ? 'selected' : '' ?>>
+                                                            <?= htmlspecialchars($label, ENT_QUOTES, 'UTF-8') ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label class="form-label">QR o imagen</label>
+                                                <input type="file" class="form-control" name="metodo_pago_qr[]" accept=".jpg,.jpeg,.png,.webp,.gif">
+                                            </div>
+                                            <?php if ($methodQr !== ''): ?>
+                                                <div class="col-12">
+                                                    <img src="<?= htmlspecialchars($methodQr, ENT_QUOTES, 'UTF-8') ?>" alt="QR metodo" style="max-height: 90px;">
+                                                </div>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
                         <div class="mt-4 d-flex gap-2">
                             <button type="submit" class="btn btn-primary"><?= htmlspecialchars($buttonText, ENT_QUOTES, 'UTF-8') ?></button>
                             <a href="gestion_escuelas" class="btn btn-secondary">Volver</a>
@@ -113,3 +187,37 @@ $formData = array_merge([
         </div>
     </div>
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const container = document.getElementById('paymentMethods');
+    const addButton = document.getElementById('addPaymentMethod');
+    if (!container || !addButton) {
+        return;
+    }
+
+    addButton.addEventListener('click', function () {
+        const firstRow = container.querySelector('.payment-method-row');
+        if (!firstRow) {
+            return;
+        }
+
+        const clone = firstRow.cloneNode(true);
+        clone.querySelectorAll('input, select').forEach(function (field) {
+            if (field.type === 'hidden' || field.type === 'text') {
+                field.value = '';
+            }
+            if (field.type === 'file') {
+                field.value = '';
+            }
+            if (field.tagName === 'SELECT') {
+                field.value = 'offline';
+            }
+            field.removeAttribute('required');
+        });
+        clone.querySelectorAll('img').forEach(function (image) {
+            image.remove();
+        });
+        container.appendChild(clone);
+    });
+});
+</script>

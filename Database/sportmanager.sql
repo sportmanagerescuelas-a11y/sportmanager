@@ -307,7 +307,8 @@ CREATE TABLE `metodos_pago` (
   `id_escuela` int(11) NOT NULL,
   `nombre_entidad` varchar(50) NOT NULL,
   `qr_path` varchar(255) DEFAULT NULL,
-  `tipo` varchar(50) DEFAULT 'offline'
+  `tipo` varchar(50) DEFAULT 'offline',
+  `activo` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------

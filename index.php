@@ -93,6 +93,7 @@ $friendlyAliases = [
     'ver-inscritos' => 'ver_inscritos',
     'ver-deportistas-usuario' => 'ver_deportistas_usuario',
     'procesar-pago' => 'procesar_pago',
+    'pago-evento' => 'pago_evento',
     'obtener-bancos' => 'obtener_bancos',
 ];
 
@@ -262,6 +263,11 @@ switch ($route) {
         require_once __DIR__ . '/app/bootstrap.php';
         require_once __DIR__ . '/app/controllers/PagosPageController.php';
         (new App\Controllers\PagosPageController())->show();
+        break;
+    case 'pago_evento':
+        require_once __DIR__ . '/app/bootstrap.php';
+        require_once __DIR__ . '/app/controllers/EventPaymentController.php';
+        (new App\Controllers\EventPaymentController())->handle();
         break;
     case 'obtener_bancos':
         require_once __DIR__ . '/app/bootstrap.php';

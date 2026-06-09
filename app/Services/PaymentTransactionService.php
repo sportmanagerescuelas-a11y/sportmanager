@@ -341,7 +341,8 @@ final class PaymentTransactionService
         $find = $conexion->prepare(
             'SELECT id_metodo FROM metodos_pago
              WHERE UPPER(nombre_entidad) = :name
-             ORDER BY CASE WHEN id_escuela = :id_escuela THEN 0 ELSE 1 END, id_metodo ASC
+               AND id_escuela = :id_escuela
+             ORDER BY id_metodo ASC
              LIMIT 1'
         );
         $find->execute([

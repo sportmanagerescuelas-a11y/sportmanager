@@ -54,6 +54,7 @@ class PagesController
             } else {
                 try {
                     $payload['escudo_path'] = $this->storeSchoolShield((string)($payload['escudo_path'] ?? ''));
+                    $payload['metodos_pago'] = $this->storePaymentMethodQrs(is_array($payload['metodos_pago'] ?? null) ? $payload['metodos_pago'] : []);
                     $schoolId = $this->model()->createSchool($payload);
                     if ($schoolId !== false) {
                         if ($isAdminOnboarding) {
@@ -96,7 +97,9 @@ class PagesController
 
         $error = null;
         $errorDetails = [];
-        $formData = $this->schoolFormData((array)$school);
+        $schoolData = (array)$school;
+        $schoolData['metodos_pago'] = $this->model()->paymentMethodsBySchool((int)$id, true);
+        $formData = $this->schoolFormData($schoolData);
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $payload = $this->schoolPayload();
@@ -107,6 +110,7 @@ class PagesController
                 $error = 'Corrige los siguientes errores para actualizar la escuela.';
             } else {
                 $payload['escudo_path'] = $this->storeSchoolShield((string)($payload['escudo_path'] ?? ''));
+                $payload['metodos_pago'] = $this->storePaymentMethodQrs(is_array($payload['metodos_pago'] ?? null) ? $payload['metodos_pago'] : []);
                 if ($this->model()->updateSchool($id, $payload)) {
                     $this->redirect('gestion_escuelas&updated=1');
                 }
@@ -605,6 +609,14 @@ class PagesController
             'firma_path' => '',
             'color_primario' => '#0d6efd',
             'color_secundario' => '#198754',
+            'metodos_pago' => [
+                [
+                    'id_metodo' => '',
+                    'nombre_entidad' => '',
+                    'tipo' => 'offline',
+                    'qr_path' => '',
+                ],
+            ],
         ];
     }
 
@@ -623,11 +635,17 @@ class PagesController
             'firma_path' => trim((string)($_POST['firma_path'] ?? '')) ?: null,
             'color_primario' => $this->normalizeHexColor((string)($_POST['color_primario'] ?? ''), '#0d6efd'),
             'color_secundario' => $this->normalizeHexColor((string)($_POST['color_secundario'] ?? ''), '#198754'),
+            'metodos_pago' => $this->paymentMethodsPayload(),
         ];
     }
 
     private function schoolFormData(array $payload): array
     {
+        $metodosPago = $payload['metodos_pago'] ?? [];
+        if (!is_array($metodosPago) || $metodosPago === []) {
+            $metodosPago = $this->emptySchoolFormData()['metodos_pago'];
+        }
+
         return array_merge($this->emptySchoolFormData(), [
             'nombre' => (string)($payload['nombre'] ?? ''),
             'disciplina' => (string)($payload['disciplina'] ?? ''),
@@ -641,6 +659,7 @@ class PagesController
             'firma_path' => (string)($payload['firma_path'] ?? ''),
             'color_primario' => (string)($payload['color_primario'] ?? '#0d6efd'),
             'color_secundario' => (string)($payload['color_secundario'] ?? '#198754'),
+            'metodos_pago' => $metodosPago,
         ]);
     }
 
@@ -684,7 +703,59 @@ class PagesController
             $errors[] = 'El color secundario no es valido.';
         }
 
+        $paymentMethods = is_array($payload['metodos_pago'] ?? null) ? $payload['metodos_pago'] : [];
+        if (count($paymentMethods) === 0) {
+            $errors[] = 'Debes registrar al menos un metodo de pago para la escuela.';
+        }
+        foreach ($paymentMethods as $method) {
+            $name = trim((string)($method['nombre_entidad'] ?? ''));
+            $type = trim((string)($method['tipo'] ?? ''));
+            if ($name === '') {
+                continue;
+            }
+            if (strlen($name) > 50) {
+                $errors[] = 'El nombre de cada metodo de pago debe tener maximo 50 caracteres.';
+                break;
+            }
+            if (strlen($type) > 50) {
+                $errors[] = 'El tipo de cada metodo de pago debe tener maximo 50 caracteres.';
+                break;
+            }
+        }
+
         return $errors;
+    }
+
+    private function paymentMethodsPayload(): array
+    {
+        $raw = is_array($_POST['metodos_pago'] ?? null) ? $_POST['metodos_pago'] : [];
+        $ids = is_array($raw['id_metodo'] ?? null) ? $raw['id_metodo'] : [];
+        $names = is_array($raw['nombre_entidad'] ?? null) ? $raw['nombre_entidad'] : [];
+        $types = is_array($raw['tipo'] ?? null) ? $raw['tipo'] : [];
+        $qrPaths = is_array($raw['qr_path'] ?? null) ? $raw['qr_path'] : [];
+        $count = max(count($ids), count($names), count($types), count($qrPaths));
+        $methods = [];
+
+        for ($i = 0; $i < $count; $i++) {
+            $name = trim((string)($names[$i] ?? ''));
+            if ($name === '') {
+                continue;
+            }
+
+            $id = trim((string)($ids[$i] ?? ''));
+            $type = trim((string)($types[$i] ?? 'offline'));
+            $qrPath = trim((string)($qrPaths[$i] ?? ''));
+
+            $methods[] = [
+                'id_metodo' => ctype_digit($id) ? (int)$id : '',
+                'nombre_entidad' => $name,
+                'tipo' => $type !== '' ? $type : 'offline',
+                'qr_path' => $qrPath,
+                '_file_index' => $i,
+            ];
+        }
+
+        return $methods;
     }
 
     private function normalizeHexColor(string $value, string $fallback): string
@@ -723,6 +794,43 @@ class PagesController
         }
 
         return 'fotos/escudos/' . $fileName;
+    }
+
+    /**
+     * @param array<int,array<string,mixed>> $methods
+     * @return array<int,array<string,mixed>>
+     */
+    private function storePaymentMethodQrs(array $methods): array
+    {
+        foreach ($methods as $position => $method) {
+            $fileIndex = (int)($method['_file_index'] ?? $position);
+            $tmpName = $_FILES['metodo_pago_qr']['tmp_name'][$fileIndex] ?? '';
+            $originalName = $_FILES['metodo_pago_qr']['name'][$fileIndex] ?? '';
+            if (!is_string($tmpName) || $tmpName === '' || !is_uploaded_file($tmpName)) {
+                continue;
+            }
+
+            $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
+            $extension = strtolower(pathinfo((string)$originalName, PATHINFO_EXTENSION));
+            if (!in_array($extension, $allowedExtensions, true)) {
+                continue;
+            }
+
+            $safeName = preg_replace('/[^A-Za-z0-9._-]/', '_', (string)$originalName);
+            $randomPart = bin2hex(random_bytes(4));
+            $fileName = 'metodo_' . time() . '_' . $randomPart . '_' . $safeName;
+            $targetDir = dirname(__DIR__, 2) . '/fotos/metodos_pago';
+            if (!is_dir($targetDir)) {
+                mkdir($targetDir, 0775, true);
+            }
+
+            $targetPath = $targetDir . '/' . $fileName;
+            if (move_uploaded_file($tmpName, $targetPath)) {
+                $methods[$position]['qr_path'] = 'fotos/metodos_pago/' . $fileName;
+            }
+        }
+
+        return $methods;
     }
 
     private function schoolActionError(string $code): string

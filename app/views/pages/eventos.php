@@ -20,13 +20,8 @@ $rol = (int)($_SESSION['rol'] ?? 0);
             <?php foreach ($eventos as $e): ?>
                 <?php
                 $idEvento = (int)($e['id_evento'] ?? 0);
-                $tituloEvento = (string)($e['titulo'] ?? 'Pago');
                 $costoEvento = (float)($e['costo'] ?? 0);
-                $urlPagar = 'iniciar'
-                    . '&id_evento=' . urlencode((string)$idEvento)
-                    . '&evento=' . urlencode($tituloEvento)
-                    . '&monto=' . urlencode((string)$costoEvento)
-                    . '&cantidad=1';
+                $urlPagar = 'pago_evento&id_evento=' . urlencode((string)$idEvento);
                 ?>
                 <tr>
                     <td><?= htmlspecialchars((string)$e['titulo']) ?></td>

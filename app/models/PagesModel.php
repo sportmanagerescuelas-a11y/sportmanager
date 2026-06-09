@@ -12,6 +12,7 @@ class PagesModel
             $this->db = $conexion;
             $this->ensureSchoolCustomizationColumns();
             $this->ensureEventSchoolColumn();
+            $this->ensurePaymentMethodsStructure();
             return;
         }
 
@@ -21,6 +22,7 @@ class PagesModel
             $this->db = $pdo;
             $this->ensureSchoolCustomizationColumns();
             $this->ensureEventSchoolColumn();
+            $this->ensurePaymentMethodsStructure();
             return;
         }
 
@@ -53,6 +55,32 @@ class PagesModel
             $exists = $existsStmt !== false && $existsStmt->fetch(PDO::FETCH_ASSOC) !== false;
             if (!$exists) {
                 $this->db->exec('ALTER TABLE eventos ADD COLUMN id_escuela INT(11) NULL AFTER estado');
+            }
+        } catch (Throwable) {
+            // Mantener compatibilidad si no se puede alterar estructura.
+        }
+    }
+
+    private function ensurePaymentMethodsStructure(): void
+    {
+        try {
+            $this->db->exec("
+                CREATE TABLE IF NOT EXISTS metodos_pago (
+                    id_metodo INT(11) NOT NULL,
+                    id_escuela INT(11) NOT NULL,
+                    nombre_entidad VARCHAR(50) NOT NULL,
+                    qr_path VARCHAR(255) DEFAULT NULL,
+                    tipo VARCHAR(50) DEFAULT 'offline',
+                    activo TINYINT(1) NOT NULL DEFAULT 1,
+                    PRIMARY KEY (id_metodo),
+                    KEY id_escuela (id_escuela)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci
+            ");
+
+            $activeExistsStmt = $this->db->query("SHOW COLUMNS FROM metodos_pago LIKE 'activo'");
+            $activeExists = $activeExistsStmt !== false && $activeExistsStmt->fetch(PDO::FETCH_ASSOC) !== false;
+            if (!$activeExists) {
+                $this->db->exec("ALTER TABLE metodos_pago ADD COLUMN activo TINYINT(1) NOT NULL DEFAULT 1 AFTER tipo");
             }
         } catch (Throwable) {
             // Mantener compatibilidad si no se puede alterar estructura.
@@ -239,12 +267,30 @@ class PagesModel
         return $stmt->fetch(PDO::FETCH_OBJ) ?: null;
     }
 
+    public function paymentMethodsBySchool(int $schoolId, bool $includeInactive = false): array
+    {
+        if ($schoolId <= 0) {
+            return [];
+        }
+
+        $where = $includeInactive ? '' : ' AND activo = 1';
+        $stmt = $this->db->prepare("
+            SELECT id_metodo, id_escuela, nombre_entidad, qr_path, tipo, activo
+            FROM metodos_pago
+            WHERE id_escuela = :id_escuela{$where}
+            ORDER BY id_metodo ASC
+        ");
+        $stmt->execute([':id_escuela' => $schoolId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    }
+
     /**
      * @param array<string,mixed> $data
      */
     public function createSchool(array $data): int|false
     {
         try {
+            $this->db->beginTransaction();
             $nextId = (int)$this->db->query('SELECT COALESCE(MAX(id_escuela), 0) + 1 FROM escuelas')->fetchColumn();
             $stmt = $this->db->prepare("
                 INSERT INTO escuelas
@@ -271,6 +317,9 @@ class PagesModel
             ]);
 
             if (!$ok) {
+                if ($this->db->inTransaction()) {
+                    $this->db->rollBack();
+                }
                 $info = $stmt->errorInfo();
                 $this->lastError = $this->mapSchoolDbError(
                     isset($info[0]) ? (string)$info[0] : '',
@@ -280,9 +329,14 @@ class PagesModel
                 return false;
             }
 
+            $this->persistPaymentMethods($nextId, is_array($data['metodos_pago'] ?? null) ? $data['metodos_pago'] : []);
+            $this->db->commit();
             $this->lastError = '';
             return $nextId;
         } catch (Throwable $e) {
+            if ($this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
             $sqlState = $e instanceof PDOException ? (string)$e->getCode() : '';
             $this->lastError = $this->mapSchoolDbError($sqlState, '', $e->getMessage());
             return false;
@@ -295,6 +349,7 @@ class PagesModel
     public function updateSchool(string $id, array $data): bool
     {
         try {
+            $this->db->beginTransaction();
             $stmt = $this->db->prepare("
                 UPDATE escuelas
                 SET nombre = :nombre,
@@ -331,6 +386,9 @@ class PagesModel
             ]);
 
             if (!$ok) {
+                if ($this->db->inTransaction()) {
+                    $this->db->rollBack();
+                }
                 $info = $stmt->errorInfo();
                 $this->lastError = $this->mapSchoolDbError(
                     isset($info[0]) ? (string)$info[0] : '',
@@ -340,12 +398,83 @@ class PagesModel
                 return false;
             }
 
+            $this->persistPaymentMethods((int)$id, is_array($data['metodos_pago'] ?? null) ? $data['metodos_pago'] : []);
+            $this->db->commit();
             $this->lastError = '';
             return true;
         } catch (Throwable $e) {
+            if ($this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
             $sqlState = $e instanceof PDOException ? (string)$e->getCode() : '';
             $this->lastError = $this->mapSchoolDbError($sqlState, '', $e->getMessage());
             return false;
+        }
+    }
+
+    /**
+     * @param array<int,array<string,mixed>> $methods
+     */
+    private function persistPaymentMethods(int $schoolId, array $methods): void
+    {
+        foreach ($methods as $method) {
+            $name = substr(trim((string)($method['nombre_entidad'] ?? '')), 0, 50);
+            if ($name === '') {
+                continue;
+            }
+
+            $type = substr(trim((string)($method['tipo'] ?? 'offline')), 0, 50);
+            if ($type === '') {
+                $type = 'offline';
+            }
+
+            $qrPath = trim((string)($method['qr_path'] ?? ''));
+            $qrPath = $qrPath !== '' ? substr($qrPath, 0, 255) : null;
+            $methodId = (int)($method['id_metodo'] ?? 0);
+
+            if ($methodId > 0) {
+                $belongs = $this->db->prepare('SELECT 1 FROM metodos_pago WHERE id_metodo = :id_metodo AND id_escuela = :id_escuela LIMIT 1');
+                $belongs->execute([
+                    ':id_metodo' => $methodId,
+                    ':id_escuela' => $schoolId,
+                ]);
+                if (!$belongs->fetchColumn()) {
+                    $methodId = 0;
+                }
+            }
+
+            if ($methodId > 0) {
+                $update = $this->db->prepare("
+                    UPDATE metodos_pago
+                    SET nombre_entidad = :nombre_entidad,
+                        tipo = :tipo,
+                        qr_path = :qr_path,
+                        activo = 1
+                    WHERE id_metodo = :id_metodo
+                      AND id_escuela = :id_escuela
+                ");
+                $update->execute([
+                    ':nombre_entidad' => $name,
+                    ':tipo' => $type,
+                    ':qr_path' => $qrPath,
+                    ':id_metodo' => $methodId,
+                    ':id_escuela' => $schoolId,
+                ]);
+                continue;
+            }
+
+            $newId = (int)$this->db->query('SELECT COALESCE(MAX(id_metodo), 0) + 1 FROM metodos_pago')->fetchColumn();
+            $insert = $this->db->prepare("
+                INSERT INTO metodos_pago (id_metodo, id_escuela, nombre_entidad, qr_path, tipo, activo)
+                VALUES (:id_metodo, :id_escuela, :nombre_entidad, :qr_path, :tipo, 1)
+            ");
+            $insert->execute([
+                ':id_metodo' => $newId,
+                ':id_escuela' => $schoolId,
+                ':nombre_entidad' => $name,
+                ':qr_path' => $qrPath,
+                ':tipo' => $type,
+            ]);
         }
     }
 
@@ -398,12 +527,26 @@ class PagesModel
 
     public function dashboardData(int $userId, int $role): array
     {
+        $schoolId = $this->schoolIdForUser($userId);
         if ($role === 1) {
-            $stmt = $this->db->prepare('SELECT * FROM eventos WHERE estado = 1 AND fecha >= CURDATE() ORDER BY fecha ASC, id_evento ASC');
-            $stmt->execute();
+            if ($schoolId > 0) {
+                $stmt = $this->db->prepare('SELECT * FROM eventos WHERE estado = 1 AND fecha >= CURDATE() AND id_escuela = :id_escuela ORDER BY fecha ASC, id_evento ASC');
+                $stmt->execute([':id_escuela' => $schoolId]);
+            } else {
+                $stmt = $this->db->prepare('SELECT * FROM eventos WHERE estado = 1 AND fecha >= CURDATE() ORDER BY fecha ASC, id_evento ASC');
+                $stmt->execute();
+            }
         } else {
-            $stmt = $this->db->prepare('SELECT * FROM eventos WHERE id_rol = ? OR id_rol IS NULL ORDER BY fecha ASC, id_evento ASC');
-            $stmt->execute([$role]);
+            if ($schoolId > 0) {
+                $stmt = $this->db->prepare('SELECT * FROM eventos WHERE (id_rol = :id_rol OR id_rol IS NULL) AND id_escuela = :id_escuela ORDER BY fecha ASC, id_evento ASC');
+                $stmt->execute([
+                    ':id_rol' => $role,
+                    ':id_escuela' => $schoolId,
+                ]);
+            } else {
+                $stmt = $this->db->prepare('SELECT * FROM eventos WHERE id_rol = ? OR id_rol IS NULL ORDER BY fecha ASC, id_evento ASC');
+                $stmt->execute([$role]);
+            }
         }
         $events = $stmt->fetchAll(PDO::FETCH_OBJ);
 
@@ -638,7 +781,7 @@ class PagesModel
 
     public function registerInEvent(int $eventId, int $userId, string $athleteId): string
     {
-        if ($eventId <= 0 || !$this->isEventOpenForEnrollment($eventId)) {
+        if ($eventId <= 0 || !$this->isEventOpenForEnrollment($eventId, $userId)) {
             return 'Evento invalido';
         }
 
@@ -664,11 +807,31 @@ class PagesModel
         return 'ok';
     }
 
-    private function isEventOpenForEnrollment(int $eventId): bool
+    private function isEventOpenForEnrollment(int $eventId, int $userId): bool
     {
-        $stmt = $this->db->prepare('SELECT 1 FROM eventos WHERE id_evento = ? AND estado = 1 AND fecha >= CURDATE()');
-        $stmt->execute([$eventId]);
+        $stmt = $this->db->prepare("
+            SELECT 1
+            FROM eventos e
+            INNER JOIN usuarios u ON u.id_usuario = ?
+            WHERE e.id_evento = ?
+              AND e.estado = 1
+              AND e.fecha >= CURDATE()
+              AND e.id_escuela = u.id_escuela
+            LIMIT 1
+        ");
+        $stmt->execute([$userId, $eventId]);
         return (bool)$stmt->fetchColumn();
+    }
+
+    private function schoolIdForUser(int $userId): int
+    {
+        if ($userId <= 0) {
+            return 0;
+        }
+
+        $stmt = $this->db->prepare('SELECT id_escuela FROM usuarios WHERE id_usuario = ? LIMIT 1');
+        $stmt->execute([$userId]);
+        return (int)$stmt->fetchColumn();
     }
 
     private function resolveAthleteIdForUser(string $athleteInput, int $userId): string
