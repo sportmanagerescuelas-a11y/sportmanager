@@ -1,5 +1,6 @@
 </main>
 <?php
+$assetBase = '/sportmanager/';
 $indexControllerPath = __DIR__ . '/../../../assets/js/indexcontroller.js';
 $passwordTogglePath = __DIR__ . '/../../../assets/js/password-toggle.js';
 $indexControllerVersion = is_file($indexControllerPath) ? (string)filemtime($indexControllerPath) : (string)time();
@@ -9,7 +10,7 @@ $passwordToggleVersion = is_file($passwordTogglePath) ? (string)filemtime($passw
     <div class="container site-footer__grid">
         <div class="site-footer__brand">
             <div class="site-footer__brand-row">
-                <img src="assets/img/balonfutbol.png" alt="Sport Manager" class="site-footer__logo">
+                <img src="<?= htmlspecialchars($assetBase . 'assets/img/balonfutbol.png', ENT_QUOTES, 'UTF-8') ?>" alt="Sport Manager" class="site-footer__logo">
                 <div>
                     <h2>Sport Manager</h2>
                     <p>Gestión deportiva con estilo, control y cercanía.</p>

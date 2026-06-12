@@ -10,10 +10,22 @@ $appCssVersion = is_file($appCssPath) ? (string)filemtime($appCssPath) : (string
 $styleCssVersion = is_file($styleCssPath) ? (string)filemtime($styleCssPath) : (string)time();
 $appJsVersion = is_file($appJsPath) ? (string)filemtime($appJsPath) : (string)time();
 $passwordToggleVersion = is_file($passwordTogglePath) ? (string)filemtime($passwordTogglePath) : (string)time();
+$assetBase = '/sportmanager/';
+
+$publicAssetPath = static function (string $path) use ($assetBase): string {
+    $trimmed = trim($path);
+    if ($trimmed === '') {
+        return $assetBase . 'assets/img/balonfutbol.png';
+    }
+    if (preg_match('#^(?:https?:)?//#i', $trimmed) === 1 || str_starts_with($trimmed, '/')) {
+        return $trimmed;
+    }
+    return $assetBase . ltrim($trimmed, '/');
+};
 
 $schoolPrimaryColor = '#212529';
 $schoolSecondaryColor = '#001285';
-$schoolShieldPath = 'assets/img/balonfutbol.png';
+$schoolShieldPath = $assetBase . 'assets/img/balonfutbol.png';
 $currentRole = (int)($_SESSION['rol'] ?? 0);
 $roleLabel = [1 => 'Acudiente', 2 => 'Entrenador', 3 => 'Administrador', 4 => 'Superadmin'][$currentRole] ?? 'Usuario';
 if ($currentRole !== 4 && isset($_SESSION['usuario']['id_escuela']) && (int)$_SESSION['usuario']['id_escuela'] > 0) {
@@ -35,7 +47,7 @@ if ($currentRole !== 4 && isset($_SESSION['usuario']['id_escuela']) && (int)$_SE
                     $schoolSecondaryColor = strtolower($secondary);
                 }
                 if ($shield !== '') {
-                    $schoolShieldPath = $shield;
+                    $schoolShieldPath = $publicAssetPath($shield);
                 }
             }
         }
@@ -67,7 +79,7 @@ $schoolShieldCssImage = $shieldCssPath !== '' ? "url({$shieldCssPath})" : 'none'
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= htmlspecialchars($title) ?></title>
-    <link rel="icon" type="image/png" href="assets/img/balonfutbol.png">
+    <link rel="icon" type="image/png" href="<?= htmlspecialchars($assetBase . 'assets/img/balonfutbol.png', ENT_QUOTES, 'UTF-8') ?>">
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="assets/css/app.css?v=<?= urlencode($appCssVersion) ?>" rel="stylesheet">

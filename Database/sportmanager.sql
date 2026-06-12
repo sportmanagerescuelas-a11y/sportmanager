@@ -508,7 +508,7 @@ INSERT INTO `usuarios` (`id_usuario`, `tipo_documento`, `id_escuela`, `nombres`,
 (22222222, 'CC', 1, 'demo', 'demo', 'demo123@gmail.com', '$2y$12$xmX0gfB5v/0OtyrYuP90D.Vzmzmbml2f/SmqKq5s/CkCwNc1O0/1S', '30000000000', 1, 3, NULL, NULL, NULL, 1, 0, 'aprobado'),
 (321456987, 'CC', 1, 'yuli', 'moris', 'yuli123@gmail.com', '$2y$12$MqjHkRTJY6Cad65L/yzdSOkaU3TDeGXG2mNV9N/tKBBkeaui7j7ky', '5451362587', 1, 1, NULL, NULL, NULL, 1, 0, 'aprobado'),
 (987456321, 'CE', 1, 'lalo', 'landa', 'lalo123@gmail.com', '$2y$12$B1QMliVNkmIRjNktyeC7ieudJjGq.ZxvyOvQ1w/3U/UWupVcPJNTu', '3654258941', 1, 1, NULL, NULL, NULL, 1, 0, 'aprobado'),
-(1010200521, 'CC', 1, 'Daniel', 'Celis', 'dan.3072@hotmail.com', '$2y$10$CAR2J8pqyv8rcqcmDE8qjOQAVnFjZoW2mJH1IS2sLhdPQ5jRIB90K', '3157257392', 1, 3, NULL, NULL, NULL, 0, 0, 'pendiente'),
+(1010200521, 'CC', 1, 'Daniel', 'Celis', 'dan.3072@hotmail.com', '$2y$10$CAR2J8pqyv8rcqcmDE8qjOQAVnFjZoW2mJH1IS2sLhdPQ5jRIB90K', '3157257392', 1, 3, NULL, NULL, NULL, 0, 0, 'aprobado'),
 (1111111111, 'CC', 1, 'ejemplo', '', 'ejemplo@gmail.com', '$2y$10$PwuEFIlcRkP/r4Uc1mHVoObxnOdH4JrfBWqjfOxNxerqKgm6nLS5e', '3111111111', 0, 2, 1, NULL, NULL, 1, 1, 'aprobado'),
 (1234567890, 'CC', 1, 'Daniel', 'Delgado', 'termostatosolar2022@gmail.com', '$2y$10$72Q.FxBAcKhBjjsRXE3qreKqOuhEvy/fatPgxtfhJ1Cxs2IgcZGRO', '4214124124', 1, 1, NULL, NULL, NULL, 1, 0, 'aprobado');
 

@@ -5,11 +5,25 @@
     <?php
     $stylePath = __DIR__ . '/../../../assets/css/style.css';
     $styleVersion = is_file($stylePath) ? (string)filemtime($stylePath) : (string)time();
+    $assetBase = '/sportmanager/';
+    $publicAssetPath = static function (string $path) use ($assetBase): string {
+        $trimmed = trim($path);
+        if ($trimmed === '') {
+            return $assetBase . 'assets/img/balonfutbol.png';
+        }
+        if (preg_match('#^(?:https?:)?//#i', $trimmed) === 1 || str_starts_with($trimmed, '/')) {
+            return $trimmed;
+        }
+        return $assetBase . ltrim($trimmed, '/');
+    };
     $schoolPrimaryColor = '#212529';
     $schoolSecondaryColor = '#001285';
-    $schoolShieldPath = 'assets/img/balonfutbol.png';
+    $schoolShieldPath = $assetBase . 'assets/img/balonfutbol.png';
     $brandName = 'Sport Manager';
     $currentRole = (int)($_SESSION['rol'] ?? 0);
+    $archivoActual = basename($_SERVER['PHP_SELF']);
+    $urlParam = $_GET['url'] ?? 'home';
+    $esPaginaPrincipal = ($archivoActual === 'index.php' && ($urlParam === 'home' || $urlParam === '') && !isset($_GET['action']));
 
     if ($currentRole !== 4 && isset($_SESSION['usuario']['id_escuela']) && (int)$_SESSION['usuario']['id_escuela'] > 0) {
         try {
@@ -35,7 +49,7 @@
                         $brandName = $schoolName;
                     }
                     if ($shield !== '') {
-                        $schoolShieldPath = $shield;
+                        $schoolShieldPath = $publicAssetPath($shield);
                     }
                     if (preg_match('/^#[0-9A-Fa-f]{6}$/', $primary) === 1) {
                         $schoolPrimaryColor = strtolower($primary);
@@ -70,7 +84,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sport Manager | Gestión deportiva</title>
-    <link rel="icon" type="image/png" href="assets/img/balonfutbol.png">
+    <link rel="icon" type="image/png" href="<?= htmlspecialchars($assetBase . 'assets/img/balonfutbol.png', ENT_QUOTES, 'UTF-8') ?>">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css?v=<?= urlencode($styleVersion) ?>">
@@ -109,9 +123,6 @@
 
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <?php
-                    $archivoActual = basename($_SERVER['PHP_SELF']);
-                    $urlParam = $_GET['url'] ?? 'home';
-                    $esPaginaPrincipal = ($archivoActual === 'index.php' && ($urlParam === 'home' || $urlParam === '') && !isset($_GET['action']));
                     $usuarioLogueado = isset($_SESSION['usuario']);
                     $rolUsuario = (int)($_SESSION['rol'] ?? 0);
                     $rolEtiqueta = [1 => 'Acudiente', 2 => 'Entrenador', 3 => 'Administrador', 4 => 'Superadmin'][$rolUsuario] ?? 'Usuario';

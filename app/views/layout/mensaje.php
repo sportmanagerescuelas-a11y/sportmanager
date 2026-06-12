@@ -1,8 +1,9 @@
+<?php $assetBase = '/sportmanager/'; ?>
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
-<link rel="icon" type="image/png" href="assets/img/balonfutbol.png">
+<link rel="icon" type="image/png" href="<?= htmlspecialchars($assetBase . 'assets/img/balonfutbol.png', ENT_QUOTES, 'UTF-8') ?>">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body class="bg-light d-flex align-items-center vh-100">
@@ -14,7 +15,7 @@
         <h5 class="modal-title text-center w-100" id="recoverMessageModalLabel">Solicitud enviada</h5>
       </div>
       <div class="modal-body text-center pt-2">
-        <img src="assets/img/controlar.gif" alt="Solicitud enviada" class="img-fluid mb-3" style="max-height: 180px;">
+        <img src="<?= htmlspecialchars($assetBase . 'assets/img/controlar.gif', ENT_QUOTES, 'UTF-8') ?>" alt="Solicitud enviada" class="img-fluid mb-3" style="max-height: 180px;">
         <p class="mb-0">Si el correo existe o la contrasena fue actualizada, recibiras instrucciones.</p>
       </div>
       <div class="modal-footer border-0 justify-content-center pt-0">

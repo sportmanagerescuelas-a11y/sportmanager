@@ -91,6 +91,7 @@ if ($registerErrorText !== '' && $activeFieldError['field'] === '') {
     $modalMessage = 'Aun no hay escuelas registradas. Puedes registrarte como administrador para que, tras aprobacion, crees la primera escuela.';
     $modalType = 'warning';
 }
+$assetBase = '/sportmanager/';
 ?>
 <div class="auth-page auth-page--register py-2 py-lg-3">
 <div class="auth-shell auth-shell--register container">
@@ -221,7 +222,7 @@ if ($registerErrorText !== '' && $activeFieldError['field'] === '') {
                     <h5 class="modal-title text-center w-100" id="registerMessageModalLabel">Registro exitoso</h5>
                 </div>
                 <div class="modal-body text-center pt-2">
-                    <img src="assets/img/controlar.gif" alt="Registro exitoso" class="img-fluid mb-3" style="max-height: 180px;">
+                    <img src="<?= htmlspecialchars($assetBase . 'assets/img/controlar.gif', ENT_QUOTES, 'UTF-8') ?>" alt="Registro exitoso" class="img-fluid mb-3" style="max-height: 180px;">
                     <p class="mb-0"><?= htmlspecialchars($registerSuccessText, ENT_QUOTES, 'UTF-8') ?></p>
                 </div>
                 <div class="modal-footer border-0 justify-content-center pt-0">

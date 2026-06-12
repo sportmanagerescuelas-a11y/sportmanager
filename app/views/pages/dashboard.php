@@ -9,7 +9,7 @@ if ($rolLabel === '') {
 }
 $dashboardShieldPath = isset($schoolShieldPath) && is_string($schoolShieldPath) && trim($schoolShieldPath) !== ''
     ? trim($schoolShieldPath)
-    : 'assets/img/balonfutbol.png';
+    : '/sportmanager/assets/img/balonfutbol.png';
 $dashboardShieldPath = str_replace('\\', '/', $dashboardShieldPath);
 $dashboardShieldPath = str_replace(['"', "'", ' '], ['%22', '%27', '%20'], $dashboardShieldPath);
 

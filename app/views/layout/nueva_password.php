@@ -12,13 +12,14 @@ $passwordPolicy = [
     'Un numero',
     'Un caracter especial (@$!%*?&._-)',
 ];
+$assetBase = '/sportmanager/';
 ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" type="image/png" href="assets/img/balonfutbol.png">
+<link rel="icon" type="image/png" href="<?= htmlspecialchars($assetBase . 'assets/img/balonfutbol.png', ENT_QUOTES, 'UTF-8') ?>">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="assets/css/style.css?v=<?= urlencode($styleVersion) ?>" rel="stylesheet">
 </head>
