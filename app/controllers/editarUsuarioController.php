@@ -51,7 +51,7 @@ if ($accion == "activar" || $accion == "deshabilitar") {
 
     if (!empty($nueva_contrasena)) {
         if (!sm_password_is_valid((string)$nueva_contrasena)) {
-            header("Location: ../admin_usuarios.php?error=password");
+            header("Location: ../admin_usuarios&error=password");
             exit();
         }
 

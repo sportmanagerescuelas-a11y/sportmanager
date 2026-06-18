@@ -43,11 +43,14 @@ final class PagosPageController
 
         $idEvento = isset($_GET['id_evento']) ? (int) $_GET['id_evento'] : 0;
 
+        $this->ensureInvoicePaymentColumns($conexion);
+
         $facturasUsuario = [];
         $idUsuarioSesion = (int)($_SESSION['id_usuario'] ?? ($_SESSION['usuario']['id_usuario'] ?? 0));
         if ($idUsuarioSesion > 0) {
             $stmtFacturas = $conexion->prepare(
                 "SELECT f.id_factura, f.numero_factura, f.fecha_emision, f.monto, f.descripcion,
+                        f.cantidad, f.comprobante_path,
                         COALESCE(e.titulo, f.descripcion) AS nombre_evento,
                         COALESCE(m.nombre_entidad, 'N/A') AS metodo_pago_texto,
                         COALESCE(CONCAT(d.nombres, ' ', d.apellidos), 'No aplica') AS nombre_deportista
@@ -66,5 +69,18 @@ final class PagosPageController
             'facturasUsuario' => $facturasUsuario,
             'idEvento' => $idEvento,
         ]);
+    }
+
+    private function ensureInvoicePaymentColumns(PDO $conexion): void
+    {
+        $quantityStmt = $conexion->query("SHOW COLUMNS FROM facturas LIKE 'cantidad'");
+        if ($quantityStmt === false || $quantityStmt->fetch(PDO::FETCH_ASSOC) === false) {
+            $conexion->exec('ALTER TABLE facturas ADD COLUMN cantidad INT(11) NOT NULL DEFAULT 1 AFTER id_evento');
+        }
+
+        $receiptStmt = $conexion->query("SHOW COLUMNS FROM facturas LIKE 'comprobante_path'");
+        if ($receiptStmt === false || $receiptStmt->fetch(PDO::FETCH_ASSOC) === false) {
+            $conexion->exec('ALTER TABLE facturas ADD COLUMN comprobante_path VARCHAR(255) NULL AFTER cantidad');
+        }
     }
 }

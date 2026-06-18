@@ -23,5 +23,5 @@ $deportistas = is_array($viewData['deportistas'] ?? null) ? $viewData['deportist
             <?php endforeach; ?>
         </tbody>
     </table>
-    <a href="admin_usuarios.php" class="btn btn-secondary">Volver</a>
+    <a href="admin-usuarios" class="btn btn-secondary">Volver</a>
 </div>

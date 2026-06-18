@@ -73,6 +73,7 @@ if ($fpdfPath === null) {
         <p><strong>Deportista:</strong> <?= htmlspecialchars($factura['nombre_deportista'] ?? 'N/A', ENT_QUOTES, 'UTF-8') ?></p>
         <p><strong>Evento:</strong> <?= htmlspecialchars($factura['nombre_evento'] ?? 'N/A', ENT_QUOTES, 'UTF-8') ?></p>
         <p><strong>Tipo de pago:</strong> <?= htmlspecialchars(strtoupper($factura['metodo_pago_texto'] ?? 'N/A'), ENT_QUOTES, 'UTF-8') ?></p>
+        <p><strong>Cantidad:</strong> <?= max(1, (int)($factura['cantidad'] ?? 1)) ?></p>
         <table>
             <tr>
                 <th>Concepto</th>
@@ -119,6 +120,7 @@ $atendido_por = $factura['nombre_usuario'] ?? 'N/A';
 $deportista   = $factura['nombre_deportista'] ?? 'N/A';
 $evento       = $factura['nombre_evento'] ?? 'N/A'; // <-- Aquí está el texto del evento
 $metodo_pago  = $factura['metodo_pago_texto'] ?? 'N/A';
+$cantidad     = max(1, (int)($factura['cantidad'] ?? 1));
 $total_monto   = $factura['total'] ?? $factura['monto'] ?? 0; 
 
 // --- Encabezado ---
@@ -133,6 +135,7 @@ $pdf->Cell(95, 8, utf8_decode("Tipo de Pago: " . strtoupper($metodo_pago)), 0, 0
 
 // 🚨 CORRECCIÓN AQUÍ: Pinta el nombre del evento en lugar del 0
 $pdf->Cell(95, 8, utf8_decode("Evento: " . $evento), 0, 1); 
+$pdf->Cell(95, 8, utf8_decode("Cantidad: " . $cantidad), 0, 1);
 $pdf->Ln(10);
 
 // --- Tabla ---

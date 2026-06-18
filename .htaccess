@@ -6,6 +6,7 @@ RewriteBase /sportmanager/
 
 # 0) Bloquear acceso directo a codigo interno y datos sensibles
 RewriteRule ^(?:app/(?:views|models|core|helpers|Services)|config|storage|vendor|libs|Database)(?:/|$) - [F,L,NC]
+RewriteRule ^(?:tests(?:/|$)|composer-setup\.php$|composer\.phar$) - [F,L,NC]
 RewriteCond %{THE_REQUEST} \s/+sportmanager/app/controllers/ [NC]
 RewriteRule ^app/controllers/ - [F,L,NC]
 

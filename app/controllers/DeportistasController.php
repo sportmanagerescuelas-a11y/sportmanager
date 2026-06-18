@@ -48,7 +48,8 @@ class DeportistasController extends Controller
             'jornada' => trim((string)($_GET['jornada'] ?? '')),
         ];
 
-        $data = Deportista::paginate($page, $perPage, $filters);
+        $schoolId = (int)($_SESSION['usuario']['id_escuela'] ?? 0);
+        $data = Deportista::paginate($page, $perPage, $filters, $schoolId > 0 ? $schoolId : null);
         $totalPages = (int)ceil($data['total'] / max(1, $perPage));
         $existingAttendance = Asistencia::forDateAndIds($fechaSeleccionada, array_map(
             static fn($row): int => (int)($row['id_deportista'] ?? 0),
@@ -148,7 +149,24 @@ class DeportistasController extends Controller
             return;
         }
 
-        Asistencia::replaceMany($clean, $fecha);
+        $schoolId = (int)($_SESSION['usuario']['id_escuela'] ?? 0);
+        $allowedIds = Deportista::idsForSchool($ids, $schoolId);
+        $clean = array_values(array_filter(
+            $clean,
+            static fn(array $row): bool => in_array((int)$row['id_deportista'], $allowedIds, true)
+        ));
+        if ($clean === []) {
+            $this->renderStatusCard('403', 'No puedes registrar asistencia para deportistas de otra escuela.', 'Acceso no autorizado');
+            return;
+        }
+
+        try {
+            Asistencia::replaceMany($clean, $fecha);
+        } catch (Throwable $e) {
+            error_log('Error guardando asistencia: ' . $e->getMessage());
+            $this->renderStatusCard('500', 'No fue posible guardar la asistencia. Intenta nuevamente.', 'Error al guardar');
+            return;
+        }
 
         header('Location: registrar-asistencia&ok=1&fecha=' . urlencode($fecha));
     }

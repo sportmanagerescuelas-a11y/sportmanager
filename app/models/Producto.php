@@ -1,6 +1,7 @@
 <?php
 class Producto {
     private PDO $db;
+    private string $lastError = '';
 
     public function __construct(PDO $conexion) {
         $this->db = $conexion;
@@ -20,9 +21,23 @@ class Producto {
     }
 
     public function crear(?string $nombre, string|float|int|null $precio, ?string $descripcion, ?string $imagen, ?int $schoolId): bool {
-        $sql = "INSERT INTO productos (nombre, precio, descripcion, imagen, id_escuela) VALUES (?, ?, ?, ?, ?)";
-        $stmt = $this->db->prepare($sql);
-        return $stmt->execute([$nombre, $precio, $descripcion, $imagen, $schoolId]);
+        try {
+            $this->db->beginTransaction();
+            $nextId = (int)$this->db->query('SELECT COALESCE(MAX(id_producto), 0) + 1 FROM productos')->fetchColumn();
+            $sql = "INSERT INTO productos (id_producto, nombre, precio, descripcion, imagen, id_escuela) VALUES (?, ?, ?, ?, ?, ?)";
+            $stmt = $this->db->prepare($sql);
+            $ok = $stmt->execute([$nextId, $nombre, $precio, $descripcion, $imagen ?? '', $schoolId]);
+            $this->db->commit();
+            $this->lastError = '';
+            return $ok;
+        } catch (Throwable $e) {
+            if ($this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
+            $this->lastError = 'No se pudo crear el producto.';
+            error_log('Error creando producto: ' . $e->getMessage());
+            return false;
+        }
     }
 
     public function obtenerPorId(string|int $id, ?int $schoolId = null): array|false {
@@ -38,13 +53,33 @@ class Producto {
     }
 
     public function actualizar(string|int $id, ?string $nombre, string|float|int|null $precio, ?string $descripcion, ?string $imagen, ?int $schoolId): bool {
-        $sql = "UPDATE productos SET nombre=?, precio=?, descripcion=?, imagen=? WHERE id_producto=? AND id_escuela=?";
-        return $this->db->prepare($sql)->execute([$nombre, $precio, $descripcion, $imagen, $id, $schoolId]);
+        try {
+            $sql = "UPDATE productos SET nombre=?, precio=?, descripcion=?, imagen=? WHERE id_producto=? AND id_escuela=?";
+            $ok = $this->db->prepare($sql)->execute([$nombre, $precio, $descripcion, $imagen ?? '', $id, $schoolId]);
+            $this->lastError = '';
+            return $ok;
+        } catch (Throwable $e) {
+            $this->lastError = 'No se pudo actualizar el producto.';
+            error_log('Error actualizando producto: ' . $e->getMessage());
+            return false;
+        }
     }
 
     public function eliminar(string|int $id, ?int $schoolId): bool {
-        $sql = "DELETE FROM productos WHERE id_producto = ? AND id_escuela = ?";
-        return $this->db->prepare($sql)->execute([$id, $schoolId]);
+        try {
+            $sql = "DELETE FROM productos WHERE id_producto = ? AND id_escuela = ?";
+            $ok = $this->db->prepare($sql)->execute([$id, $schoolId]);
+            $this->lastError = '';
+            return $ok;
+        } catch (Throwable $e) {
+            $this->lastError = 'No se pudo eliminar el producto porque tiene información relacionada.';
+            error_log('Error eliminando producto: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function lastError(): string {
+        return $this->lastError;
     }
 
     private function ensureSchoolColumn(): void {

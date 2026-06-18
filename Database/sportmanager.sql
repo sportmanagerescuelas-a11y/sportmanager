@@ -173,7 +173,9 @@ CREATE TABLE `escuelas` (
   `telefono` varchar(11) NOT NULL,
   `direccion` varchar(50) NOT NULL,
   `escudo_path` varchar(255) DEFAULT NULL,
-  `firma_path` varchar(255) DEFAULT NULL
+  `firma_path` varchar(255) DEFAULT NULL,
+  `color_primario` char(7) NOT NULL DEFAULT '#0d6efd',
+  `color_secundario` char(7) NOT NULL DEFAULT '#198754'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -217,16 +219,17 @@ CREATE TABLE `eventos` (
   `tipo_evento` varchar(50) NOT NULL DEFAULT 'mensualidad',
   `costo` decimal(15,2) DEFAULT NULL,
   `cuotas` tinyint(2) DEFAULT NULL,
-  `estado` tinyint(4) DEFAULT 1
+  `estado` tinyint(4) DEFAULT 1,
+  `id_escuela` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `eventos`
 --
 
-INSERT INTO `eventos` (`id_evento`, `titulo`, `fecha`, `id_rol`, `tipo_evento`, `costo`, `cuotas`, `estado`) VALUES
-(0, 'Copa', '2026-03-28', 1, 'Torneo', 40000.00, 2, 0),
-(1, 'copa mundo', '2026-05-12', 1, 'mensualidad', 0.00, 0, 0);
+INSERT INTO `eventos` (`id_evento`, `titulo`, `fecha`, `id_rol`, `tipo_evento`, `costo`, `cuotas`, `estado`, `id_escuela`) VALUES
+(0, 'Copa', '2026-03-28', 1, 'Torneo', 40000.00, 2, 0, 1),
+(1, 'copa mundo', '2026-05-12', 1, 'mensualidad', 0.00, 0, 0, 1);
 
 -- --------------------------------------------------------
 
@@ -243,7 +246,9 @@ CREATE TABLE `facturas` (
   `id_deportista` int(11) DEFAULT NULL,
   `monto` decimal(10,2) NOT NULL,
   `descripcion` varchar(100) DEFAULT 'N/A',
-  `id_evento` int(11) DEFAULT NULL
+  `id_evento` int(11) DEFAULT NULL,
+  `cantidad` int(11) NOT NULL DEFAULT 1,
+  `comprobante_path` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -383,15 +388,16 @@ CREATE TABLE `productos` (
   `nombre` varchar(30) NOT NULL,
   `precio` decimal(10,2) NOT NULL,
   `descripcion` text DEFAULT NULL,
-  `imagen` varchar(255) NOT NULL
+  `imagen` varchar(255) NOT NULL,
+  `id_escuela` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `productos`
 --
 
-INSERT INTO `productos` (`id_producto`, `nombre`, `precio`, `descripcion`, `imagen`) VALUES
-(0, 'balon', 30000.00, 'balon', '');
+INSERT INTO `productos` (`id_producto`, `nombre`, `precio`, `descripcion`, `imagen`, `id_escuela`) VALUES
+(0, 'balon', 30000.00, 'balon', '', 1);
 
 -- --------------------------------------------------------
 
@@ -411,7 +417,8 @@ CREATE TABLE `roles` (
 INSERT INTO `roles` (`id_rol`, `nombre_rol`) VALUES
 (1, 'acudiente'),
 (2, 'formador'),
-(3, 'admin');
+(3, 'admin'),
+(4, 'superadmin');
 
 -- --------------------------------------------------------
 
@@ -505,7 +512,7 @@ CREATE TABLE `usuarios` (
 --
 
 INSERT INTO `usuarios` (`id_usuario`, `tipo_documento`, `id_escuela`, `nombres`, `apellidos`, `email`, `contrasena`, `telefono`, `mfa`, `id_rol`, `registros_disponibles`, `reset_token`, `token_expiry`, `habilitado`, `inicios_sesion`, `estado`) VALUES
-(22222222, 'CC', 1, 'demo', 'demo', 'demo123@gmail.com', '$2y$12$xmX0gfB5v/0OtyrYuP90D.Vzmzmbml2f/SmqKq5s/CkCwNc1O0/1S', '30000000000', 1, 3, NULL, NULL, NULL, 1, 0, 'aprobado'),
+(22222222, 'CC', 1, 'demo', 'demo', 'demo123@gmail.com', '$2y$12$xmX0gfB5v/0OtyrYuP90D.Vzmzmbml2f/SmqKq5s/CkCwNc1O0/1S', '30000000000', 1, 4, NULL, NULL, NULL, 1, 0, 'aprobado'),
 (321456987, 'CC', 1, 'yuli', 'moris', 'yuli123@gmail.com', '$2y$12$MqjHkRTJY6Cad65L/yzdSOkaU3TDeGXG2mNV9N/tKBBkeaui7j7ky', '5451362587', 1, 1, NULL, NULL, NULL, 1, 0, 'aprobado'),
 (987456321, 'CE', 1, 'lalo', 'landa', 'lalo123@gmail.com', '$2y$12$B1QMliVNkmIRjNktyeC7ieudJjGq.ZxvyOvQ1w/3U/UWupVcPJNTu', '3654258941', 1, 1, NULL, NULL, NULL, 1, 0, 'aprobado'),
 (1010200521, 'CC', 1, 'Daniel', 'Celis', 'dan.3072@hotmail.com', '$2y$10$CAR2J8pqyv8rcqcmDE8qjOQAVnFjZoW2mJH1IS2sLhdPQ5jRIB90K', '3157257392', 1, 3, NULL, NULL, NULL, 0, 0, 'pendiente'),
@@ -573,7 +580,8 @@ ALTER TABLE `estados`
 --
 ALTER TABLE `eventos`
   ADD PRIMARY KEY (`id_evento`),
-  ADD KEY `fk_id_rol_eventos` (`id_rol`);
+  ADD KEY `fk_id_rol_eventos` (`id_rol`),
+  ADD KEY `id_escuela` (`id_escuela`);
 
 --
 -- Indices de la tabla `facturas`
@@ -640,7 +648,8 @@ ALTER TABLE `pedidos`
 -- Indices de la tabla `productos`
 --
 ALTER TABLE `productos`
-  ADD PRIMARY KEY (`id_producto`);
+  ADD PRIMARY KEY (`id_producto`),
+  ADD KEY `id_escuela` (`id_escuela`);
 
 --
 -- Indices de la tabla `roles`

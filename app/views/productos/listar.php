@@ -33,6 +33,10 @@ function normalize_image_src(string $value): string
 }
 ?>
 <div class="container my-5 pt-5">
+    <?php if (!empty($_SESSION['flash_product_error'])): ?>
+        <div class="alert alert-danger"><?= htmlspecialchars((string)$_SESSION['flash_product_error'], ENT_QUOTES, 'UTF-8') ?></div>
+        <?php unset($_SESSION['flash_product_error']); ?>
+    <?php endif; ?>
         <div class="mb-3">
             <a href="dashboard" class="btn btn-secondary">Volver al panel</a>
         </div>

@@ -6,7 +6,7 @@ $facturas = is_array($viewData['facturas'] ?? null) ? $viewData['facturas'] : []
 <div class="container my-5 pt-5">
     
     <div class="mb-4">
-        <a href="dashboard.php" class="btn btn-secondary">
+        <a href="panel" class="btn btn-secondary">
             Volver al Panel Principal
         </a>
     </div>
@@ -50,6 +50,11 @@ $facturas = is_array($viewData['facturas'] ?? null) ? $viewData['facturas'] : []
                                         <a href="index.php?action=pdf&id=<?= urlencode((string)($f['id_factura'] ?? '')) ?>" target="_blank" class="btn btn-sm btn-danger">
                                             Descargar PDF
                                         </a>
+                                        <?php if (!empty($f['comprobante_path'])): ?>
+                                            <a href="index.php?action=comprobante&id=<?= urlencode((string)($f['id_factura'] ?? '')) ?>" target="_blank" class="btn btn-sm btn-outline-secondary">
+                                                Comprobante
+                                            </a>
+                                        <?php endif; ?>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>

@@ -28,6 +28,13 @@ $idEvento = (int)($viewData['idEvento'] ?? 0);
         ?>
     <?php endif; ?>
 
+    <?php if (!empty($_SESSION['flash_payment_notice'])): ?>
+        <?php
+        sm_render_alert((string)$_SESSION['flash_payment_notice'], 'Pago guardado', 'warning', true);
+        unset($_SESSION['flash_payment_notice']);
+        ?>
+    <?php endif; ?>
+
     <div class="card border-0 shadow-sm rounded-4">
         <div class="card-header bg-white border-0 pt-4 px-4 pb-0">
             <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
@@ -46,6 +53,7 @@ $idEvento = (int)($viewData['idEvento'] ?? 0);
                                 <th>Fecha</th>
                                 <th>Deportista</th>
                                 <th>Evento</th>
+                                <th class="text-center">Cantidad</th>
                                 <th>Metodo</th>
                                 <th class="text-end">Total</th>
                                 <th class="text-center">Accion</th>
@@ -59,12 +67,16 @@ $idEvento = (int)($viewData['idEvento'] ?? 0);
                                     <td><?= htmlspecialchars((string)($factura['fecha_emision'] ?? ''), ENT_QUOTES, 'UTF-8') ?></td>
                                     <td><?= htmlspecialchars((string)($factura['nombre_deportista'] ?? 'No aplica'), ENT_QUOTES, 'UTF-8') ?></td>
                                     <td><?= htmlspecialchars((string)($factura['nombre_evento'] ?? $factura['descripcion'] ?? 'Sin descripcion'), ENT_QUOTES, 'UTF-8') ?></td>
+                                    <td class="text-center"><?= max(1, (int)($factura['cantidad'] ?? 1)) ?></td>
                                     <td><span class="badge text-bg-success"><?= htmlspecialchars((string)($factura['metodo_pago_texto'] ?? 'N/A'), ENT_QUOTES, 'UTF-8') ?></span></td>
                                     <td class="text-end fw-semibold">$<?= number_format((float)($factura['monto'] ?? 0), 0, ',', '.') ?></td>
                                     <td class="text-center">
-                                        <a href="index.php?action=ver&id=<?= urlencode((string)($factura['id_factura'] ?? '')) ?>" class="btn btn-sm btn-outline-primary">
-                                            Ver comprobante
-                                        </a>
+                                        <div class="d-flex justify-content-center gap-1 flex-wrap">
+                                            <a href="index.php?action=ver&id=<?= urlencode((string)($factura['id_factura'] ?? '')) ?>" class="btn btn-sm btn-outline-primary">Factura</a>
+                                            <?php if (!empty($factura['comprobante_path'])): ?>
+                                                <a href="index.php?action=comprobante&id=<?= urlencode((string)($factura['id_factura'] ?? '')) ?>" target="_blank" class="btn btn-sm btn-outline-secondary">Comprobante</a>
+                                            <?php endif; ?>
+                                        </div>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>

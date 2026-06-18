@@ -25,6 +25,6 @@ $evento = is_object($viewData['evento'] ?? null) ? $viewData['evento'] : (object
             <option value="3" <?= (int)$evento->id_rol === 3 ? 'selected' : '' ?>>Administradores</option>
         </select>
         <button class="btn btn-success">Actualizar</button>
-        <a href="gestion_eventos.php" class="btn btn-secondary">Volver</a>
+        <a href="gestion-eventos" class="btn btn-secondary">Volver</a>
     </form>
 </div>

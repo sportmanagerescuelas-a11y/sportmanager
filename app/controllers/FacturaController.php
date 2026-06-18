@@ -25,6 +25,7 @@ class FacturaController {
     public function ver(string|int $id): void {
         $factura = $this->resolveFacturaBySession($id);
         if (!$factura) {
+            http_response_code(404);
             die("Factura no encontrada.");
         }
         $this->renderWithSiteLayout('ver', ['factura' => $factura]);
@@ -33,9 +34,42 @@ class FacturaController {
     public function descargarPdf(string|int $id): void {
         $factura = $this->resolveFacturaBySession($id);
         if (!$factura) {
+            http_response_code(404);
             die("Factura no encontrada.");
         }
         require_once dirname(__DIR__) . '/views/factura/pdf.php';
+    }
+
+    public function verComprobante(string|int $id): void
+    {
+        $factura = $this->resolveFacturaBySession($id);
+        $relativePath = is_array($factura) ? trim((string)($factura['comprobante_path'] ?? '')) : '';
+        if ($relativePath === '') {
+            http_response_code(404);
+            exit('Esta factura no tiene un comprobante adjunto.');
+        }
+
+        $baseDirectory = realpath(dirname(__DIR__, 2) . '/storage/payment_receipts');
+        $absolutePath = realpath(dirname(__DIR__, 2) . '/' . ltrim(str_replace('\\', '/', $relativePath), '/'));
+        if ($baseDirectory === false || $absolutePath === false || !is_file($absolutePath)) {
+            http_response_code(404);
+            exit('No se encontró el comprobante solicitado.');
+        }
+
+        $basePrefix = rtrim(str_replace('\\', '/', $baseDirectory), '/') . '/';
+        $normalizedPath = str_replace('\\', '/', $absolutePath);
+        if (!str_starts_with($normalizedPath, $basePrefix)) {
+            http_response_code(403);
+            exit('Acceso no autorizado al comprobante.');
+        }
+
+        $mimeType = (new finfo(FILEINFO_MIME_TYPE))->file($absolutePath);
+        header('Content-Type: ' . (is_string($mimeType) ? $mimeType : 'application/octet-stream'));
+        header('Content-Length: ' . (string)filesize($absolutePath));
+        header('Content-Disposition: inline; filename="comprobante-' . (int)$factura['id_factura'] . '.' . pathinfo($absolutePath, PATHINFO_EXTENSION) . '"');
+        header('X-Content-Type-Options: nosniff');
+        readfile($absolutePath);
+        exit;
     }
 
     private function resolveFacturaBySession(string|int $id): array|false

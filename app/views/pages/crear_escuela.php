@@ -124,8 +124,11 @@ if ($metodosPago === []) {
                         </div>
                         <div class="mt-4 border-top pt-4">
                             <div class="d-flex justify-content-between align-items-center gap-3 mb-3">
-                                <h5 class="mb-0">Metodos de pago</h5>
-                                <button type="button" class="btn btn-outline-primary btn-sm" id="addPaymentMethod">+ Agregar metodo</button>
+                                <div>
+                                    <h5 class="mb-1">Métodos de pago</h5>
+                                    <p class="text-muted small mb-0">Solo las opciones de esta lista aparecerán al pagar dentro del sistema.</p>
+                                </div>
+                                <button type="button" class="btn btn-outline-primary btn-sm" id="addPaymentMethod">+ Agregar método</button>
                             </div>
                             <div id="paymentMethods" class="d-grid gap-3">
                                 <?php foreach ($metodosPago as $index => $method): ?>
@@ -135,7 +138,7 @@ if ($metodosPago === []) {
                                     $methodType = (string)($method['tipo'] ?? 'offline');
                                     $methodQr = (string)($method['qr_path'] ?? '');
                                     ?>
-                                    <div class="payment-method-row border rounded p-3">
+                                    <div class="payment-method-row border rounded-3 p-3 bg-light-subtle">
                                         <input type="hidden" name="metodos_pago[id_metodo][]" value="<?= htmlspecialchars($methodId, ENT_QUOTES, 'UTF-8') ?>">
                                         <input type="hidden" name="metodos_pago[qr_path][]" value="<?= htmlspecialchars($methodQr, ENT_QUOTES, 'UTF-8') ?>">
                                         <div class="row g-3 align-items-end">
@@ -167,6 +170,9 @@ if ($metodosPago === []) {
                                                 <label class="form-label">QR o imagen</label>
                                                 <input type="file" class="form-control" name="metodo_pago_qr[]" accept=".jpg,.jpeg,.png,.webp,.gif">
                                             </div>
+                                            <div class="col-12 d-flex justify-content-end">
+                                                <button type="button" class="btn btn-outline-danger btn-sm remove-payment-method">Quitar método</button>
+                                            </div>
                                             <?php if ($methodQr !== ''): ?>
                                                 <div class="col-12">
                                                     <img src="<?= htmlspecialchars($methodQr, ENT_QUOTES, 'UTF-8') ?>" alt="QR metodo" style="max-height: 90px;">
@@ -195,6 +201,36 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
     }
 
+    const syncRequiredField = function () {
+        container.querySelectorAll('input[name="metodos_pago[nombre_entidad][]"]').forEach(function (field, index) {
+            if (index === 0) {
+                field.setAttribute('required', 'required');
+            } else {
+                field.removeAttribute('required');
+            }
+        });
+    };
+
+    container.addEventListener('click', function (event) {
+        const button = event.target.closest('.remove-payment-method');
+        if (!button) {
+            return;
+        }
+        const row = button.closest('.payment-method-row');
+        if (!row) {
+            return;
+        }
+        const rows = container.querySelectorAll('.payment-method-row');
+        if (rows.length === 1) {
+            row.querySelectorAll('input').forEach(function (field) { field.value = ''; });
+            row.querySelectorAll('select').forEach(function (field) { field.value = 'offline'; });
+            row.querySelectorAll('img').forEach(function (image) { image.remove(); });
+        } else {
+            row.remove();
+        }
+        syncRequiredField();
+    });
+
     addButton.addEventListener('click', function () {
         const firstRow = container.querySelector('.payment-method-row');
         if (!firstRow) {
@@ -218,6 +254,9 @@ document.addEventListener('DOMContentLoaded', function () {
             image.remove();
         });
         container.appendChild(clone);
+        syncRequiredField();
     });
+
+    syncRequiredField();
 });
 </script>

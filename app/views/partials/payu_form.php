@@ -141,7 +141,7 @@ $identityReadonly = $prefillDni !== '';
 
         <div class="mt-4 d-flex gap-2">
             <button type="submit" class="btn btn-primary px-4" id="btnPagarAhora">Pagar ahora</button>
-            <a href="dashboard.php" class="btn btn-outline-secondary">Volver</a>
+            <a href="panel" class="btn btn-outline-secondary">Volver</a>
         </div>
     </div>
 </form>
