@@ -1003,20 +1003,22 @@ footer.site-footer::before {
     animation: aparecer 0.5s forwards;
 }
 
-.modal {
+.modal,
+body > .modal {
     z-index: 4100 !important;
 }
 
-.modal-backdrop {
+.modal-backdrop,
+body > .modal-backdrop {
     z-index: 4090 !important;
 }
 
-#loginMessageModal {
-    z-index: 5000 !important;
+body.modal-open .modal-backdrop.show {
+    z-index: 4090 !important;
 }
 
-body.modal-open .modal-backdrop.show {
-    z-index: 4990 !important;
+body.modal-open #backToTop {
+    pointer-events: none !important;
 }
 
 .modal.modal-top-right .modal-dialog {
@@ -1259,6 +1261,67 @@ footer {
     min-width: 140px;
     min-height: 44px;
     padding: 0.5rem 0.9rem;
+}
+
+.admin-users-page {
+    width: min(96vw, 1680px);
+    max-width: 1680px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.admin-users-table-wrap {
+    width: 100%;
+}
+
+.admin-users-table {
+    min-width: 1450px;
+}
+
+.admin-users-table th,
+.admin-users-table td {
+    vertical-align: middle;
+}
+
+.admin-users-table .admin-users-actions-head,
+.admin-users-table .admin-users-actions-cell {
+    width: 470px;
+    min-width: 470px;
+}
+
+.admin-users-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    flex-wrap: nowrap;
+}
+
+.admin-users-actions form {
+    flex: 0 0 auto;
+    margin: 0;
+}
+
+.admin-users-actions .btn {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    overflow-wrap: normal;
+}
+
+@media (max-width: 991.98px) {
+    .admin-users-page {
+        width: 100%;
+    }
+
+    .admin-users-table {
+        min-width: 1280px;
+    }
+
+    .admin-users-table .admin-users-actions-head,
+    .admin-users-table .admin-users-actions-cell {
+        width: 440px;
+        min-width: 440px;
+    }
 }
 
 .btn-outline-primary {

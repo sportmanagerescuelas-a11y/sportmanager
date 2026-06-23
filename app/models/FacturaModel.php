@@ -10,8 +10,8 @@ class FacturaModel {
         // Concatenamos nombres y apellidos del deportista
         $query = "SELECT f.*, 
                          u.nombres AS nombre_usuario, 
-                         CONCAT(d.nombres, ' ', d.apellidos) AS nombre_deportista, 
-                         e.titulo AS nombre_evento,
+                         COALESCE(CONCAT(d.nombres, ' ', d.apellidos), 'No aplica') AS nombre_deportista,
+                         COALESCE(e.titulo, f.descripcion) AS nombre_evento,
                          m.nombre_entidad AS metodo_pago_texto
                   FROM facturas f
                   INNER JOIN usuarios u ON f.id = u.id_usuario
@@ -28,8 +28,8 @@ class FacturaModel {
     public function obtenerTodasPorEscuela(int $schoolId): array {
         $query = "SELECT f.*, 
                          u.nombres AS nombre_usuario, 
-                         CONCAT(d.nombres, ' ', d.apellidos) AS nombre_deportista, 
-                         e.titulo AS nombre_evento,
+                         COALESCE(CONCAT(d.nombres, ' ', d.apellidos), 'No aplica') AS nombre_deportista,
+                         COALESCE(e.titulo, f.descripcion) AS nombre_evento,
                          m.nombre_entidad AS metodo_pago_texto
                   FROM facturas f
                   INNER JOIN usuarios u ON f.id = u.id_usuario
@@ -47,8 +47,8 @@ class FacturaModel {
     public function obtenerFacturaPorId(string|int $id_factura): array|false {
         $query = "SELECT f.*, 
                          u.nombres AS nombre_usuario, 
-                         CONCAT(d.nombres, ' ', d.apellidos) AS nombre_deportista, 
-                         e.titulo AS nombre_evento,
+                         COALESCE(CONCAT(d.nombres, ' ', d.apellidos), 'No aplica') AS nombre_deportista,
+                         COALESCE(e.titulo, f.descripcion) AS nombre_evento,
                          m.nombre_entidad AS metodo_pago_texto
                   FROM facturas f
                   INNER JOIN usuarios u ON f.id = u.id_usuario
@@ -65,8 +65,8 @@ class FacturaModel {
     public function obtenerFacturaPorIdYEscuela(string|int $id_factura, int $schoolId): array|false {
         $query = "SELECT f.*, 
                          u.nombres AS nombre_usuario, 
-                         CONCAT(d.nombres, ' ', d.apellidos) AS nombre_deportista, 
-                         e.titulo AS nombre_evento,
+                         COALESCE(CONCAT(d.nombres, ' ', d.apellidos), 'No aplica') AS nombre_deportista,
+                         COALESCE(e.titulo, f.descripcion) AS nombre_evento,
                          m.nombre_entidad AS metodo_pago_texto
                   FROM facturas f
                   INNER JOIN usuarios u ON f.id = u.id_usuario
@@ -87,8 +87,8 @@ class FacturaModel {
     public function obtenerFacturaPorIdYUsuario(string|int $id_factura, int $idUsuario): array|false {
         $query = "SELECT f.*,
                          u.nombres AS nombre_usuario,
-                         CONCAT(d.nombres, ' ', d.apellidos) AS nombre_deportista,
-                         e.titulo AS nombre_evento,
+                         COALESCE(CONCAT(d.nombres, ' ', d.apellidos), 'No aplica') AS nombre_deportista,
+                         COALESCE(e.titulo, f.descripcion) AS nombre_evento,
                          m.nombre_entidad AS metodo_pago_texto
                   FROM facturas f
                   INNER JOIN usuarios u ON f.id = u.id_usuario

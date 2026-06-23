@@ -190,10 +190,20 @@ class PagesModel
         return (bool)$stmt->fetchColumn();
     }
 
-    public function assignSchoolToUser(int $userId, int $schoolId): bool
+    public function assignSchoolToUser(string|int $userId, int $schoolId): bool
     {
-        $stmt = $this->db->prepare("UPDATE usuarios SET id_escuela = ?, estado = 'aprobado' WHERE id_usuario = ? AND id_rol = 3");
-        return $stmt->execute([$schoolId, $userId]);
+        $stmt = $this->db->prepare("
+            UPDATE usuarios
+            SET id_escuela = :id_escuela,
+                estado = 'aprobado',
+                habilitado = 1
+            WHERE id_usuario = :id_usuario
+              AND id_rol = 3
+        ");
+        return $stmt->execute([
+            ':id_escuela' => $schoolId,
+            ':id_usuario' => $userId,
+        ]);
     }
 
     public function categories(): array
@@ -241,7 +251,7 @@ class PagesModel
 
     public function schools(): array
     {
-        $stmt = $this->db->query('SELECT id_escuela, nombre, disciplina FROM escuelas ORDER BY nombre ASC');
+        $stmt = $this->db->query('SELECT id_escuela, nombre, disciplina, valor_inscripcion FROM escuelas ORDER BY nombre ASC');
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
 
@@ -287,7 +297,7 @@ class PagesModel
     /**
      * @param array<string,mixed> $data
      */
-    public function createSchool(array $data): int|false
+    public function createSchool(array $data, string|int|null $adminCreatorId = null): int|false
     {
         try {
             $this->db->beginTransaction();
@@ -330,6 +340,30 @@ class PagesModel
             }
 
             $this->persistPaymentMethods($nextId, is_array($data['metodos_pago'] ?? null) ? $data['metodos_pago'] : []);
+
+            if ($adminCreatorId !== null && $adminCreatorId !== '') {
+                $assign = $this->db->prepare("
+                    UPDATE usuarios
+                    SET id_escuela = :id_escuela,
+                        estado = 'aprobado',
+                        habilitado = 1
+                    WHERE id_usuario = :id_usuario
+                      AND id_rol = 3
+                ");
+                $assigned = $assign->execute([
+                    ':id_escuela' => $nextId,
+                    ':id_usuario' => $adminCreatorId,
+                ]);
+
+                if (!$assigned || $assign->rowCount() < 1) {
+                    if ($this->db->inTransaction()) {
+                        $this->db->rollBack();
+                    }
+                    $this->lastError = 'No se pudo asignar la escuela al administrador creador.';
+                    return false;
+                }
+            }
+
             $this->db->commit();
             $this->lastError = '';
             return $nextId;

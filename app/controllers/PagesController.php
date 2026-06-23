@@ -22,18 +22,34 @@ class PagesController
     {
         $this->guestOnly();
         $schools = [];
+        $schoolPaymentData = [];
         try {
-            $schools = $this->model()->schools();
+            $model = $this->model();
+            $schools = $model->schools();
+            foreach ($schools as $school) {
+                $schoolId = (int)($school->id_escuela ?? 0);
+                if ($schoolId <= 0) {
+                    continue;
+                }
+                $schoolPaymentData[(string)$schoolId] = [
+                    'id_escuela' => $schoolId,
+                    'nombre' => (string)($school->nombre ?? 'Escuela'),
+                    'disciplina' => (string)($school->disciplina ?? ''),
+                    'valor_inscripcion' => (float)($school->valor_inscripcion ?? 0),
+                    'methods' => $model->paymentMethodsBySchool($schoolId),
+                ];
+            }
         } catch (Throwable) {
             $schools = [];
+            $schoolPaymentData = [];
         }
 
         if (count($schools) === 0) {
-            $this->render('register', ['schools' => $schools]);
+            $this->render('register', ['schools' => $schools, 'schoolPaymentData' => $schoolPaymentData]);
             return;
         }
 
-        $this->render('register', ['schools' => $schools]);
+        $this->render('register', ['schools' => $schools, 'schoolPaymentData' => $schoolPaymentData]);
     }
 
     public function createSchool(): void
@@ -55,12 +71,13 @@ class PagesController
                 try {
                     $payload['escudo_path'] = $this->storeSchoolShield((string)($payload['escudo_path'] ?? ''));
                     $payload['metodos_pago'] = $this->storePaymentMethodQrs(is_array($payload['metodos_pago'] ?? null) ? $payload['metodos_pago'] : []);
-                    $schoolId = $this->model()->createSchool($payload);
+                    $adminCreatorId = $isAdminOnboarding ? (string)$_SESSION['id_usuario'] : null;
+                    $schoolId = $this->model()->createSchool($payload, $adminCreatorId);
                     if ($schoolId !== false) {
                         if ($isAdminOnboarding) {
-                            $this->model()->assignSchoolToUser((int)$_SESSION['id_usuario'], (int)$schoolId);
                             $_SESSION['usuario']['id_escuela'] = (int)$schoolId;
                             $_SESSION['usuario']['estado'] = 'aprobado';
+                            $_SESSION['usuario']['habilitado'] = 1;
                             $this->redirect('dashboard');
                         }
                         $this->redirect('gestion_escuelas&created=1');

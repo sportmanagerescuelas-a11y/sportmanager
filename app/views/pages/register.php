@@ -1,6 +1,7 @@
 <?php
 $viewData = get_defined_vars();
 $schools = is_array($viewData['schools'] ?? null) ? $viewData['schools'] : [];
+$schoolPaymentData = is_array($viewData['schoolPaymentData'] ?? null) ? $viewData['schoolPaymentData'] : [];
 $selectedSchool = (string)($_GET['id_escuela'] ?? '');
 $registerControllerPath = __DIR__ . '/../../../assets/js/registercontroller.js';
 $registerControllerVersion = is_file($registerControllerPath) ? (string)filemtime($registerControllerPath) : (string)time();
@@ -16,6 +17,11 @@ $registerErrorMap = [
     'duplicateemail' => 'Ya existe un usuario con ese correo electronico.',
     'schoolnone' => 'Aun no hay escuelas disponibles para inscripcion.',
     'school' => 'La escuela seleccionada no existe. Elige una escuela valida.',
+    'paymentmethod' => 'Selecciona un metodo de pago valido para la escuela.',
+    'paymentrequired' => 'Debes seleccionar un metodo de pago y adjuntar el comprobante.',
+    'receipt' => 'Debes adjuntar un comprobante de pago valido.',
+    'receiptsize' => 'El comprobante no puede superar 5 MB.',
+    'receipttype' => 'El comprobante debe ser imagen JPG, PNG, WEBP o PDF.',
     'db' => 'No se pudo crear la cuenta en este momento. Inténtalo nuevamente.',
 ];
 $registerErrorText = sm_error_text($registerErrorCode, $registerErrorMap);
@@ -68,7 +74,9 @@ if ($registerSuccessCode !== '') {
         ? 'Registro exitoso.'
         : ($registerSuccessCode === 'payment_pending'
             ? 'Registro exitoso. Tu pago sera revisado por el superadmin antes de aprobar tu cuenta.'
-            : 'Registro exitoso. Tu cuenta esta pendiente de aprobacion.');
+            : ($registerSuccessCode === 'payment_registered'
+                ? 'Registro exitoso. Tu comprobante quedo guardado y podras verlo en tus pagos despues de iniciar sesion.'
+                : 'Registro exitoso. Tu cuenta esta pendiente de aprobacion.'));
 }
 
 $modalTitle = '';
@@ -115,6 +123,7 @@ if ($registerErrorText !== '' && $activeFieldError['field'] === '') {
         </div>
         <div class="card-body">
             <form action="registro-submit" method="POST" enctype="multipart/form-data" class="needs-validation auth-form-grid" novalidate>
+                <input type="hidden" name="register" value="1">
                 <div class="row g-2 g-lg-3 auth-register-grid">
                     <div class="col-12 col-lg-4">
                         <label for="id_usuario" class="form-label">Numero de Documento</label>
@@ -182,7 +191,7 @@ if ($registerErrorText !== '' && $activeFieldError['field'] === '') {
                         <label for="id_rol" class="form-label">Rol</label>
                         <select class="form-select auth-input" id="id_rol" name="id_rol" required>
                             <option value="1">Acudiente</option>
-                            <option value="2">Formador (requiere aprobacion)</option>
+                            <option value="2">Formador</option>
                             <option value="3">Administrador de escuela (requiere validacion de pago)</option>
                         </select>
                     </div>
@@ -204,14 +213,104 @@ if ($registerErrorText !== '' && $activeFieldError['field'] === '') {
                             Para administrador ya no necesitas subir comprobante. Al registrarte te llevaremos a la pasarela de pago.
                         </div>
                     </div>
+                    <input type="hidden" name="id_metodo_pago" id="registrationPaymentMethod" value="">
+                    <input type="file" class="visually-hidden" id="registrationReceiptInput" name="comprobante" accept=".jpg,.jpeg,.png,.webp,.pdf">
                     <div class="col-12">
                         <button type="submit" name="register" class="btn btn-primary w-100 auth-action">Registrarse</button>
                     </div>
                 </div>
             </form>
         </div>
-    </section>
+</section>
 </div>
+</div>
+<div class="modal fade" id="registrationPaymentModal" tabindex="-1" aria-labelledby="registrationPaymentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <h5 class="modal-title" id="registrationPaymentModalLabel">Completa el pago de registro</h5>
+                    <p class="text-muted mb-0 small">Selecciona un metodo activo de la escuela y adjunta el comprobante.</p>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <div id="registrationPaymentAlert" class="alert alert-warning d-none"></div>
+                <div class="payment-layout payment-layout--modal">
+                    <div class="payment-main">
+                        <article class="payment-panel">
+                            <div class="payment-panel__step">1</div>
+                            <div class="payment-panel__content">
+                                <div class="payment-panel__title">
+                                    <div>
+                                        <h2>Elige como pagar</h2>
+                                        <p id="registrationPaymentSchoolText">Metodos activos de la escuela seleccionada.</p>
+                                    </div>
+                                </div>
+                                <div id="registrationPaymentMethods" class="payment-methods" role="radiogroup" aria-label="Metodos de pago"></div>
+                                <div id="registrationMethodQrPreview" class="payment-qr d-none">
+                                    <div>
+                                        <span class="payment-qr__label">Codigo de pago</span>
+                                        <strong id="registrationMethodQrName">Escanea el QR del metodo seleccionado</strong>
+                                        <p>Realiza la transferencia por el valor indicado en el resumen.</p>
+                                    </div>
+                                    <img src="" alt="Codigo QR del metodo seleccionado">
+                                </div>
+                            </div>
+                        </article>
+
+                        <article class="payment-panel">
+                            <div class="payment-panel__step">2</div>
+                            <div class="payment-panel__content">
+                                <div class="payment-panel__title">
+                                    <div>
+                                        <h2>Adjunta el comprobante</h2>
+                                        <p>El archivo es obligatorio y quedara asociado a la factura del usuario.</p>
+                                    </div>
+                                </div>
+                                <label class="payment-upload" for="registrationReceiptInput" id="registrationReceiptDropzone">
+                                    <span class="payment-upload__icon" aria-hidden="true">↑</span>
+                                    <span class="payment-upload__copy">
+                                        <strong id="registrationReceiptFileName">Seleccionar comprobante</strong>
+                                        <small>JPG, PNG, WEBP o PDF · maximo 5 MB</small>
+                                    </span>
+                                    <span class="btn btn-outline-primary rounded-pill px-3">Buscar archivo</span>
+                                </label>
+                                <div class="form-text mt-2">Verifica que el valor y la referencia sean legibles antes de continuar.</div>
+                            </div>
+                        </article>
+                    </div>
+                    <aside class="payment-summary" aria-live="polite">
+                        <div class="payment-summary__header">
+                            <span>Resumen del pago</span>
+                            <span class="payment-summary__status">Pendiente</span>
+                        </div>
+                        <div class="payment-summary__event">
+                            <span class="payment-summary__event-icon" aria-hidden="true">★</span>
+                            <div>
+                                <strong id="registrationSummarySchool">Escuela seleccionada</strong>
+                                <small>Pago de registro de usuario</small>
+                            </div>
+                        </div>
+                        <dl class="payment-summary__rows">
+                            <div><dt>Usuario</dt><dd id="registrationSummaryUser">Por completar</dd></div>
+                            <div><dt>Rol</dt><dd id="registrationSummaryRole">Usuario</dd></div>
+                            <div><dt>Metodo</dt><dd id="registrationSummaryMethod">Por seleccionar</dd></div>
+                        </dl>
+                        <div class="payment-summary__total">
+                            <span>Total a pagar</span>
+                            <strong id="registrationSummaryTotal">$0</strong>
+                            <small>Valor de inscripcion configurado por la escuela</small>
+                        </div>
+                    </aside>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Volver</button>
+                <button type="button" class="btn btn-primary" id="confirmRegistrationPayment">Confirmar pago y registrar</button>
+            </div>
+        </div>
+    </div>
 </div>
 <?php if ($registerSuccessText !== ''): ?>
     <div class="modal fade" id="registerMessageModal" tabindex="-1" aria-labelledby="registerMessageModalLabel" aria-hidden="true">
@@ -234,7 +333,7 @@ if ($registerErrorText !== '' && $activeFieldError['field'] === '') {
     document.addEventListener('DOMContentLoaded', function () {
         const modalElement = document.getElementById('registerMessageModal');
         if (modalElement && window.bootstrap && bootstrap.Modal) {
-            const modal = new bootstrap.Modal(modalElement, { backdrop: 'static', keyboard: false });
+            const modal = bootstrap.Modal.getOrCreateInstance(modalElement, { backdrop: 'static', keyboard: false });
             modalElement.addEventListener('hidden.bs.modal', function () {
                 if (document.activeElement instanceof HTMLElement) {
                     document.activeElement.blur();
@@ -266,7 +365,7 @@ if ($registerErrorText !== '' && $activeFieldError['field'] === '') {
         document.addEventListener('DOMContentLoaded', function () {
             const modalElement = document.getElementById('registerMessageModal');
             if (modalElement && window.bootstrap && bootstrap.Modal) {
-                const modal = new bootstrap.Modal(modalElement);
+                const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
                 modalElement.addEventListener('hidden.bs.modal', function () {
                     if (document.activeElement instanceof HTMLElement) {
                         document.activeElement.blur();
@@ -282,6 +381,8 @@ if ($registerErrorText !== '' && $activeFieldError['field'] === '') {
 <?php endif; ?>
 <script src="assets/js/registercontroller.js?v=<?= urlencode($registerControllerVersion) ?>"></script>
 <script>
+const registrationPaymentData = <?= json_encode($schoolPaymentData, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?: '{}' ?>;
+
 document.addEventListener('DOMContentLoaded', function () {
     const roleSelect = document.getElementById('id_rol');
     const wrap = document.getElementById('comprobantePagoWrap');
@@ -289,8 +390,166 @@ document.addEventListener('DOMContentLoaded', function () {
     const schoolSelect = document.getElementById('id_escuela');
     const passwordInput = document.getElementById('password');
     const passwordRequirementsBox = document.getElementById('passwordRequirementsBox');
+    const form = document.querySelector('form[action="registro-submit"]');
+    const submitButton = document.querySelector('button[name="register"]');
+    const methodInput = document.getElementById('registrationPaymentMethod');
+    const receiptInput = document.getElementById('registrationReceiptInput');
+    const receiptFileName = document.getElementById('registrationReceiptFileName');
+    const paymentModalElement = document.getElementById('registrationPaymentModal');
+    const paymentMethodsWrap = document.getElementById('registrationPaymentMethods');
+    const paymentAlert = document.getElementById('registrationPaymentAlert');
+    const confirmPaymentButton = document.getElementById('confirmRegistrationPayment');
+    const paymentSchoolText = document.getElementById('registrationPaymentSchoolText');
+    const summarySchool = document.getElementById('registrationSummarySchool');
+    const summaryUser = document.getElementById('registrationSummaryUser');
+    const summaryRole = document.getElementById('registrationSummaryRole');
+    const summaryMethod = document.getElementById('registrationSummaryMethod');
+    const summaryTotal = document.getElementById('registrationSummaryTotal');
+    const qrPreview = document.getElementById('registrationMethodQrPreview');
+    const qrImage = qrPreview ? qrPreview.querySelector('img') : null;
+    const qrName = document.getElementById('registrationMethodQrName');
+    let paymentConfirmed = false;
+    let paymentModal = null;
 
     if (!roleSelect || !wrap || !schoolWrap || !schoolSelect) return;
+
+    const formatCurrency = function (value) {
+        const amount = Number(value || 0);
+        return '$' + new Intl.NumberFormat('es-CO', { maximumFractionDigits: 0 }).format(amount);
+    };
+
+    const showPaymentAlert = function (message, type) {
+        if (!paymentAlert) return;
+        paymentAlert.textContent = message;
+        paymentAlert.className = 'alert alert-' + (type || 'warning');
+        paymentAlert.classList.toggle('d-none', message === '');
+    };
+
+    const selectedSchoolData = function () {
+        const schoolId = String(schoolSelect.value || '');
+        return schoolId !== '' && registrationPaymentData ? registrationPaymentData[schoolId] : null;
+    };
+
+    const resetPaymentState = function (clearReceipt) {
+        paymentConfirmed = false;
+        if (methodInput) methodInput.value = '';
+        if (summaryMethod) summaryMethod.textContent = 'Por seleccionar';
+        if (clearReceipt && receiptInput) receiptInput.value = '';
+        if (clearReceipt && receiptFileName) receiptFileName.textContent = 'Seleccionar comprobante';
+    };
+
+    const refreshQrPreview = function (selected) {
+        const qr = selected ? (selected.getAttribute('data-qr') || '') : '';
+        const name = selected ? (selected.getAttribute('data-name') || 'Metodo seleccionado') : 'Metodo seleccionado';
+        if (summaryMethod) summaryMethod.textContent = name;
+        if (qrName) qrName.textContent = name;
+        if (qrPreview && qrImage && qr !== '') {
+            qrImage.src = qr;
+            qrPreview.classList.remove('d-none');
+        } else if (qrPreview && qrImage) {
+            qrImage.removeAttribute('src');
+            qrPreview.classList.add('d-none');
+        }
+    };
+
+    const selectPaymentMethod = function (input) {
+        if (!input) return;
+        if (methodInput) methodInput.value = input.value;
+        paymentMethodsWrap.querySelectorAll('.payment-method').forEach(function (card) {
+            const radio = card.querySelector('input[type="radio"]');
+            card.classList.toggle('is-selected', Boolean(radio && radio.checked));
+        });
+        refreshQrPreview(input);
+        paymentConfirmed = false;
+    };
+
+    const renderPaymentMethods = function (schoolData) {
+        if (!paymentMethodsWrap) return;
+        paymentMethodsWrap.innerHTML = '';
+        const methods = Array.isArray(schoolData && schoolData.methods) ? schoolData.methods : [];
+        methods.forEach(function (method, index) {
+            const methodId = String(method.id_metodo || '');
+            const methodName = String(method.nombre_entidad || 'Metodo de pago');
+            const methodType = String(method.tipo || 'offline');
+            const methodQr = String(method.qr_path || '');
+
+            const label = document.createElement('label');
+            label.className = 'payment-method' + (index === 0 ? ' is-selected' : '');
+
+            const radio = document.createElement('input');
+            radio.type = 'radio';
+            radio.name = 'registration_modal_payment_method';
+            radio.value = methodId;
+            radio.required = true;
+            radio.checked = index === 0;
+            radio.setAttribute('data-name', methodName);
+            radio.setAttribute('data-type', methodType);
+            radio.setAttribute('data-qr', methodQr);
+
+            const mark = document.createElement('span');
+            mark.className = 'payment-method__mark';
+            mark.setAttribute('aria-hidden', 'true');
+
+            const body = document.createElement('span');
+            body.className = 'payment-method__body';
+            const strong = document.createElement('strong');
+            strong.textContent = methodName;
+            const small = document.createElement('small');
+            small.textContent = methodType.charAt(0).toUpperCase() + methodType.slice(1);
+            body.append(strong, small);
+
+            const arrow = document.createElement('span');
+            arrow.className = 'payment-method__arrow';
+            arrow.setAttribute('aria-hidden', 'true');
+            arrow.textContent = '›';
+
+            label.append(radio, mark, body, arrow);
+            paymentMethodsWrap.appendChild(label);
+            radio.addEventListener('change', function () { selectPaymentMethod(radio); });
+        });
+
+        const selected = paymentMethodsWrap.querySelector('input[name="registration_modal_payment_method"]:checked');
+        if (selected) {
+            selectPaymentMethod(selected);
+        } else {
+            refreshQrPreview(null);
+        }
+    };
+
+    const openPaymentModal = function () {
+        const schoolData = selectedSchoolData();
+        const methods = Array.isArray(schoolData && schoolData.methods) ? schoolData.methods : [];
+        const schoolName = schoolData ? String(schoolData.nombre || 'Escuela seleccionada') : 'Escuela seleccionada';
+        const amount = schoolData ? Number(schoolData.valor_inscripcion || 0) : 0;
+        const fullName = [
+            document.getElementById('nombres') ? document.getElementById('nombres').value.trim() : '',
+            document.getElementById('apellidos') ? document.getElementById('apellidos').value.trim() : ''
+        ].filter(Boolean).join(' ');
+
+        if (paymentSchoolText) paymentSchoolText.textContent = 'Metodos activos configurados por ' + schoolName + '.';
+        if (summarySchool) summarySchool.textContent = schoolName;
+        if (summaryUser) summaryUser.textContent = fullName !== '' ? fullName : 'Usuario por registrar';
+        if (summaryRole) summaryRole.textContent = roleSelect.options[roleSelect.selectedIndex] ? roleSelect.options[roleSelect.selectedIndex].textContent : 'Usuario';
+        if (summaryTotal) summaryTotal.textContent = formatCurrency(amount);
+
+        renderPaymentMethods(schoolData);
+
+        if (!schoolData) {
+            showPaymentAlert('Selecciona una escuela antes de continuar.', 'warning');
+            if (confirmPaymentButton) confirmPaymentButton.disabled = true;
+        } else if (methods.length === 0) {
+            showPaymentAlert('La escuela seleccionada aun no tiene metodos de pago activos. Comunicate con su administrador.', 'warning');
+            if (confirmPaymentButton) confirmPaymentButton.disabled = true;
+        } else {
+            showPaymentAlert('', 'warning');
+            if (confirmPaymentButton) confirmPaymentButton.disabled = false;
+        }
+
+        if (!paymentModal && paymentModalElement && window.bootstrap && bootstrap.Modal) {
+            paymentModal = bootstrap.Modal.getOrCreateInstance(paymentModalElement);
+        }
+        if (paymentModal) paymentModal.show();
+    };
 
     const sync = function () {
         const isAdmin = roleSelect.value === '3';
@@ -302,10 +561,68 @@ document.addEventListener('DOMContentLoaded', function () {
             schoolSelect.value = '';
             schoolSelect.classList.remove('is-invalid');
         }
+        resetPaymentState(true);
     };
 
     roleSelect.addEventListener('change', sync);
+    schoolSelect.addEventListener('change', function () { resetPaymentState(true); });
     sync();
+
+    if (receiptInput) {
+        receiptInput.addEventListener('change', function () {
+            const file = receiptInput.files && receiptInput.files[0];
+            if (receiptFileName) receiptFileName.textContent = file ? file.name : 'Seleccionar comprobante';
+            paymentConfirmed = false;
+        });
+    }
+
+    if (confirmPaymentButton) {
+        confirmPaymentButton.addEventListener('click', function () {
+            const selected = paymentMethodsWrap ? paymentMethodsWrap.querySelector('input[name="registration_modal_payment_method"]:checked') : null;
+            const file = receiptInput && receiptInput.files ? receiptInput.files[0] : null;
+            if (!selected || !selected.value) {
+                showPaymentAlert('Selecciona un metodo de pago para continuar.', 'warning');
+                return;
+            }
+            if (!file) {
+                showPaymentAlert('Adjunta el comprobante de pago antes de registrar.', 'warning');
+                return;
+            }
+            if (file.size > 5242880) {
+                showPaymentAlert('El comprobante no puede superar 5 MB.', 'warning');
+                return;
+            }
+            if (!/\.(jpe?g|png|webp|pdf)$/i.test(file.name || '')) {
+                showPaymentAlert('El comprobante debe ser JPG, PNG, WEBP o PDF.', 'warning');
+                return;
+            }
+
+            if (methodInput) methodInput.value = selected.value;
+            paymentConfirmed = true;
+            if (paymentModal) paymentModal.hide();
+            window.requestAnimationFrame(function () {
+                if (form && typeof form.requestSubmit === 'function') {
+                    form.requestSubmit(submitButton || undefined);
+                } else if (form) {
+                    form.submit();
+                }
+            });
+        });
+    }
+
+    if (form) {
+        form.addEventListener('submit', function (event) {
+            if (event.defaultPrevented || roleSelect.value === '3') {
+                return;
+            }
+            if (paymentConfirmed) {
+                return;
+            }
+            event.preventDefault();
+            event.stopPropagation();
+            openPaymentModal();
+        });
+    }
 
     if (passwordInput && passwordRequirementsBox) {
         passwordInput.addEventListener('focus', function () {

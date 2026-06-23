@@ -74,7 +74,7 @@ $idEvento = (int)($viewData['idEvento'] ?? 0);
                                         <div class="d-flex justify-content-center gap-1 flex-wrap">
                                             <a href="index.php?action=ver&id=<?= urlencode((string)($factura['id_factura'] ?? '')) ?>" class="btn btn-sm btn-outline-primary">Factura</a>
                                             <?php if (!empty($factura['comprobante_path'])): ?>
-                                                <a href="index.php?action=comprobante&id=<?= urlencode((string)($factura['id_factura'] ?? '')) ?>" target="_blank" class="btn btn-sm btn-outline-secondary">Comprobante</a>
+                                                <a href="index.php?action=comprobante&id=<?= urlencode((string)($factura['id_factura'] ?? '')) ?>" class="btn btn-sm btn-outline-secondary">Comprobante</a>
                                             <?php endif; ?>
                                         </div>
                                     </td>

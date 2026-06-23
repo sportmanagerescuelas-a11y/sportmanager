@@ -74,7 +74,6 @@ $dashboardActionChunks = array_chunk($dashboardActions, $rol === 3 ? 3 : 2);
                                     class="btn btnSeleccionarEvento"
                                     style="border-color: var(--school-primary-color); color: var(--school-primary-color);"
                                     data-evento-id="<?= (int)$e->id_evento ?>"
-                                    data-bs-dismiss="modal"
                                 >
                                     <?= htmlspecialchars((string)$e->titulo) ?> - <?= htmlspecialchars((string)$e->fecha) ?>
                                 </button>
@@ -94,10 +93,10 @@ $dashboardActionChunks = array_chunk($dashboardActions, $rol === 3 ? 3 : 2);
         <span class="dashboard-role-banner__value"><?= htmlspecialchars($rolLabel, ENT_QUOTES, 'UTF-8') ?></span>
     </div>
 
-    <div class="dashboard-search">
+    <!-- <div class="dashboard-search">
         <label for="dashboardSearch" class="dashboard-search__label">Buscar accesos</label>
         <input type="search" id="dashboardSearch" class="form-control dashboard-search__input" placeholder="Escribe para filtrar opciones">
-    </div>
+    </div> -->
 
     <?php foreach ($events as $e): ?>
         <?php
@@ -231,6 +230,27 @@ $dashboardActionChunks = array_chunk($dashboardActions, $rol === 3 ? 3 : 2);
             return "";
         }
 
+        function showModalAfterCurrentCloses(targetModal, sourceElement) {
+            if (!targetModal || !window.bootstrap || !bootstrap.Modal) {
+                return;
+            }
+
+            const showTarget = function () {
+                bootstrap.Modal.getOrCreateInstance(targetModal).show();
+            };
+            const currentModal = sourceElement && sourceElement.closest
+                ? sourceElement.closest('.modal.show')
+                : null;
+
+            if (!currentModal || currentModal === targetModal) {
+                showTarget();
+                return;
+            }
+
+            currentModal.addEventListener('hidden.bs.modal', showTarget, { once: true });
+            bootstrap.Modal.getOrCreateInstance(currentModal).hide();
+        }
+
         function registrarInscripcion(id_evento, id_deportista) {
             const idEventoSeguro = normalizarIdNumerico(id_evento);
             if (idEventoSeguro === "" || idEventoSeguro === "0") {
@@ -292,8 +312,7 @@ $dashboardActionChunks = array_chunk($dashboardActions, $rol === 3 ? 3 : 2);
                             selectModal.value = primeraValida.value;
                         }
                     }
-                    const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
-                    modal.show();
+                    showModalAfterCurrentCloses(modalEl, this);
                 }
             });
         });
@@ -328,8 +347,7 @@ $dashboardActionChunks = array_chunk($dashboardActions, $rol === 3 ? 3 : 2);
                     alert("No se encontro la informacion del evento.");
                     return;
                 }
-                const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
-                modal.show();
+                showModalAfterCurrentCloses(modalEl, this);
             });
         });
 

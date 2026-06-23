@@ -78,7 +78,7 @@ if (!function_exists('sm_render_modal_message')) {
             document.addEventListener('DOMContentLoaded', function () {
                 const modalElement = document.getElementById('<?= $safeId ?>');
                 if (modalElement && window.bootstrap && bootstrap.Modal) {
-                    const modal = new bootstrap.Modal(modalElement);
+                    const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
                     modal.show();
                 }
             });

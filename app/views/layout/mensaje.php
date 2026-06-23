@@ -1,3 +1,7 @@
+<?php
+$modalManagerPath = __DIR__ . '/../../../assets/js/modal-manager.js';
+$modalManagerVersion = is_file($modalManagerPath) ? (string)filemtime($modalManagerPath) : (string)time();
+?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -24,11 +28,12 @@
   </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="assets/js/modal-manager.js?v=<?= urlencode($modalManagerVersion) ?>"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
   const modalElement = document.getElementById('recoverMessageModal');
   if (modalElement && window.bootstrap && bootstrap.Modal) {
-    const modal = new bootstrap.Modal(modalElement, { backdrop: 'static', keyboard: false });
+    const modal = bootstrap.Modal.getOrCreateInstance(modalElement, { backdrop: 'static', keyboard: false });
     modal.show();
   }
 });

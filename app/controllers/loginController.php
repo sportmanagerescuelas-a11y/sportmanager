@@ -36,18 +36,19 @@ if (isset($_POST["login"])) {
         $estadoUsuario = trim((string)($usuario['estado'] ?? ''));
         $habilitadoUsuario = (int)($usuario['habilitado'] ?? 1);
 
-        // Verificar estado real de la cuenta
-        if ($estadoUsuario === 'deshabilitado' || $habilitadoUsuario === 0) {
-            header("Location: ../login&error=disabled");
-            exit();
-        }
-
         if ($estadoUsuario === 'pendiente') {
             header("Location: ../login&error=pending");
             exit();
         }
         if ($estadoUsuario === 'pago_pendiente') {
             header("Location: ../login&error=payment_pending");
+            exit();
+        }
+
+        // Verificar el bloqueo general despues de los estados pendientes para
+        // informar al usuario la razon real por la que aun no puede ingresar.
+        if ($estadoUsuario === 'deshabilitado' || $habilitadoUsuario === 0) {
+            header("Location: ../login&error=disabled");
             exit();
         }
 

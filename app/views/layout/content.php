@@ -157,7 +157,7 @@
                 </div>
                 <div class="home-contact-actions">
                     <a href="mailto:sportmanager.escuelas@gmail.com" class="btn btn-primary home-action-btn">Enviar correo</a>
-                    <a href="https://www.instagram.com/sport_manager_escuelas/" target="_blank" rel="noopener" class="btn home-btn-outline">Ver Instagram</a>
+                    <a href="https://www.instagram.com/sport_manager_escuelas/" rel="noopener" class="btn home-btn-outline">Ver Instagram</a>
                 </div>
             </div>
         </div>
