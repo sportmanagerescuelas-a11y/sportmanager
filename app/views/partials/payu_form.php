@@ -30,7 +30,7 @@ $identityReadonly = $prefillDni !== '';
     <div class="alert alert-danger"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></div>
 <?php endif; ?>
 
-<form method="POST" action="procesar-pago" id="payuForm" class="card border-0 shadow-sm rounded-4" target="_blank">
+<form method="POST" action="procesar-pago" id="payuForm" class="card border-0 shadow-sm rounded-4">
     <div class="card-body">
         <h5 class="card-title mb-3 text-primary fw-bold">Formulario de pago</h5>
 
@@ -141,7 +141,7 @@ $identityReadonly = $prefillDni !== '';
 
         <div class="mt-4 d-flex gap-2">
             <button type="submit" class="btn btn-primary px-4" id="btnPagarAhora">Pagar ahora</button>
-            <a href="dashboard.php" class="btn btn-outline-secondary">Volver</a>
+            <a href="panel" class="btn btn-outline-secondary">Volver</a>
         </div>
     </div>
 </form>
@@ -149,7 +149,7 @@ $identityReadonly = $prefillDni !== '';
 <div id="payuLockOverlay" class="d-none position-fixed top-0 start-0 w-100 h-100 bg-dark bg-opacity-50" style="z-index: 1080;">
     <div class="position-absolute top-50 start-50 translate-middle bg-white rounded-3 shadow p-4 text-center" style="max-width: 380px;">
         <div class="spinner-border text-primary mb-3" role="status" aria-hidden="true"></div>
-        <p class="mb-0 fw-semibold">La pasarela esta abierta. Esta pagina permanece bloqueada para evitar multiples transacciones.</p>
+        <p class="mb-0 fw-semibold">Estamos enviando tu pago. Espera un momento para evitar multiples transacciones.</p>
     </div>
 </div>
 
@@ -162,34 +162,9 @@ $identityReadonly = $prefillDni !== '';
     const form = document.getElementById('payuForm');
     const btnPagarAhora = document.getElementById('btnPagarAhora');
     const overlay = document.getElementById('payuLockOverlay');
-    const popupName = 'payuGatewayWindow';
-    let paymentWindow = null;
-    let watchWindowInterval = null;
-
     function setLocked(locked) {
         overlay.classList.toggle('d-none', !locked);
         btnPagarAhora.disabled = locked;
-    }
-
-    function unlockForm() {
-        setLocked(false);
-        if (watchWindowInterval) {
-            clearInterval(watchWindowInterval);
-            watchWindowInterval = null;
-        }
-        paymentWindow = null;
-    }
-
-    function lockForm() {
-        setLocked(true);
-        if (watchWindowInterval) {
-            clearInterval(watchWindowInterval);
-        }
-        watchWindowInterval = setInterval(() => {
-            if (!paymentWindow || paymentWindow.closed) {
-                unlockForm();
-            }
-        }, 800);
     }
 
     function refreshMetodo() {
@@ -234,16 +209,7 @@ $identityReadonly = $prefillDni !== '';
             return;
         }
 
-        const popup = window.open('', popupName);
-        if (!popup) {
-            event.preventDefault();
-            alert('No se pudo abrir la pasarela. Habilita las ventanas emergentes para continuar.');
-            return;
-        }
-
-        paymentWindow = popup;
-        form.target = popupName;
-        lockForm();
+        setLocked(true);
     });
 
     refreshMetodo();

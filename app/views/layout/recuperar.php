@@ -1,6 +1,8 @@
 <?php
 $stylePath = __DIR__ . '/../../../assets/css/style.css';
+$modalManagerPath = __DIR__ . '/../../../assets/js/modal-manager.js';
 $styleVersion = is_file($stylePath) ? (string)filemtime($stylePath) : (string)time();
+$modalManagerVersion = is_file($modalManagerPath) ? (string)filemtime($modalManagerPath) : (string)time();
 $recoverErrorCode = isset($_GET['error']) ? (string)$_GET['error'] : '';
 $recoverFieldError = ['field' => '', 'message' => ''];
 if ($recoverErrorCode === 'empty') {
@@ -56,6 +58,7 @@ $assetBase = '/sportmanager/';
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="assets/js/modal-manager.js?v=<?= urlencode($modalManagerVersion) ?>"></script>
 <?php
 if ($recoverFieldError['field'] === '') {
     ?>
@@ -79,7 +82,7 @@ if ($recoverFieldError['field'] === '') {
     document.addEventListener('DOMContentLoaded', function () {
       const modalElement = document.getElementById('recoverInfoModal');
       if (modalElement && window.bootstrap && bootstrap.Modal) {
-        const modal = new bootstrap.Modal(modalElement, { backdrop: 'static', keyboard: false });
+        const modal = bootstrap.Modal.getOrCreateInstance(modalElement, { backdrop: 'static', keyboard: false });
         modal.show();
       }
     });

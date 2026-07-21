@@ -18,7 +18,7 @@ class ReporteModel {
      */
     public function obtenerDatos(string $tabla, ?int $schoolId = null): array {
         $tabla = preg_replace('/[^a-zA-Z0-9_]/', '', $tabla);
-        if ($tabla === '') {
+        if ($tabla === '' || !$this->tableExists($tabla)) {
             return [];
         }
 
@@ -61,5 +61,14 @@ class ReporteModel {
         $stmt = $this->db->prepare($query);
         $stmt->execute($params);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function tableExists(string $table): bool
+    {
+        $stmt = $this->db->prepare(
+            'SELECT 1 FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = :table LIMIT 1'
+        );
+        $stmt->execute([':table' => $table]);
+        return (bool)$stmt->fetchColumn();
     }
 }

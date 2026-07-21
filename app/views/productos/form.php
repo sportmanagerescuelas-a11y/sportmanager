@@ -9,6 +9,7 @@ $producto = array_merge([
     'imagen' => '',
 ], $productoData);
 $isEdit = (bool)($viewData['isEdit'] ?? false);
+$productExists = !$isEdit || $productoData !== [];
 
 if (!function_exists('normalize_image_src')) {
 function normalize_image_src(string $value): string
@@ -52,11 +53,16 @@ $imgSrc = normalize_image_src((string)$producto['imagen']);
                 <h5 class="mb-0"><?= $isEdit ? 'Editar Producto' : 'Agregar Producto' ?></h5>
             </div>
             <div class="card-body">
-                <?php if ($isEdit && empty($producto)): ?>
+                <?php if (!$productExists): ?>
                     <div class="alert alert-danger mb-3">Producto no encontrado.</div>
                     <a href="productos" class="btn btn-secondary">Volver</a>
                 <?php else: ?>
+                    <?php if (!empty($_SESSION['flash_product_error'])): ?>
+                        <div class="alert alert-danger"><?= htmlspecialchars((string)$_SESSION['flash_product_error'], ENT_QUOTES, 'UTF-8') ?></div>
+                        <?php unset($_SESSION['flash_product_error']); ?>
+                    <?php endif; ?>
                     <form method="POST" action="productos&product_action=<?= $isEdit ? 'actualizar' : 'guardar' ?><?= $isEdit ? '&id=' . urlencode((string)($producto['id_producto'] ?? '')) : '' ?>">
+                        <?php sm_csrf_input(); ?>
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <label class="form-label">Nombre</label>

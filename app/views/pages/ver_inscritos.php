@@ -39,5 +39,5 @@ $inscritos = is_array($viewData['inscritos'] ?? null) ? $viewData['inscritos'] :
             <div class="alert alert-warning">No hay inscritos en este evento</div>
         <?php endif; ?>
     <?php endif; ?>
-    <a href="gestion_eventos.php" class="btn btn-secondary mt-3">Volver</a>
+    <a href="gestion-eventos" class="btn btn-secondary mt-3">Volver</a>
 </div>

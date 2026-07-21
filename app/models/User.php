@@ -89,7 +89,7 @@ class User
         }
     }
 
-    public function findByEmail(string $email): array|false
+    public function findByEmail(string $email)
     {
         $stmt = $this->db->prepare("SELECT * FROM usuarios WHERE email = :email LIMIT 1");
         $stmt->bindParam(":email", $email);
@@ -110,7 +110,7 @@ class User
         return $stmt->execute();
     }
 
-    public function findByToken(string $token): array|false
+    public function findByToken(string $token)
     {
         $now = (new DateTimeImmutable('now', new DateTimeZone('America/Bogota')))
             ->format('Y-m-d H:i:s');

@@ -43,7 +43,7 @@ class PagesModel
             if (!$secondaryExists) {
                 $this->db->exec("ALTER TABLE escuelas ADD COLUMN color_secundario CHAR(7) NOT NULL DEFAULT '#198754' AFTER color_primario");
             }
-        } catch (Throwable) {
+        } catch (Throwable $e) {
             // Si falla, el sistema sigue funcionando con valores por defecto en vista.
         }
     }
@@ -56,7 +56,7 @@ class PagesModel
             if (!$exists) {
                 $this->db->exec('ALTER TABLE eventos ADD COLUMN id_escuela INT(11) NULL AFTER estado');
             }
-        } catch (Throwable) {
+        } catch (Throwable $e) {
             // Mantener compatibilidad si no se puede alterar estructura.
         }
     }
@@ -82,7 +82,7 @@ class PagesModel
             if (!$activeExists) {
                 $this->db->exec("ALTER TABLE metodos_pago ADD COLUMN activo TINYINT(1) NOT NULL DEFAULT 1 AFTER tipo");
             }
-        } catch (Throwable) {
+        } catch (Throwable $e) {
             // Mantener compatibilidad si no se puede alterar estructura.
         }
     }
@@ -190,10 +190,23 @@ class PagesModel
         return (bool)$stmt->fetchColumn();
     }
 
-    public function assignSchoolToUser(int $userId, int $schoolId): bool
+    /**
+     * @param int|string $userId
+     */
+    public function assignSchoolToUser($userId, int $schoolId): bool
     {
-        $stmt = $this->db->prepare("UPDATE usuarios SET id_escuela = ?, estado = 'aprobado' WHERE id_usuario = ? AND id_rol = 3");
-        return $stmt->execute([$schoolId, $userId]);
+        $stmt = $this->db->prepare("
+            UPDATE usuarios
+            SET id_escuela = :id_escuela,
+                estado = 'aprobado',
+                habilitado = 1
+            WHERE id_usuario = :id_usuario
+              AND id_rol = 3
+        ");
+        return $stmt->execute([
+            ':id_escuela' => $schoolId,
+            ':id_usuario' => $userId,
+        ]);
     }
 
     public function categories(): array
@@ -241,7 +254,7 @@ class PagesModel
 
     public function schools(): array
     {
-        $stmt = $this->db->query('SELECT id_escuela, nombre, disciplina FROM escuelas ORDER BY nombre ASC');
+        $stmt = $this->db->query('SELECT id_escuela, nombre, disciplina, valor_inscripcion FROM escuelas ORDER BY nombre ASC');
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
 
@@ -287,7 +300,12 @@ class PagesModel
     /**
      * @param array<string,mixed> $data
      */
-    public function createSchool(array $data): int|false
+    /**
+     * @param array<string,mixed> $data
+     * @param int|string|null $adminCreatorId
+     * @return int|false
+     */
+    public function createSchool(array $data, $adminCreatorId = null)
     {
         try {
             $this->db->beginTransaction();
@@ -330,6 +348,30 @@ class PagesModel
             }
 
             $this->persistPaymentMethods($nextId, is_array($data['metodos_pago'] ?? null) ? $data['metodos_pago'] : []);
+
+            if ($adminCreatorId !== null && $adminCreatorId !== '') {
+                $assign = $this->db->prepare("
+                    UPDATE usuarios
+                    SET id_escuela = :id_escuela,
+                        estado = 'aprobado',
+                        habilitado = 1
+                    WHERE id_usuario = :id_usuario
+                      AND id_rol = 3
+                ");
+                $assigned = $assign->execute([
+                    ':id_escuela' => $nextId,
+                    ':id_usuario' => $adminCreatorId,
+                ]);
+
+                if (!$assigned || $assign->rowCount() < 1) {
+                    if ($this->db->inTransaction()) {
+                        $this->db->rollBack();
+                    }
+                    $this->lastError = 'No se pudo asignar la escuela al administrador creador.';
+                    return false;
+                }
+            }
+
             $this->db->commit();
             $this->lastError = '';
             return $nextId;
@@ -417,6 +459,9 @@ class PagesModel
      */
     private function persistPaymentMethods(int $schoolId, array $methods): void
     {
+        $disable = $this->db->prepare('UPDATE metodos_pago SET activo = 0 WHERE id_escuela = :id_escuela');
+        $disable->execute([':id_escuela' => $schoolId]);
+
         foreach ($methods as $method) {
             $name = substr(trim((string)($method['nombre_entidad'] ?? '')), 0, 50);
             if ($name === '') {
@@ -577,7 +622,7 @@ class PagesModel
             INNER JOIN estados e ON d.id_estado = e.id_estado
         ";
 
-        if ($role === 3) {
+        if (in_array($role, [2, 3], true)) {
             $stmt = $this->db->prepare($sql . '
                 WHERE u.id_escuela = (
                     SELECT id_escuela
@@ -589,10 +634,6 @@ class PagesModel
             return $stmt->fetchAll(PDO::FETCH_OBJ);
         }
 
-        if ($role === 2) {
-            return $this->db->query($sql)->fetchAll(PDO::FETCH_OBJ);
-        }
-
         $stmt = $this->db->prepare($sql . ' WHERE d.id_usuario = :id_usuario');
         $stmt->execute([':id_usuario' => $userId]);
         return $stmt->fetchAll(PDO::FETCH_OBJ);
@@ -600,7 +641,12 @@ class PagesModel
 
     public function athleteById(string $id): ?object
     {
-        $stmt = $this->db->prepare('SELECT * FROM deportistas WHERE id_deportista = ?');
+        $stmt = $this->db->prepare(
+            'SELECT d.*, u.id_escuela AS owner_school_id
+             FROM deportistas d
+             INNER JOIN usuarios u ON u.id_usuario = d.id_usuario
+             WHERE d.id_deportista = ?'
+        );
         $stmt->execute([$id]);
         return $stmt->fetch(PDO::FETCH_OBJ) ?: null;
     }
@@ -693,14 +739,24 @@ class PagesModel
         $stmt->execute([$id]);
     }
 
-    public function events(?int $schoolId = null): array
+    public function events(?int $schoolId = null, int $userId = 0): array
     {
+        $sql = 'SELECT e.*,
+                       (SELECT COUNT(DISTINCT i.id_deportista)
+                        FROM inscripciones i
+                        WHERE i.id_evento = e.id_evento AND i.id_usuario = :id_usuario) AS registered_quantity
+                FROM eventos e';
         if ($schoolId !== null && $schoolId > 0) {
-            $stmt = $this->db->prepare('SELECT * FROM eventos WHERE id_escuela = :id_escuela ORDER BY fecha DESC, id_evento DESC');
-            $stmt->execute([':id_escuela' => $schoolId]);
+            $stmt = $this->db->prepare($sql . ' WHERE e.id_escuela = :id_escuela ORDER BY e.fecha DESC, e.id_evento DESC');
+            $stmt->execute([
+                ':id_usuario' => $userId,
+                ':id_escuela' => $schoolId,
+            ]);
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
-        return $this->db->query('SELECT * FROM eventos ORDER BY fecha DESC, id_evento DESC')->fetchAll(PDO::FETCH_ASSOC);
+        $stmt = $this->db->prepare($sql . ' ORDER BY e.fecha DESC, e.id_evento DESC');
+        $stmt->execute([':id_usuario' => $userId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function managedEvents(?int $schoolId = null): array

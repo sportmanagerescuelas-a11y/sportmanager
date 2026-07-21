@@ -59,7 +59,7 @@
                     }
                 }
             }
-        } catch (Throwable) {
+        } catch (Throwable $e) {
             // Mantener tema por defecto si falla la consulta.
         }
     }
@@ -100,9 +100,9 @@
                 </div>
                 <div class="top-bar__social">
                     <span class="top-bar__social-label">Síguenos</span>
-                    <a href="https://www.facebook.com/profile.php?id=100083328903404" target="_blank" rel="noopener noreferrer" class="top-bar__social-link top-bar__social-link--facebook">Facebook</a>
-                    <a href="https://x.com/spmanager20" target="_blank" rel="noopener noreferrer" class="top-bar__social-link top-bar__social-link--x">X</a>
-                    <a href="https://www.instagram.com/sport_manager_escuelas/" target="_blank" rel="noopener noreferrer" class="top-bar__social-link top-bar__social-link--instagram">Instagram</a>
+                    <a href="https://www.facebook.com/profile.php?id=100083328903404" rel="noopener noreferrer" class="top-bar__social-link top-bar__social-link--facebook">Facebook</a>
+                    <a href="https://x.com/spmanager20" rel="noopener noreferrer" class="top-bar__social-link top-bar__social-link--x">X</a>
+                    <a href="https://www.instagram.com/sport_manager_escuelas/" rel="noopener noreferrer" class="top-bar__social-link top-bar__social-link--instagram">Instagram</a>
                 </div>
             </div>
         </div>

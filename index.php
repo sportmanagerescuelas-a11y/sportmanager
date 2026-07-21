@@ -24,6 +24,13 @@ if (isset($_GET['action'])) {
             }
             $controller->descargarPdf($id);
             break;
+        case 'comprobante':
+            if (!$id) {
+                http_response_code(400);
+                die('Falta el ID de la factura.');
+            }
+            $controller->verComprobante($id);
+            break;
         case 'listar':
         default:
             $controller->listar();
@@ -215,7 +222,7 @@ switch ($route) {
         break;
     case 'productos':
         if (!isset($_SESSION['rol']) || (int)$_SESSION['rol'] !== 3) {
-            header('Location: dashboard.php');
+            header('Location: panel');
             exit;
         }
 
@@ -240,6 +247,9 @@ switch ($route) {
             case 'editar':
                 $producto = $controller->obtenerPorId($id);
                 $isEdit = true;
+                if ($producto === null) {
+                    http_response_code(404);
+                }
                 require __DIR__ . '/app/views/layout/header.php';
                 require __DIR__ . '/app/views/productos/form.php';
                 require __DIR__ . '/app/views/layout/footer.php';

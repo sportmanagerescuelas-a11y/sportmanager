@@ -11,7 +11,7 @@ class Usuario
         $this->conexion = $conexion;
     }
 
-    public function login(string $email, string $password): array|false
+    public function login(string $email, string $password)
     {
 
         $sql = $this->conexion->prepare("SELECT * FROM usuarios WHERE email = :email");
@@ -34,7 +34,7 @@ class Usuario
         }
     }
 
-    public function registrar(string|int $id_usuario, string $tipo_documento, string|int|null $id_escuela, string $nombres, string $apellidos, string $email, string $password, string $telefono, int $id_rol): bool
+    public function registrar($id_usuario, string $tipo_documento, $id_escuela, string $nombres, string $apellidos, string $email, string $password, string $telefono, int $id_rol): bool
     {
         $this->lastError = '';
 
@@ -52,7 +52,7 @@ class Usuario
             $habilitado = 1;
         }
 
-        $insertUser = function (string|int|null $schoolId) use (
+        $insertUser = function ($schoolId) use (
             $id_usuario,
             $tipo_documento,
             $nombres,
@@ -116,7 +116,7 @@ class Usuario
         return $this->lastError;
     }
 
-    public function escuelaExiste(string|int $idEscuela): bool
+    public function escuelaExiste($idEscuela): bool
     {
         $stmt = $this->conexion->prepare('SELECT 1 FROM escuelas WHERE id_escuela = :id_escuela');
         $stmt->bindParam(':id_escuela', $idEscuela);
@@ -124,7 +124,7 @@ class Usuario
         return (bool)$stmt->fetchColumn();
     }
 
-    public function crearSolicitudPagoAdmin(string|int $idUsuario, string $comprobantePath): bool
+    public function crearSolicitudPagoAdmin($idUsuario, string $comprobantePath): bool
     {
         $sql = $this->conexion->prepare("
             INSERT INTO admin_payment_requests (id_usuario, comprobante_path, estado)

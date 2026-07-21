@@ -57,7 +57,11 @@ $error = (string)($viewData['error'] ?? '');
                     <td>
                         <a href="editar_escuela&id=<?= urlencode($id) ?>" class="btn btn-warning btn-sm">Editar</a>
                         <?php if ($totalUsuarios === 0): ?>
-                            <a href="eliminar_escuela&id=<?= urlencode($id) ?>" class="btn btn-danger btn-sm" onclick="return confirm('Seguro que deseas eliminar esta escuela?');">Eliminar</a>
+                            <form method="POST" action="eliminar_escuela" class="d-inline" onsubmit="return confirm('Seguro que deseas eliminar esta escuela?');">
+                                <input type="hidden" name="id" value="<?= htmlspecialchars($id, ENT_QUOTES, 'UTF-8') ?>">
+                                <?php sm_csrf_input(); ?>
+                                <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                            </form>
                         <?php else: ?>
                             <button type="button" class="btn btn-secondary btn-sm" disabled>Eliminar</button>
                         <?php endif; ?>

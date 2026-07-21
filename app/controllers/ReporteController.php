@@ -13,6 +13,10 @@ class ReporteController {
         $rol = (int)($_SESSION['rol'] ?? 0);
         $schoolId = (int)($_SESSION['usuario']['id_escuela'] ?? 0);
         $scopeSchoolId = ($rol === 3 && $schoolId > 0) ? $schoolId : null;
+        if (!$modelo->tableExists($tablaNombre)) {
+            http_response_code(404);
+            exit('La tabla solicitada no existe.');
+        }
         $datos = $modelo->obtenerDatos($tablaNombre, $scopeSchoolId);
         if (!$datos) exit("La tabla seleccionada no tiene datos.");
 

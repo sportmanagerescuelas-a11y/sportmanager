@@ -7,6 +7,7 @@ $invoiceResult = is_array($viewData['invoiceResult'] ?? null) ? $viewData['invoi
 $refreshUrl = (string)($viewData['refreshUrl'] ?? '');
 $retryUrl = (string)($viewData['retryUrl'] ?? 'iniciar');
 $nextUrl = (string)($viewData['nextUrl'] ?? '');
+$nextLabel = (string)($viewData['nextLabel'] ?? 'Continuar');
 
 $status = is_array($paymentResult['status'] ?? null) ? $paymentResult['status'] : [];
 $statusTone = (string)($status['tone'] ?? 'secondary');
@@ -58,7 +59,7 @@ if ($statusTone === 'success') {
             <?php elseif ($statusKey === 'rejected' || $statusKey === 'error'): ?>
                 <a href="<?= htmlspecialchars($retryUrl, ENT_QUOTES, 'UTF-8') ?>" class="btn btn-outline-primary">Intentar de nuevo</a>
             <?php elseif ($nextUrl !== ''): ?>
-                <a href="<?= htmlspecialchars($nextUrl, ENT_QUOTES, 'UTF-8') ?>" class="btn btn-success">Continuar registro de escuela</a>
+                <a href="<?= htmlspecialchars($nextUrl, ENT_QUOTES, 'UTF-8') ?>" class="btn btn-success"><?= htmlspecialchars($nextLabel, ENT_QUOTES, 'UTF-8') ?></a>
             <?php endif; ?>
         </div>
     </div>

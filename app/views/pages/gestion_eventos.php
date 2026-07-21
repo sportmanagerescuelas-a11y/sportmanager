@@ -6,7 +6,7 @@ $eventos = is_array($viewData['eventos'] ?? null) ? $viewData['eventos'] : [];
 <br>
 <div class="container mt-5">
     <h2>Gestion de Eventos</h2>
-    <a href="crear_evento.php" class="btn btn-success mb-3">+ Crear Evento</a>
+    <a href="crear-evento" class="btn btn-success mb-3">+ Crear Evento</a>
     <table class="table table-bordered">
         <thead>
             <tr><th>Titulo</th><th>Fecha</th><th>Tipo</th><th>Inscritos</th><th>Estado</th><th>Acciones</th></tr>
@@ -27,10 +27,14 @@ $eventos = is_array($viewData['eventos'] ?? null) ? $viewData['eventos'] : [];
                     </td>
                     <td>
                         <a href="ver_inscritos.php?id=<?= urlencode((string)$e->id_evento) ?>" class="btn btn-primary btn-sm">Ver</a>
-                        <a href="editar_evento.php?id=<?= urlencode((string)$e->id_evento) ?>" class="btn btn-warning btn-sm">Editar</a>
-                        <a href="toggle_evento.php?id=<?= urlencode((string)$e->id_evento) ?>" class="btn btn-sm <?= (int)$e->estado === 1 ? 'btn-danger' : 'btn-success' ?>">
-                            <?= (int)$e->estado === 1 ? 'Inhabilitar' : 'Activar' ?>
-                        </a>
+                        <a href="editar-evento&id=<?= urlencode((string)$e->id_evento) ?>" class="btn btn-warning btn-sm">Editar</a>
+                        <form method="POST" action="toggle_evento" class="d-inline">
+                            <input type="hidden" name="id" value="<?= htmlspecialchars((string)$e->id_evento, ENT_QUOTES, 'UTF-8') ?>">
+                            <?php sm_csrf_input(); ?>
+                            <button type="submit" class="btn btn-sm <?= (int)$e->estado === 1 ? 'btn-danger' : 'btn-success' ?>">
+                                <?= (int)$e->estado === 1 ? 'Inhabilitar' : 'Activar' ?>
+                            </button>
+                        </form>
                     </td>
                 </tr>
             <?php endforeach; ?>

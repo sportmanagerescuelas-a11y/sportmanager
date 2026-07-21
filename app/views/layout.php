@@ -6,6 +6,7 @@ $appCssPath = __DIR__ . '/../../assets/css/app.css';
 $styleCssPath = __DIR__ . '/../../assets/css/style.css';
 $appJsPath = __DIR__ . '/../../assets/js/app.js';
 $passwordTogglePath = __DIR__ . '/../../assets/js/password-toggle.js';
+$modalManagerPath = __DIR__ . '/../../assets/js/modal-manager.js';
 $appCssVersion = is_file($appCssPath) ? (string)filemtime($appCssPath) : (string)time();
 $styleCssVersion = is_file($styleCssPath) ? (string)filemtime($styleCssPath) : (string)time();
 $appJsVersion = is_file($appJsPath) ? (string)filemtime($appJsPath) : (string)time();
@@ -22,6 +23,7 @@ $publicAssetPath = static function (string $path) use ($assetBase): string {
     }
     return $assetBase . ltrim($trimmed, '/');
 };
+$modalManagerVersion = is_file($modalManagerPath) ? (string)filemtime($modalManagerPath) : (string)time();
 
 $schoolPrimaryColor = '#212529';
 $schoolSecondaryColor = '#001285';
@@ -51,7 +53,7 @@ if ($currentRole !== 4 && isset($_SESSION['usuario']['id_escuela']) && (int)$_SE
                 }
             }
         }
-    } catch (Throwable) {
+    } catch (Throwable $e) {
     }
 }
 
@@ -107,6 +109,7 @@ $schoolShieldCssImage = $shieldCssPath !== '' ? "url({$shieldCssPath})" : 'none'
     <?php endif; ?>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/modal-manager.js?v=<?= urlencode($modalManagerVersion) ?>"></script>
     <script src="assets/js/password-toggle.js?v=<?= urlencode($passwordToggleVersion) ?>" defer></script>
     <script src="assets/js/app.js?v=<?= urlencode($appJsVersion) ?>" defer></script>
 </body>

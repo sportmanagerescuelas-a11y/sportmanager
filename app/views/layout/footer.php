@@ -3,8 +3,10 @@
 $assetBase = '/sportmanager/';
 $indexControllerPath = __DIR__ . '/../../../assets/js/indexcontroller.js';
 $passwordTogglePath = __DIR__ . '/../../../assets/js/password-toggle.js';
+$modalManagerPath = __DIR__ . '/../../../assets/js/modal-manager.js';
 $indexControllerVersion = is_file($indexControllerPath) ? (string)filemtime($indexControllerPath) : (string)time();
 $passwordToggleVersion = is_file($passwordTogglePath) ? (string)filemtime($passwordTogglePath) : (string)time();
+$modalManagerVersion = is_file($modalManagerPath) ? (string)filemtime($modalManagerPath) : (string)time();
 ?>
 <footer class="site-footer">
     <div class="container site-footer__grid">
@@ -34,7 +36,7 @@ $passwordToggleVersion = is_file($passwordTogglePath) ? (string)filemtime($passw
             <a href="login">Iniciar sesión</a>
             <a href="register">Crear cuenta</a>
             <a href="mailto:sportmanager.escuelas@gmail.com">Escríbenos</a>
-            <a href="https://www.instagram.com/sport_manager_escuelas/" target="_blank" rel="noopener">Instagram</a>
+            <a href="https://www.instagram.com/sport_manager_escuelas/" rel="noopener">Instagram</a>
         </div>
 
         <div class="site-footer__column">
@@ -49,9 +51,9 @@ $passwordToggleVersion = is_file($passwordTogglePath) ? (string)filemtime($passw
         <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
             <span>© 2026 Sport Manager. Todos los derechos reservados.</span>
             <div class="site-footer__social">
-                <a href="https://www.facebook.com/profile.php?id=100083328903404" target="blank_">Facebook</a>
-                <a href="https://x.com/spmanager20" target="blank_">X</a>
-                <a href="https://www.instagram.com/sport_manager_escuelas/" target="blank_">Instagram</a>
+                <a href="https://www.facebook.com/profile.php?id=100083328903404">Facebook</a>
+                <a href="https://x.com/spmanager20">X</a>
+                <a href="https://www.instagram.com/sport_manager_escuelas/">Instagram</a>
             </div>
         </div>
     </div>
@@ -93,6 +95,7 @@ $passwordToggleVersion = is_file($passwordTogglePath) ? (string)filemtime($passw
 </button>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="assets/js/modal-manager.js?v=<?= urlencode($modalManagerVersion) ?>"></script>
 <script src="assets/js/password-toggle.js?v=<?= urlencode($passwordToggleVersion) ?>"></script>
 <script src="assets/js/indexcontroller.js?v=<?= urlencode($indexControllerVersion) ?>"></script>
 <script>

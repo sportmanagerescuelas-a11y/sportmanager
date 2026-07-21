@@ -22,18 +22,34 @@ class PagesController
     {
         $this->guestOnly();
         $schools = [];
+        $schoolPaymentData = [];
         try {
-            $schools = $this->model()->schools();
-        } catch (Throwable) {
+            $model = $this->model();
+            $schools = $model->schools();
+            foreach ($schools as $school) {
+                $schoolId = (int)($school->id_escuela ?? 0);
+                if ($schoolId <= 0) {
+                    continue;
+                }
+                $schoolPaymentData[(string)$schoolId] = [
+                    'id_escuela' => $schoolId,
+                    'nombre' => (string)($school->nombre ?? 'Escuela'),
+                    'disciplina' => (string)($school->disciplina ?? ''),
+                    'valor_inscripcion' => (float)($school->valor_inscripcion ?? 0),
+                    'methods' => $model->paymentMethodsBySchool($schoolId),
+                ];
+            }
+        } catch (Throwable $e) {
             $schools = [];
+            $schoolPaymentData = [];
         }
 
         if (count($schools) === 0) {
-            $this->render('register', ['schools' => $schools]);
+            $this->render('register', ['schools' => $schools, 'schoolPaymentData' => $schoolPaymentData]);
             return;
         }
 
-        $this->render('register', ['schools' => $schools]);
+        $this->render('register', ['schools' => $schools, 'schoolPaymentData' => $schoolPaymentData]);
     }
 
     public function createSchool(): void
@@ -55,12 +71,13 @@ class PagesController
                 try {
                     $payload['escudo_path'] = $this->storeSchoolShield((string)($payload['escudo_path'] ?? ''));
                     $payload['metodos_pago'] = $this->storePaymentMethodQrs(is_array($payload['metodos_pago'] ?? null) ? $payload['metodos_pago'] : []);
-                    $schoolId = $this->model()->createSchool($payload);
+                    $adminCreatorId = $isAdminOnboarding ? (string)$_SESSION['id_usuario'] : null;
+                    $schoolId = $this->model()->createSchool($payload, $adminCreatorId);
                     if ($schoolId !== false) {
                         if ($isAdminOnboarding) {
-                            $this->model()->assignSchoolToUser((int)$_SESSION['id_usuario'], (int)$schoolId);
                             $_SESSION['usuario']['id_escuela'] = (int)$schoolId;
                             $_SESSION['usuario']['estado'] = 'aprobado';
+                            $_SESSION['usuario']['habilitado'] = 1;
                             $this->redirect('dashboard');
                         }
                         $this->redirect('gestion_escuelas&created=1');
@@ -98,7 +115,7 @@ class PagesController
         $error = null;
         $errorDetails = [];
         $schoolData = (array)$school;
-        $schoolData['metodos_pago'] = $this->model()->paymentMethodsBySchool((int)$id, true);
+        $schoolData['metodos_pago'] = $this->model()->paymentMethodsBySchool((int)$id);
         $formData = $this->schoolFormData($schoolData);
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -131,7 +148,9 @@ class PagesController
     public function deleteSchool(): void
     {
         $this->requireSuperAdmin();
-        $id = (string)($_GET['id'] ?? '');
+        $this->requirePostRequest('gestion_escuelas');
+        $this->requireCsrfToken();
+        $id = $this->requestId();
         if ($id === '' || !$this->model()->schoolById($id)) {
             $this->redirect('gestion_escuelas&error=notfound');
         }
@@ -278,7 +297,7 @@ class PagesController
         $this->requireLogin();
         $id = (string)($_GET['id'] ?? '');
         $athlete = $this->model()->athleteById($id);
-        if (!$athlete) {
+        if (!$athlete || !$this->canAccessAthlete($athlete)) {
             $this->redirect('deportistas');
         }
 
@@ -302,10 +321,13 @@ class PagesController
     public function deleteAthlete(): void
     {
         $this->requireLogin();
-        $id = (string)($_GET['id'] ?? '');
+        $this->requirePostRequest('deportistas');
+        $this->requireCsrfToken();
+        $id = $this->requestId();
         $athlete = $this->model()->athleteById($id);
+        $role = (int)($_SESSION['rol'] ?? 0);
         $isOwner = $athlete && (int)$athlete->id_usuario === (int)$_SESSION['id_usuario'];
-        if ($athlete && ((int)$_SESSION['rol'] === 3 || $isOwner)) {
+        if ($athlete && $this->canAccessAthlete($athlete) && ($role === 3 || $role === 4 || $isOwner)) {
             $this->model()->deleteAthlete($id);
         }
         $this->redirect('deportistas');
@@ -322,7 +344,9 @@ class PagesController
     public function events(): void
     {
         $this->requireLogin();
-        $this->render('eventos', ['eventos' => $this->model()->events($this->scopeSchoolId())]);
+        $this->render('eventos', [
+            'eventos' => $this->model()->events($this->scopeSchoolId(), (int)($_SESSION['id_usuario'] ?? 0)),
+        ]);
     }
 
     public function manageEvents(): void
@@ -354,7 +378,7 @@ class PagesController
         $id = (string)($_GET['id'] ?? '');
         $evento = $this->model()->eventById($id, $this->scopeSchoolId());
         if (!$evento) {
-            $this->redirect('gestion_eventos.php');
+            $this->redirect('gestion-eventos');
         }
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $fecha = (string)($_POST['fecha'] ?? '');
@@ -368,7 +392,7 @@ class PagesController
                 return;
             }
             $this->model()->updateEvent($id, $this->eventPayload(), $this->scopeSchoolId());
-            $this->redirect('gestion_eventos.php');
+            $this->redirect('gestion-eventos');
         }
         $this->render('editar_evento', ['evento' => $evento]);
     }
@@ -376,8 +400,10 @@ class PagesController
     public function toggleEvent(): void
     {
         $this->requireAdmin();
-        $this->model()->toggleEvent((string)($_GET['id'] ?? ''), $this->scopeSchoolId());
-        $this->redirect('gestion_eventos.php');
+        $this->requirePostRequest('gestion_eventos');
+        $this->requireCsrfToken();
+        $this->model()->toggleEvent($this->requestId(), $this->scopeSchoolId());
+        $this->redirect('gestion-eventos');
     }
 
     public function eventRegistrations(): void
@@ -477,14 +503,14 @@ class PagesController
     private function requireAdmin(): void
     {
         if (!isset($_SESSION['rol']) || (int)$_SESSION['rol'] !== 3) {
-            $this->redirect('dashboard.php');
+            $this->redirect('panel');
         }
     }
 
     private function requireSuperAdmin(): void
     {
         if (!isset($_SESSION['rol']) || (int)$_SESSION['rol'] !== 4) {
-            $this->redirect('dashboard.php');
+            $this->redirect('panel');
         }
     }
 
@@ -492,7 +518,7 @@ class PagesController
     {
         $rol = (int)($_SESSION['rol'] ?? 0);
         if (!in_array($rol, [3, 4], true)) {
-            $this->redirect('dashboard.php');
+            $this->redirect('panel');
         }
     }
 
@@ -511,7 +537,7 @@ class PagesController
             return;
         }
 
-        $this->redirect('dashboard.php');
+        $this->redirect('panel');
     }
 
     private function isAdminPendingSchoolCreation(): bool
@@ -526,7 +552,7 @@ class PagesController
     private function requireReportAccess(): void
     {
         if (!isset($_SESSION['rol']) || !in_array((int)$_SESSION['rol'], [2, 3], true)) {
-            $this->redirect('dashboard.php');
+            $this->redirect('panel');
         }
     }
 
@@ -556,8 +582,28 @@ class PagesController
     private function guestOnly(): void
     {
         if (isset($_SESSION['usuario'])) {
-            $this->redirect('dashboard.php');
+            $this->redirect('panel');
         }
+    }
+
+    private function requirePostRequest(string $fallbackRoute): void
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect($fallbackRoute);
+        }
+    }
+
+    private function requireCsrfToken(): void
+    {
+        if (!sm_csrf_verify((string)($_POST['_csrf'] ?? ''))) {
+            http_response_code(419);
+            exit('Token CSRF invalido.');
+        }
+    }
+
+    private function requestId(): string
+    {
+        return trim((string)($_POST['id'] ?? $_GET['id'] ?? ''));
     }
 
     private function redirect(string $url): void
@@ -618,6 +664,22 @@ class PagesController
                 ],
             ],
         ];
+    }
+
+    private function canAccessAthlete(object $athlete): bool
+    {
+        $role = (int)($_SESSION['rol'] ?? 0);
+        if ($role === 4) {
+            return true;
+        }
+        if ($role === 1) {
+            return (int)($athlete->id_usuario ?? 0) === (int)($_SESSION['id_usuario'] ?? 0);
+        }
+        if (in_array($role, [2, 3], true)) {
+            $schoolId = (int)($_SESSION['usuario']['id_escuela'] ?? 0);
+            return $schoolId > 0 && (int)($athlete->owner_school_id ?? 0) === $schoolId;
+        }
+        return false;
     }
 
     private function schoolPayload(): array
@@ -707,6 +769,7 @@ class PagesController
         if (count($paymentMethods) === 0) {
             $errors[] = 'Debes registrar al menos un metodo de pago para la escuela.';
         }
+        $normalizedMethodNames = [];
         foreach ($paymentMethods as $method) {
             $name = trim((string)($method['nombre_entidad'] ?? ''));
             $type = trim((string)($method['tipo'] ?? ''));
@@ -721,6 +784,12 @@ class PagesController
                 $errors[] = 'El tipo de cada metodo de pago debe tener maximo 50 caracteres.';
                 break;
             }
+            $normalizedName = function_exists('mb_strtolower') ? mb_strtolower($name, 'UTF-8') : strtolower($name);
+            if (isset($normalizedMethodNames[$normalizedName])) {
+                $errors[] = 'No puedes registrar dos metodos de pago con el mismo nombre.';
+                break;
+            }
+            $normalizedMethodNames[$normalizedName] = true;
         }
 
         return $errors;

@@ -4,7 +4,7 @@ class Deportista
     /**
      * @param array{search?:string,categoria?:string,jornada?:string} $filters
      */
-    public static function paginate(int $page, int $perPage, array $filters = []): array
+    public static function paginate(int $page, int $perPage, array $filters = [], ?int $schoolId = null): array
     {
         $page = max(1, $page);
         $perPage = max(1, min(200, $perPage));
@@ -14,6 +14,15 @@ class Deportista
 
         $where = [];
         $params = [];
+
+        if ($schoolId !== null && $schoolId > 0) {
+            $where[] = 'EXISTS (
+                SELECT 1 FROM usuarios owner
+                WHERE owner.id_usuario = d.id_usuario
+                  AND owner.id_escuela = :school_id
+            )';
+            $params[':school_id'] = $schoolId;
+        }
 
         $search = trim((string)($filters['search'] ?? ''));
         if ($search !== '') {
@@ -89,5 +98,25 @@ class Deportista
     public static function jornadas(): array
     {
         return Database::pdo()->query("SELECT DISTINCT jornada FROM deportistas WHERE jornada <> '' ORDER BY jornada ASC")->fetchAll(PDO::FETCH_COLUMN);
+    }
+
+    /** @param array<int,int> $ids @return array<int,int> */
+    public static function idsForSchool(array $ids, int $schoolId): array
+    {
+        $ids = array_values(array_unique(array_filter(array_map('intval', $ids), static fn(int $id): bool => $id > 0)));
+        if ($ids === [] || $schoolId <= 0) {
+            return [];
+        }
+
+        $placeholders = implode(',', array_fill(0, count($ids), '?'));
+        $stmt = Database::pdo()->prepare(
+            "SELECT d.id_deportista
+             FROM deportistas d
+             INNER JOIN usuarios u ON u.id_usuario = d.id_usuario
+             WHERE d.id_deportista IN ({$placeholders})
+               AND u.id_escuela = ?"
+        );
+        $stmt->execute([...$ids, $schoolId]);
+        return array_map('intval', $stmt->fetchAll(PDO::FETCH_COLUMN));
     }
 }

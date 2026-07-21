@@ -130,6 +130,7 @@ final class PagoController
         $idUsuarioSesion = (int)($_SESSION['id_usuario'] ?? ($_SESSION['usuario']['id_usuario'] ?? ($_SESSION['registro_temporal']['id_usuario'] ?? 0)));
         $idEscuelaSesion = (int)($_SESSION['usuario']['id_escuela'] ?? 1);
         $idRolTemporal = (int)($_SESSION['registro_temporal']['id_rol'] ?? ($_SESSION['rol'] ?? 0));
+        $flujoPago = trim((string)($_SESSION['registro_temporal']['flujo'] ?? ''));
         $idDeportista = isset($_POST['id_deportista']) ? (int)$_POST['id_deportista'] : 0;
 
         $paymentFlow = new PaymentTransactionService();
@@ -143,6 +144,7 @@ final class PagoController
             'metodo_pago' => $metodoPago,
             'cantidad' => $cantidad,
             'id_rol' => $idRolTemporal,
+            'flujo' => $flujoPago,
         ];
         $encodedContext = $paymentFlow->encodeContext($paymentContext);
         $paymentFlow->storeContext($referenceCode, $paymentContext);

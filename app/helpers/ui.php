@@ -78,11 +78,52 @@ if (!function_exists('sm_render_modal_message')) {
             document.addEventListener('DOMContentLoaded', function () {
                 const modalElement = document.getElementById('<?= $safeId ?>');
                 if (modalElement && window.bootstrap && bootstrap.Modal) {
-                    const modal = new bootstrap.Modal(modalElement);
+                    const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
                     modal.show();
                 }
             });
             </script>
         <?php endif;
+    }
+}
+
+if (!function_exists('sm_csrf_token')) {
+    function sm_csrf_token(): string
+    {
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            return '';
+        }
+
+        if (!isset($_SESSION['_csrf_token']) || !is_string($_SESSION['_csrf_token']) || strlen($_SESSION['_csrf_token']) < 32) {
+            $_SESSION['_csrf_token'] = bin2hex(random_bytes(32));
+        }
+
+        return $_SESSION['_csrf_token'];
+    }
+}
+
+if (!function_exists('sm_csrf_input')) {
+    function sm_csrf_input(): void
+    {
+        $token = sm_csrf_token();
+        if ($token === '') {
+            return;
+        }
+
+        ?>
+        <input type="hidden" name="_csrf" value="<?= htmlspecialchars($token, ENT_QUOTES, 'UTF-8') ?>">
+        <?php
+    }
+}
+
+if (!function_exists('sm_csrf_verify')) {
+    function sm_csrf_verify(?string $submittedToken): bool
+    {
+        $token = sm_csrf_token();
+        if ($token === '' || !is_string($submittedToken) || $submittedToken === '') {
+            return false;
+        }
+
+        return hash_equals($token, $submittedToken);
     }
 }

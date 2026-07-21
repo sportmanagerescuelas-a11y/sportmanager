@@ -260,7 +260,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     const successModalEl = document.getElementById('successModal');
     if (successModalEl) {
-        const successModal = new bootstrap.Modal(successModalEl);
+        const successModal = bootstrap.Modal.getOrCreateInstance(successModalEl);
         successModal.show();
     }
 });

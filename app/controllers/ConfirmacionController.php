@@ -81,41 +81,21 @@ final class ConfirmacionController
         }
 
         $usuario = $_SESSION['registro_temporal'];
-        $usuario['estado'] = 'crear_escuela';
-        $usuario['habilitado'] = 1;
+        $email = trim((string)($usuario['email'] ?? ''));
+        if ($email !== '' && User::existsByEmail($email)) {
+            return false;
+        }
+
+        // Compatibilidad con pagos iniciados antes de que el registro comenzara
+        // a persistir al administrador antes de enviarlo a la pasarela.
+        $usuario['estado'] = 'pago_pendiente';
+        $usuario['habilitado'] = 0;
 
         if (User::create($usuario)) {
-            unset($_SESSION['registro_temporal']);
-            if ((int)($usuario['id_rol'] ?? 0) === 3) {
-                $this->initializeAdminSession($usuario);
-            }
             return true;
         }
 
         return false;
-    }
-
-    /**
-     * @param array<string,mixed> $usuario
-     */
-    private function initializeAdminSession(array $usuario): void
-    {
-        $_SESSION['id_usuario'] = (int)($usuario['id_usuario'] ?? 0);
-        $_SESSION['usuario'] = [
-            'id_usuario' => (int)($_SESSION['id_usuario'] ?? 0),
-            'tipo_documento' => (string)($usuario['tipo_documento'] ?? 'CC'),
-            'id_escuela' => null,
-            'nombres' => (string)($usuario['nombres'] ?? ($usuario['nombre'] ?? '')),
-            'apellidos' => (string)($usuario['apellidos'] ?? ''),
-            'email' => (string)($usuario['email'] ?? ''),
-            'telefono' => (string)($usuario['telefono'] ?? ''),
-            'id_rol' => 3,
-            'estado' => 'crear_escuela',
-            'habilitado' => 1,
-            'registros_disponibles' => isset($usuario['cantidad']) ? (int)$usuario['cantidad'] : 1,
-        ];
-        $_SESSION['rol'] = 3;
-        $_SESSION['nombre_rol'] = 'Administrador';
     }
 
     /**
@@ -185,18 +165,30 @@ final class ConfirmacionController
         }
 
         $nextUrl = '';
+        $nextLabel = '';
         if (($result['status']['key'] ?? '') === 'approved') {
+            $legacyUserCreated = $this->maybeCreateUserFromLegacyFlow($result);
             $invoiceResult = $paymentFlow->persistInvoiceIfApproved($result, $context);
-            if ($this->maybeCreateUserFromLegacyFlow($result) && isset($_SESSION['rol']) && (int)$_SESSION['rol'] === 3) {
-                $nextUrl = 'crear_escuela';
-            }
 
-            if ($nextUrl === '') {
-                $idRolContext = isset($context['id_rol']) ? (int)$context['id_rol'] : 0;
-                $loggedRol = isset($_SESSION['rol']) ? (int)$_SESSION['rol'] : 0;
-                if ($idRolContext === 3 || $loggedRol === 3 || isset($_SESSION['registro_temporal'])) {
-                    $nextUrl = 'crear_escuela';
-                }
+            $idRolContext = isset($context['id_rol']) ? (int)$context['id_rol'] : 0;
+            $temporalRole = isset($_SESSION['registro_temporal']['id_rol'])
+                ? (int)$_SESSION['registro_temporal']['id_rol']
+                : 0;
+            $contextFlow = trim((string)($context['flujo'] ?? ''));
+            $temporalFlow = trim((string)($_SESSION['registro_temporal']['flujo'] ?? ''));
+            $hasLoggedUser = isset($_SESSION['id_usuario']) && (int)$_SESSION['id_usuario'] > 0;
+            $isLegacyAdminRegistration = !$hasLoggedUser && ($idRolContext === 3 || $temporalRole === 3);
+            $isAdminRegistration = $contextFlow === 'registro_admin'
+                || $temporalFlow === 'registro_admin'
+                || $legacyUserCreated
+                || $isLegacyAdminRegistration;
+
+            // La cuenta sigue bloqueada en pago_pendiente. Solo el superadmin
+            // puede validar la factura y aprobarla desde su panel.
+            if ($isAdminRegistration && !empty($invoiceResult['saved'])) {
+                unset($_SESSION['registro_temporal']);
+                $nextUrl = 'register?success=payment_pending';
+                $nextLabel = 'Finalizar registro';
             }
         }
 
@@ -235,6 +227,7 @@ final class ConfirmacionController
             'refreshUrl' => $refreshUrl,
             'retryUrl' => $retryUrl,
             'nextUrl' => $nextUrl,
+            'nextLabel' => $nextLabel,
         ]);
     }
 }

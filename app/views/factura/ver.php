@@ -9,9 +9,12 @@ $factura = is_array($viewData['factura'] ?? null) ? $viewData['factura'] : [];
             Volver al Listado
         </a>
         
-        <a href="index.php?action=pdf&id=<?= urlencode((string)($factura['id_factura'] ?? '')) ?>" target="_blank" class="btn btn-danger">
-            Descargar PDF
-        </a>
+        <div class="d-flex gap-2 flex-wrap justify-content-end">
+            <?php if (!empty($factura['comprobante_path'])): ?>
+                <a href="index.php?action=comprobante&id=<?= urlencode((string)($factura['id_factura'] ?? '')) ?>" class="btn btn-outline-primary">Ver comprobante</a>
+            <?php endif; ?>
+            <a href="index.php?action=pdf&id=<?= urlencode((string)($factura['id_factura'] ?? '')) ?>" class="btn btn-danger">Descargar PDF</a>
+        </div>
     </div>
 
     <div class="card shadow-sm">
@@ -38,13 +41,15 @@ $factura = is_array($viewData['factura'] ?? null) ? $viewData['factura'] : [];
                     <thead class="table-dark">
                         <tr>
                             <th>Concepto / Evento</th>
+                            <th class="text-center">Cantidad</th>
                             <th class="text-center">Tipo de Pago</th>
                             <th class="text-end">Monto</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td>Inscripción: <?= htmlspecialchars((string)($factura['nombre_evento'] ?? 'Sin Evento'), ENT_QUOTES, 'UTF-8') ?></td>
+                            <td>Concepto: <?= htmlspecialchars((string)($factura['nombre_evento'] ?? $factura['descripcion'] ?? 'Sin concepto'), ENT_QUOTES, 'UTF-8') ?></td>
+                            <td class="text-center"><?= max(1, (int)($factura['cantidad'] ?? 1)) ?></td>
                             <td class="text-center">
                                 <span class="badge bg-success">
                                     <?= htmlspecialchars(strtoupper((string)($factura['metodo_pago_texto'] ?? 'N/A')), ENT_QUOTES, 'UTF-8') ?>

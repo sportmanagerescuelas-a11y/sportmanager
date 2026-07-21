@@ -33,6 +33,10 @@ function normalize_image_src(string $value): string
 }
 ?>
 <div class="container my-5 pt-5">
+    <?php if (!empty($_SESSION['flash_product_error'])): ?>
+        <div class="alert alert-danger"><?= htmlspecialchars((string)$_SESSION['flash_product_error'], ENT_QUOTES, 'UTF-8') ?></div>
+        <?php unset($_SESSION['flash_product_error']); ?>
+    <?php endif; ?>
         <div class="mb-3">
             <a href="dashboard" class="btn btn-secondary">Volver al panel</a>
         </div>
@@ -85,9 +89,11 @@ function normalize_image_src(string $value): string
                                     <td class="text-center">
                                         <div class="btn-group" role="group">
                                             <a href="productos&product_action=editar&id=<?= urlencode((string)($p['id_producto'] ?? '')) ?>" class="btn btn-outline-primary btn-sm">Editar</a>
-                                            <a href="productos&product_action=eliminar&id=<?= urlencode((string)($p['id_producto'] ?? '')) ?>"
-                                               class="btn btn-outline-danger btn-sm"
-                                               onclick="return confirm('Seguro que quieres deshabilitarlo?')">Deshabilitar</a>
+                                            <form method="POST" action="productos&product_action=eliminar" class="d-inline" onsubmit="return confirm('Seguro que quieres deshabilitarlo?')">
+                                                <input type="hidden" name="id" value="<?= htmlspecialchars((string)($p['id_producto'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                                                <?php sm_csrf_input(); ?>
+                                                <button type="submit" class="btn btn-outline-danger btn-sm">Deshabilitar</button>
+                                            </form>
                                         </div>
                                     </td>
                                 </tr>

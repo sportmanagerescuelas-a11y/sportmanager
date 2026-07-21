@@ -25,5 +25,5 @@ $tablas = is_array($viewData['tablas'] ?? null) ? $viewData['tablas'] : [];
             <?php endforeach; ?>
         </tbody>
     </table>
-    <a href="dashboard.php" class="btn btn-primary mt-3">Volver</a>
+    <a href="panel" class="btn btn-primary mt-3">Volver</a>
 </div>

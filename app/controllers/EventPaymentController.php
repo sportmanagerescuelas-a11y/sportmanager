@@ -26,7 +26,7 @@ final class EventPaymentController
             return;
         }
 
-        $this->ensurePaymentMethodActiveColumn($conexion);
+        $this->ensurePaymentStructure($conexion);
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $this->submit($conexion);
@@ -40,7 +40,10 @@ final class EventPaymentController
     {
         $idEvento = isset($_GET['id_evento']) ? (int)$_GET['id_evento'] : 0;
         $data = $this->buildPaymentData($conexion, $idEvento);
-        $this->renderWithLayout('event_payment', $data + ['error' => $error]);
+        $this->renderWithLayout('event_payment', $data + [
+            'error' => $error,
+            'paymentToken' => $this->paymentToken($idEvento),
+        ]);
     }
 
     private function submit(PDO $conexion): void
@@ -49,39 +52,40 @@ final class EventPaymentController
         $data = $this->buildPaymentData($conexion, $idEvento);
 
         if (empty($data['event']) || empty($data['user']) || empty($data['school'])) {
-            $this->renderWithLayout('event_payment', $data + ['error' => 'No se pudo validar el evento para tu escuela.']);
+            $this->renderPaymentError($data, 'No se pudo validar el evento para tu escuela.');
+            return;
+        }
+
+        if (!$this->validPaymentToken($idEvento, (string)($_POST['payment_token'] ?? ''))) {
+            $this->renderPaymentError($data, 'La sesión del formulario venció. Recarga la página e intenta nuevamente.');
             return;
         }
 
         $idMetodo = isset($_POST['id_metodo_pago']) ? (int)$_POST['id_metodo_pago'] : 0;
         $method = $this->paymentMethodForSchool($conexion, $idMetodo, (int)$data['school']['id_escuela']);
         if (!$method) {
-            $this->renderWithLayout('event_payment', $data + ['error' => 'Selecciona un metodo de pago valido para tu escuela.']);
+            $this->renderPaymentError($data, 'Selecciona un método de pago válido para tu escuela.');
             return;
         }
 
         $receiptError = $this->validateReceiptUpload();
         if ($receiptError !== '') {
-            $this->renderWithLayout('event_payment', $data + ['error' => $receiptError]);
+            $this->renderPaymentError($data, $receiptError);
             return;
         }
 
         $total = (float)$data['total'];
         if ($total <= 0) {
-            $this->renderWithLayout('event_payment', $data + ['error' => 'Este evento no tiene un valor pendiente por pagar.']);
+            $message = (int)($data['registeredQuantity'] ?? 0) <= 0
+                ? 'Primero debes inscribir al menos un deportista en este evento.'
+                : 'No tienes valores pendientes por pagar en este evento.';
+            $this->renderPaymentError($data, $message);
             return;
         }
 
+        $receiptPath = null;
         try {
-            $this->sendReceiptEmail(
-                $conexion,
-                $data['user'],
-                $data['school'],
-                $data['event'],
-                $method,
-                (int)$data['quantity'],
-                $total
-            );
+            $receiptPath = $this->storeReceiptUpload();
 
             $facturaId = $this->insertInvoice(
                 $conexion,
@@ -90,15 +94,45 @@ final class EventPaymentController
                 isset($data['id_deportista']) ? (int)$data['id_deportista'] : null,
                 (int)$method['id_metodo'],
                 $total,
-                (string)$data['event']['titulo']
+                (string)$data['event']['titulo'],
+                (int)$data['quantity'],
+                $receiptPath
             );
 
-            $_SESSION['flash_payment_success'] = 'Comprobante enviado y factura #' . $facturaId . ' registrada correctamente.';
+            unset($_SESSION['event_payment_tokens'][$idEvento]);
+            $notificationSent = true;
+            try {
+                $this->sendReceiptEmail(
+                    $conexion,
+                    $data['user'],
+                    $data['school'],
+                    $data['event'],
+                    $method,
+                    (int)$data['quantity'],
+                    $total,
+                    $this->absoluteReceiptPath($receiptPath),
+                    (string)($_FILES['comprobante']['name'] ?? 'comprobante')
+                );
+            } catch (Throwable $notificationError) {
+                $notificationSent = false;
+                error_log('Factura registrada, pero no se pudo enviar la notificación: ' . $notificationError->getMessage());
+            }
+
+            $_SESSION['flash_payment_success'] = 'Comprobante recibido y factura #' . $facturaId . ' registrada correctamente.';
+            if (!$notificationSent) {
+                $_SESSION['flash_payment_notice'] = 'La factura quedó guardada, pero no fue posible enviar la notificación por correo.';
+            }
             header('Location: pagos');
             exit();
         } catch (Throwable $e) {
+            if (is_string($receiptPath) && $receiptPath !== '') {
+                $absolutePath = $this->absoluteReceiptPath($receiptPath);
+                if (is_file($absolutePath)) {
+                    @unlink($absolutePath);
+                }
+            }
             error_log('Error en pago manual de evento: ' . $e->getMessage());
-            $this->renderWithLayout('event_payment', $data + ['error' => 'No se pudo enviar el comprobante. La factura no fue registrada.']);
+            $this->renderPaymentError($data, 'No se pudo guardar el comprobante ni registrar la factura. Intenta nuevamente.');
         }
     }
 
@@ -114,11 +148,15 @@ final class EventPaymentController
             : null;
         $methods = $school ? $this->paymentMethodsForSchool($conexion, (int)$school['id_escuela']) : [];
         $registration = $event && $user ? $this->registrationSummary($conexion, (int)$event['id_evento'], (int)$user['id_usuario']) : [
-            'quantity' => 1,
+            'quantity' => 0,
             'id_deportista' => null,
         ];
 
-        $quantity = max(1, (int)$registration['quantity']);
+        $registeredQuantity = max(0, (int)$registration['quantity']);
+        $paidQuantity = ($event && $user)
+            ? $this->paidQuantity($conexion, (int)$event['id_evento'], (int)$user['id_usuario'])
+            : 0;
+        $quantity = max(0, $registeredQuantity - $paidQuantity);
         $unitCost = $event ? (float)($event['costo'] ?? 0) : 0.0;
 
         return [
@@ -127,7 +165,10 @@ final class EventPaymentController
             'event' => $event,
             'methods' => $methods,
             'quantity' => $quantity,
+            'registeredQuantity' => $registeredQuantity,
+            'paidQuantity' => $paidQuantity,
             'id_deportista' => $registration['id_deportista'],
+            'unitCost' => $unitCost,
             'total' => $unitCost * $quantity,
         ];
     }
@@ -232,9 +273,21 @@ final class EventPaymentController
         $quantity = (int)($row['quantity'] ?? 0);
 
         return [
-            'quantity' => max(1, $quantity),
+            'quantity' => $quantity,
             'id_deportista' => $quantity === 1 ? (int)($row['first_athlete'] ?? 0) : null,
         ];
+    }
+
+    private function paidQuantity(PDO $conexion, int $eventId, int $userId): int
+    {
+        $stmt = $conexion->prepare(
+            'SELECT COALESCE(SUM(cantidad), 0) FROM facturas WHERE id_evento = :id_evento AND id = :id_usuario'
+        );
+        $stmt->execute([
+            ':id_evento' => $eventId,
+            ':id_usuario' => $userId,
+        ]);
+        return max(0, (int)$stmt->fetchColumn());
     }
 
     private function validateReceiptUpload(): string
@@ -252,9 +305,20 @@ final class EventPaymentController
             return 'El comprobante no puede superar 5 MB.';
         }
 
+        if ((int)($file['size'] ?? 0) <= 0 || !is_uploaded_file((string)$file['tmp_name'])) {
+            return 'El archivo del comprobante no es válido.';
+        }
+
         $extension = strtolower(pathinfo((string)($file['name'] ?? ''), PATHINFO_EXTENSION));
-        $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'pdf'];
-        if (!in_array($extension, $allowedExtensions, true)) {
+        $allowedMimeTypes = [
+            'jpg' => ['image/jpeg'],
+            'jpeg' => ['image/jpeg'],
+            'png' => ['image/png'],
+            'webp' => ['image/webp'],
+            'pdf' => ['application/pdf'],
+        ];
+        $mimeType = (new \finfo(FILEINFO_MIME_TYPE))->file((string)$file['tmp_name']);
+        if (!isset($allowedMimeTypes[$extension]) || !is_string($mimeType) || !in_array($mimeType, $allowedMimeTypes[$extension], true)) {
             return 'El comprobante debe ser imagen JPG, PNG, WEBP o PDF.';
         }
 
@@ -267,7 +331,7 @@ final class EventPaymentController
      * @param array<string,mixed> $event
      * @param array<string,mixed> $method
      */
-    private function sendReceiptEmail(PDO $conexion, array $user, array $school, array $event, array $method, int $quantity, float $total): void
+    private function sendReceiptEmail(PDO $conexion, array $user, array $school, array $event, array $method, int $quantity, float $total, string $receiptPath, string $originalName): void
     {
         $recipients = $this->schoolAdminRecipients($conexion, (int)$school['id_escuela'], (string)($school['correo'] ?? ''));
         if ($recipients === []) {
@@ -282,14 +346,23 @@ final class EventPaymentController
 
         $mail = new PHPMailer(true);
         $mail->CharSet = 'UTF-8';
-        $mail->isSMTP();
-        $mail->Host = 'smtp.gmail.com';
-        $mail->SMTPAuth = true;
-        $mail->Username = $smtp['email'];
-        $mail->Password = $smtp['password'];
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port = 587;
-        $mail->setFrom($smtp['email'], $smtp['name']);
+        $mail->Timeout = 8;
+        $mail->setFrom($smtp['email'] !== '' ? $smtp['email'] : 'no-reply@sportmanager.local', $smtp['name'] !== '' ? $smtp['name'] : 'Sport Manager');
+        $logoPath = APP_BASE_PATH . '/assets/img/balonfutbol.png';
+        if (is_file($logoPath)) {
+            $mail->addEmbeddedImage($logoPath, 'sportmanager-logo', 'balonfutbol.png');
+        }
+        if ($smtp['email'] !== '' && $smtp['password'] !== '') {
+            $mail->isSMTP();
+            $mail->Host = $smtp['host'] !== '' ? $smtp['host'] : 'smtp.gmail.com';
+            $mail->SMTPAuth = true;
+            $mail->Username = $smtp['email'];
+            $mail->Password = $smtp['password'];
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port = (int)($smtp['port'] ?? 587);
+        } else {
+            $mail->isMail();
+        }
 
         $replyTo = (string)($user['email'] ?? '');
         if (filter_var($replyTo, FILTER_VALIDATE_EMAIL)) {
@@ -304,11 +377,10 @@ final class EventPaymentController
         $methodName = (string)($method['nombre_entidad'] ?? 'Metodo de pago');
         $mail->isHTML(true);
         $mail->Subject = 'Comprobante de pago - ' . $eventTitle;
-        $mail->Body = $this->receiptHtmlBody($userName, $school, $eventTitle, $methodName, $quantity, $total);
-        $mail->AltBody = $this->receiptTextBody($userName, $school, $eventTitle, $methodName, $quantity, $total);
+        $mail->Body = $this->receiptHtmlBodyV2($userName, $school, $eventTitle, $methodName, $quantity, $total);
+        $mail->AltBody = $this->receiptTextBodyV2($userName, $school, $eventTitle, $methodName, $quantity, $total);
 
-        $file = $_FILES['comprobante'];
-        $mail->addAttachment((string)$file['tmp_name'], $this->safeAttachmentName((string)($file['name'] ?? 'comprobante')));
+        $mail->addAttachment($receiptPath, $this->safeAttachmentName($originalName));
         $mail->send();
     }
 
@@ -361,18 +433,27 @@ final class EventPaymentController
     {
         $schoolEmail = trim((string)($school['correo'] ?? ''));
         $schoolPassword = trim((string)($school['pass_app'] ?? ''));
+        $envHost = trim((string)(getenv('MAIL_HOST') ?: ''));
+        $envEmail = trim((string)(getenv('MAIL_USERNAME') ?: (getenv('MAIL_FROM_ADDRESS') ?: '')));
+        $envPassword = trim((string)(getenv('MAIL_PASSWORD') ?: ''));
+        $envName = trim((string)(getenv('MAIL_FROM_NAME') ?: 'Sport Manager'));
+        $envPort = (int)(getenv('MAIL_PORT') ?: 587);
         if (filter_var($schoolEmail, FILTER_VALIDATE_EMAIL) && $schoolPassword !== '') {
             return [
+                'host' => $envHost !== '' ? $envHost : 'smtp.gmail.com',
                 'email' => $schoolEmail,
                 'password' => $schoolPassword,
-                'name' => 'Sport Manager',
+                'name' => $envName !== '' ? $envName : 'Sport Manager',
+                'port' => $envPort,
             ];
         }
 
         return [
-            'email' => 'termostatosolar2022@gmail.com',
-            'password' => 'ctgrayjsgmradzeg',
-            'name' => 'Sport Manager',
+            'host' => $envHost,
+            'email' => $envEmail,
+            'password' => $envPassword,
+            'name' => $envName !== '' ? $envName : 'Sport Manager',
+            'port' => $envPort,
         ];
     }
 
@@ -402,6 +483,84 @@ final class EventPaymentController
     /**
      * @param array<string,mixed> $school
      */
+    private function receiptHtmlBodyV2(string $userName, array $school, string $eventTitle, string $methodName, int $quantity, float $total): string
+    {
+        $schoolName = htmlspecialchars((string)($school['nombre'] ?? 'Escuela'), ENT_QUOTES, 'UTF-8');
+        $safeUser = htmlspecialchars($userName, ENT_QUOTES, 'UTF-8');
+        $safeEvent = htmlspecialchars($eventTitle, ENT_QUOTES, 'UTF-8');
+        $safeMethod = htmlspecialchars($methodName, ENT_QUOTES, 'UTF-8');
+        $safeTotal = '$' . number_format($total, 0, ',', '.');
+
+        return <<<HTML
+<!doctype html>
+<html lang="es">
+<body style="margin:0;padding:0;background:#eef4fa;font-family:Arial,Helvetica,sans-serif;color:#102a43;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:linear-gradient(180deg,#0f2340 0%,#17334e 42%,#eef4fa 42.1%,#eef4fa 100%);padding:32px 16px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:680px;background:#ffffff;border-radius:22px;overflow:hidden;box-shadow:0 18px 40px rgba(8,18,31,.16);">
+          <tr>
+            <td style="background:linear-gradient(135deg,#07111f 0%,#16314c 55%,#2f7fbd 100%);padding:28px 28px 22px;text-align:center;">
+              <img src="cid:sportmanager-logo" alt="Sport Manager" width="72" height="72" style="display:block;margin:0 auto 14px;border-radius:18px;background:#fff;padding:10px;object-fit:contain;">
+              <div style="font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.78);font-weight:700;">Sport Manager</div>
+              <div style="margin-top:6px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.7);">Gestión deportiva</div>
+              <h1 style="margin:10px 0 0;font-size:28px;line-height:1.1;color:#fff;">Comprobante de pago recibido</h1>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:30px 30px 14px;text-align:center;">
+              <p style="margin:0 0 18px;font-size:16px;line-height:1.7;color:#334155;">
+                Hemos recibido y registrado el comprobante asociado a tu pago.
+              </p>
+              <div style="border:1px solid #e2e8f0;border-radius:16px;padding:18px 18px 8px;background:#f8fbff;text-align:left;">
+                <p style="margin:0 0 10px;"><strong>Escuela:</strong> {$schoolName}</p>
+                <p style="margin:0 0 10px;"><strong>Usuario:</strong> {$safeUser}</p>
+                <p style="margin:0 0 10px;"><strong>Evento:</strong> {$safeEvent}</p>
+                <p style="margin:0 0 10px;"><strong>Método:</strong> {$safeMethod}</p>
+                <p style="margin:0 0 10px;"><strong>Cantidad:</strong> {$quantity}</p>
+                <p style="margin:0;"><strong>Total:</strong> {$safeTotal}</p>
+              </div>
+              <p style="margin:18px 0 0;font-size:14px;line-height:1.6;color:#64748b;">
+                El comprobante fue adjuntado para revisión administrativa.
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:0 30px 28px;text-align:center;">
+              <div style="height:1px;background:#e2e8f0;margin:8px 0 18px;"></div>
+              <p style="margin:0;font-size:12px;line-height:1.6;color:#94a3b8;">
+                Sport Manager · Gestión deportiva
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+HTML;
+    }
+
+    /**
+     * @param array<string,mixed> $school
+     */
+    private function receiptTextBodyV2(string $userName, array $school, string $eventTitle, string $methodName, int $quantity, float $total): string
+    {
+        return "Sport Manager - Gestión deportiva\n"
+            . "Comprobante de pago recibido\n"
+            . "Escuela: " . (string)($school['nombre'] ?? 'Escuela') . "\n"
+            . "Usuario: " . $userName . "\n"
+            . "Evento: " . $eventTitle . "\n"
+            . "Método: " . $methodName . "\n"
+            . "Cantidad: " . $quantity . "\n"
+            . "Total: $" . number_format($total, 0, ',', '.') . "\n"
+            . "El comprobante fue adjuntado para revisión administrativa.\n";
+    }
+
+    /**
+     * @param array<string,mixed> $school
+     */
     private function receiptTextBody(string $userName, array $school, string $eventTitle, string $methodName, int $quantity, float $total): string
     {
         return "Comprobante de pago recibido\n"
@@ -419,7 +578,7 @@ final class EventPaymentController
         return $clean !== '' ? $clean : 'comprobante';
     }
 
-    private function insertInvoice(PDO $conexion, int $userId, int $eventId, ?int $athleteId, int $methodId, float $total, string $eventTitle): int
+    private function insertInvoice(PDO $conexion, int $userId, int $eventId, ?int $athleteId, int $methodId, float $total, string $eventTitle, int $quantity, string $receiptPath): int
     {
         $reference = $this->manualReference($conexion, $userId, $eventId);
 
@@ -428,8 +587,8 @@ final class EventPaymentController
             $nextFacturaId = (int)$conexion->query('SELECT COALESCE(MAX(id_factura), 0) + 1 FROM facturas')->fetchColumn();
             $description = substr('Pago evento: ' . $eventTitle, 0, 100);
             $insert = $conexion->prepare(
-                'INSERT INTO facturas (id_factura, id, numero_factura, fecha_emision, tipo_pago, id_deportista, monto, descripcion, id_evento)
-                 VALUES (:id_factura, :id_usuario, :numero_factura, :fecha_emision, :tipo_pago, :id_deportista, :monto, :descripcion, :id_evento)'
+                'INSERT INTO facturas (id_factura, id, numero_factura, fecha_emision, tipo_pago, id_deportista, monto, descripcion, id_evento, cantidad, comprobante_path)
+                 VALUES (:id_factura, :id_usuario, :numero_factura, :fecha_emision, :tipo_pago, :id_deportista, :monto, :descripcion, :id_evento, :cantidad, :comprobante_path)'
             );
             $insert->bindValue(':id_factura', $nextFacturaId, PDO::PARAM_INT);
             $insert->bindValue(':id_usuario', $userId, PDO::PARAM_INT);
@@ -441,6 +600,8 @@ final class EventPaymentController
             $insert->bindValue(':monto', $total);
             $insert->bindValue(':descripcion', $description, PDO::PARAM_STR);
             $insert->bindValue(':id_evento', $eventId, PDO::PARAM_INT);
+            $insert->bindValue(':cantidad', max(1, $quantity), PDO::PARAM_INT);
+            $insert->bindValue(':comprobante_path', $receiptPath, PDO::PARAM_STR);
             $insert->execute();
             $conexion->commit();
             return $nextFacturaId;
@@ -463,7 +624,7 @@ final class EventPaymentController
         return $reference;
     }
 
-    private function ensurePaymentMethodActiveColumn(PDO $conexion): void
+    private function ensurePaymentStructure(PDO $conexion): void
     {
         try {
             $conexion->exec("
@@ -484,9 +645,71 @@ final class EventPaymentController
             if (!$exists) {
                 $conexion->exec("ALTER TABLE metodos_pago ADD COLUMN activo TINYINT(1) NOT NULL DEFAULT 1 AFTER tipo");
             }
-        } catch (Throwable) {
+
+            $quantityStmt = $conexion->query("SHOW COLUMNS FROM facturas LIKE 'cantidad'");
+            if ($quantityStmt === false || $quantityStmt->fetch(PDO::FETCH_ASSOC) === false) {
+                $conexion->exec('ALTER TABLE facturas ADD COLUMN cantidad INT(11) NOT NULL DEFAULT 1 AFTER id_evento');
+            }
+
+            $receiptStmt = $conexion->query("SHOW COLUMNS FROM facturas LIKE 'comprobante_path'");
+            if ($receiptStmt === false || $receiptStmt->fetch(PDO::FETCH_ASSOC) === false) {
+                $conexion->exec('ALTER TABLE facturas ADD COLUMN comprobante_path VARCHAR(255) NULL AFTER cantidad');
+            }
+        } catch (Throwable $e) {
             // Si la tabla no esta disponible, las consultas posteriores mostraran el error correspondiente.
         }
+    }
+
+    /** @param array<string,mixed> $data */
+    private function renderPaymentError(array $data, string $message): void
+    {
+        $eventId = (int)($data['event']['id_evento'] ?? 0);
+        $this->renderWithLayout('event_payment', $data + [
+            'error' => $message,
+            'paymentToken' => $this->paymentToken($eventId),
+        ]);
+    }
+
+    private function paymentToken(int $eventId): string
+    {
+        if ($eventId <= 0) {
+            return '';
+        }
+        $tokens = is_array($_SESSION['event_payment_tokens'] ?? null) ? $_SESSION['event_payment_tokens'] : [];
+        if (!isset($tokens[$eventId]) || !is_string($tokens[$eventId]) || strlen($tokens[$eventId]) < 32) {
+            $tokens[$eventId] = bin2hex(random_bytes(32));
+            $_SESSION['event_payment_tokens'] = $tokens;
+        }
+        return $tokens[$eventId];
+    }
+
+    private function validPaymentToken(int $eventId, string $submitted): bool
+    {
+        $expected = $_SESSION['event_payment_tokens'][$eventId] ?? '';
+        return $eventId > 0 && is_string($expected) && $expected !== '' && hash_equals($expected, $submitted);
+    }
+
+    private function storeReceiptUpload(): string
+    {
+        $file = $_FILES['comprobante'];
+        $extension = strtolower(pathinfo((string)$file['name'], PATHINFO_EXTENSION));
+        $directory = APP_BASE_PATH . '/storage/payment_receipts';
+        if (!is_dir($directory) && !mkdir($directory, 0775, true) && !is_dir($directory)) {
+            throw new \RuntimeException('No fue posible crear el directorio de comprobantes.');
+        }
+
+        $fileName = 'comprobante_' . date('Ymd_His') . '_' . bin2hex(random_bytes(8)) . '.' . $extension;
+        $absolutePath = $directory . '/' . $fileName;
+        if (!move_uploaded_file((string)$file['tmp_name'], $absolutePath)) {
+            throw new \RuntimeException('No fue posible almacenar el comprobante.');
+        }
+
+        return 'storage/payment_receipts/' . $fileName;
+    }
+
+    private function absoluteReceiptPath(string $relativePath): string
+    {
+        return APP_BASE_PATH . '/' . ltrim(str_replace('\\', '/', $relativePath), '/');
     }
 
     /**
