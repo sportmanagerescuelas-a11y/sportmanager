@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 $viewData = get_defined_vars();
 $schools = is_array($viewData['schools'] ?? null) ? $viewData['schools'] : [];
 $schoolPaymentData = is_array($viewData['schoolPaymentData'] ?? null) ? $viewData['schoolPaymentData'] : [];
@@ -8,12 +8,13 @@ $registerControllerVersion = is_file($registerControllerPath) ? (string)filemtim
 $registerErrorCode = isset($_GET['error']) ? (string)$_GET['error'] : '';
 $registerDebug = isset($_GET['debug']) ? trim((string)$_GET['debug']) : '';
 $registerErrorMap = [
-    '404' => 'La página solicitada no existe o fue movida.',
+    '404' => 'La pÃ¡gina solicitada no existe o fue movida.',
     'empty' => 'Debes completar todos los campos del formulario.',
-    'invalidemail' => 'El correo electrónico no tiene un formato válido.',
+    'invalidemail' => 'El correo electrÃ³nico no tiene un formato vÃ¡lido.',
     'phone' => 'El telefono debe tener exactamente 10 digitos.',
     'password' => 'La contrasena no cumple los requisitos minimos.',
     'duplicateid' => 'Ya existe un usuario con ese numero de documento.',
+    'idrange' => 'El numero de documento es demasiado grande. El maximo permitido es 2,147,483,647.',
     'duplicateemail' => 'Ya existe un usuario con ese correo electronico.',
     'schoolnone' => 'Aun no hay escuelas disponibles para inscripcion.',
     'school' => 'La escuela seleccionada no existe. Elige una escuela valida.',
@@ -22,13 +23,17 @@ $registerErrorMap = [
     'receipt' => 'Debes adjuntar un comprobante de pago valido.',
     'receiptsize' => 'El comprobante no puede superar 5 MB.',
     'receipttype' => 'El comprobante debe ser imagen JPG, PNG, WEBP o PDF.',
-    'db' => 'No se pudo crear la cuenta en este momento. Inténtalo nuevamente.',
+    'db' => 'No se pudo crear la cuenta en este momento. IntÃ©ntalo nuevamente.',
+    'adminregister' => 'No se pudo registrar el usuario administrador. Revisa la estructura de la base de datos y vuelve a intentarlo.',
+    'adminschema' => 'No se pudo ajustar la estructura necesaria para el registro del administrador.',
+    'adminsession' => 'No se pudo preparar la sesion temporal del administrador.',
 ];
 $registerErrorText = sm_error_text($registerErrorCode, $registerErrorMap);
 $fieldErrorMap = [
     'id_usuario' => [
         'empty' => 'Debes ingresar tu numero de documento.',
         'duplicateid' => 'Ya existe un usuario con ese numero de documento.',
+        'idrange' => 'El numero de documento es demasiado grande. El maximo permitido es 2,147,483,647.',
     ],
     'tipo_documento' => [
         'empty' => 'Debes seleccionar un tipo de documento.',
@@ -86,7 +91,7 @@ $modalType = '';
 if ($registerErrorText !== '' && $activeFieldError['field'] === '') {
     $modalTitle = 'Fuera de juego';
     $modalMessage = $registerErrorText;
-    if ($registerErrorCode === 'db' && $registerDebug !== '') {
+    if (in_array($registerErrorCode, ['db', 'adminregister', 'adminschema', 'adminsession'], true) && $registerDebug !== '') {
         $modalMessage .= ' Detalle tecnico: ' . $registerDebug;
     }
     $modalType = 'danger';
@@ -107,12 +112,12 @@ $assetBase = '/sportmanager/';
         <div class="auth-kicker">Nuevo registro</div>
         <h1 class="auth-title">Crea tu cuenta y entra al ecosistema deportivo.</h1>
         <p class="auth-copy mb-0">
-            Un proceso más guiado, claro y visual para que el alta sea rápida tanto para acudientes como para formadores y administradores.
+            Un proceso mÃ¡s guiado, claro y visual para que el alta sea rÃ¡pida tanto para acudientes como para formadores y administradores.
         </p>
         <div class="auth-badges">
-            <div class="auth-badge"><span></span> Validación en tiempo real</div>
+            <div class="auth-badge"><span></span> ValidaciÃ³n en tiempo real</div>
             <div class="auth-badge"><span></span> Seguridad reforzada</div>
-            <div class="auth-badge"><span></span> Diseñado para móvil</div>
+            <div class="auth-badge"><span></span> DiseÃ±ado para mÃ³vil</div>
         </div>
     </section>
 
@@ -165,11 +170,11 @@ $assetBase = '/sportmanager/';
                         <div id="emailFeedback" class="invalid-feedback">Este correo ya esta registrado.</div>
                         <div id="emailHelp" class="form-text"></div>
                     </div>
-                    <div class="col-12 col-lg-4">
+                    <div class="col-12 col-lg-4 password-field-wrap">
                         <label for="password" class="form-label">Contrasena</label>
                         <input type="password" class="form-control auth-input" id="password" name="password" placeholder="Crea una contrasena" required>
                         <div class="invalid-feedback" id="passwordFeedback">Debes ingresar una contrasena valida.</div>
-                        <div id="passwordRequirementsBox" class="border rounded-3 p-3 mt-2 bg-white shadow-sm d-none">
+                        <div id="passwordRequirementsBox" class="border rounded-3 p-3 bg-white shadow-sm d-none">
                             <small id="passwordHelp" class="form-text text-muted d-block">
                                 La contrasena debe cumplir todos estos requisitos:
                             </small>
@@ -270,10 +275,10 @@ $assetBase = '/sportmanager/';
                                     </div>
                                 </div>
                                 <label class="payment-upload" for="registrationReceiptInput" id="registrationReceiptDropzone">
-                                    <span class="payment-upload__icon" aria-hidden="true">↑</span>
+                                    <span class="payment-upload__icon" aria-hidden="true">â†‘</span>
                                     <span class="payment-upload__copy">
                                         <strong id="registrationReceiptFileName">Seleccionar comprobante</strong>
-                                        <small>JPG, PNG, WEBP o PDF · maximo 5 MB</small>
+                                        <small>JPG, PNG, WEBP o PDF Â· maximo 5 MB</small>
                                     </span>
                                     <span class="btn btn-outline-primary rounded-pill px-3">Buscar archivo</span>
                                 </label>
@@ -287,7 +292,7 @@ $assetBase = '/sportmanager/';
                             <span class="payment-summary__status">Pendiente</span>
                         </div>
                         <div class="payment-summary__event">
-                            <span class="payment-summary__event-icon" aria-hidden="true">★</span>
+                            <span class="payment-summary__event-icon" aria-hidden="true">â˜…</span>
                             <div>
                                 <strong id="registrationSummarySchool">Escuela seleccionada</strong>
                                 <small>Pago de registro de usuario</small>
@@ -502,7 +507,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const arrow = document.createElement('span');
             arrow.className = 'payment-method__arrow';
             arrow.setAttribute('aria-hidden', 'true');
-            arrow.textContent = '›';
+            arrow.textContent = 'â€º';
 
             label.append(radio, mark, body, arrow);
             paymentMethodsWrap.appendChild(label);
@@ -563,6 +568,9 @@ document.addEventListener('DOMContentLoaded', function () {
             schoolSelect.classList.remove('is-invalid');
         }
         resetPaymentState(true);
+        if (form && typeof form.checkValidity === 'function') {
+            form.checkValidity();
+        }
     };
 
     roleSelect.addEventListener('change', sync);

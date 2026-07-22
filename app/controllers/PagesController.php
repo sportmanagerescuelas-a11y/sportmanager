@@ -194,6 +194,14 @@ class PagesController
     public function dashboard(): void
     {
         $this->requireLogin();
+
+        // Admin con estado 'crear_escuela' debe ser redirigido a crear su escuela
+        // antes de poder usar el dashboard. Esto es un safety check que complementa
+        // la redireccion que ya hace loginController en el momento del login.
+        if ((int)$_SESSION['rol'] === 3 && $this->model()->userNeedsSchoolCreation((int)$_SESSION['id_usuario'])) {
+            $this->redirect('crear_escuela');
+        }
+
         $data = $this->model()->dashboardData((int)$_SESSION['id_usuario'], (int)$_SESSION['rol']);
         $this->render('dashboard', $data + ['rol' => (int)$_SESSION['rol']]);
     }

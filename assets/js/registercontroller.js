@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", function() {
     const password = document.getElementById('password');
+    const roleSelect = document.getElementById('id_rol');
 
     const idInput = document.getElementById('id_usuario');
     const idFeedback = document.getElementById('id_usuarioFeedback');
@@ -9,9 +10,12 @@ document.addEventListener("DOMContentLoaded", function() {
     const emailHelp = document.getElementById('emailHelp');
     const idSpinner = document.getElementById('idSpinner');
     const emailSpinner = document.getElementById('emailSpinner');
+    const form = document.querySelector('form[action="registro-submit"]');
     const submitBtn = document.querySelector('button[name="register"]');
     let emailValidationInProgress = false;
+    let idValidationInProgress = false;
     let emailTimer = null;
+    let idTimer = null;
 
     const validatePasswordRequirements = (val) => {
         return {
@@ -24,15 +28,24 @@ document.addEventListener("DOMContentLoaded", function() {
     };
 
     const checkFormValidity = () => {
-        const emailIsInvalid = emailInput ? emailInput.classList.contains('is-invalid') : false;
-        const idIsInvalid = idInput ? idInput.classList.contains('is-invalid') : false;
+        // Email y documento deben haber sido confirmados por la API (is-valid),
+        // no solo "no tener is-invalid". Esto evita enviar antes de que la
+        // validacion async termine y prevenir duplicados silenciosos.
+        const emailIsValid = emailInput ? emailInput.classList.contains('is-valid') : false;
+        const idIsValid = idInput ? idInput.classList.contains('is-valid') : false;
 
         const val = password ? password.value : '';
         const req = validatePasswordRequirements(val);
-        const passwordIsValid = req.length && req.upper && req.lower && req.number && req.special;
+        const passwordIsValid = val.length > 0 && req.length && req.upper && req.lower && req.number && req.special;
+
+        const phoneVal = document.getElementById('telefono') ? document.getElementById('telefono').value.trim() : '';
+        const phoneIsValid = /^\d{10}$/.test(phoneVal);
+
+        const allValid = emailIsValid && idIsValid && passwordIsValid && phoneIsValid;
 
         if (submitBtn) {
-            submitBtn.disabled = emailIsInvalid || idIsInvalid || !passwordIsValid || emailValidationInProgress;
+            submitBtn.disabled = !allValid;
+            submitBtn.classList.toggle('disabled', !allValid);
         }
     };
 
@@ -101,66 +114,94 @@ document.addEventListener("DOMContentLoaded", function() {
         updatePasswordStatus(password.value);
     }
 
-    if (idInput) {
-        idInput.addEventListener('blur', function () {
-            const id_usuario = this.value.trim();
-            if (id_usuario.length === 0) {
-                idInput.classList.remove('is-invalid', 'is-valid');
-                if (idFeedback) {
-                    idFeedback.style.display = '';
-                }
-                checkFormValidity();
-                return;
-            }
+    const validateDocumentRealtime = () => {
+        if (!idInput) return;
+        const id_usuario = idInput.value.trim();
 
-            if (!/^\d+$/.test(id_usuario)) {
+        if (id_usuario.length === 0) {
+            idInput.classList.remove('is-invalid', 'is-valid');
+            if (idFeedback) idFeedback.style.display = '';
+            idValidationInProgress = false;
+            checkFormValidity();
+            return;
+        }
+
+        if (!/^\d+$/.test(id_usuario)) {
+            idInput.classList.add('is-invalid');
+            idInput.classList.remove('is-valid');
+            setIdInvalidMessage('El documento solo debe contener numeros.');
+            idValidationInProgress = false;
+            checkFormValidity();
+            return;
+        }
+
+        // La columna id_usuario en BD es INT firmado (maximo 2,147,483,647).
+        // Si el numero excede ese rango, mostramos error antes de enviar al servidor.
+        if (parseInt(id_usuario, 10) > 2147483647) {
+            idInput.classList.add('is-invalid');
+            idInput.classList.remove('is-valid');
+            setIdInvalidMessage('El numero de documento es demasiado grande. El maximo permitido es 2,147,483,647.');
+            idValidationInProgress = false;
+            checkFormValidity();
+            return;
+        }
+
+        if (!/^\d{1,11}$/.test(id_usuario)) {
+            idInput.classList.add('is-invalid');
+            idInput.classList.remove('is-valid');
+            setIdInvalidMessage('El documento debe tener maximo 11 digitos numericos.');
+            idValidationInProgress = false;
+            checkFormValidity();
+            return;
+        }
+
+        idValidationInProgress = true;
+        checkFormValidity();
+        if (idSpinner) idSpinner.style.display = 'inline-block';
+
+        const formData = new FormData();
+        formData.append('id_usuario', id_usuario);
+
+        fetch('check-document', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data && data.valid && data.exists === false) {
+                idInput.classList.remove('is-invalid');
+                idInput.classList.add('is-valid');
+                if (idFeedback) idFeedback.style.display = '';
+            } else {
                 idInput.classList.add('is-invalid');
                 idInput.classList.remove('is-valid');
-                setIdInvalidMessage('El documento solo debe contener numeros.');
-                checkFormValidity();
-                return;
+                setIdInvalidMessage((data && data.message) ? data.message : 'No se pudo validar el documento.');
             }
-
-            if (!/^\d{1,11}$/.test(id_usuario)) {
-                idInput.classList.add('is-invalid');
-                idInput.classList.remove('is-valid');
-                setIdInvalidMessage('El documento debe tener maximo 11 digitos numericos.');
-                checkFormValidity();
-                return;
-            }
-
-            if (idSpinner) idSpinner.style.display = 'inline-block';
-
-            const formData = new FormData();
-            formData.append('id_usuario', id_usuario);
-
-            fetch('check-document', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data && data.valid && data.exists === false) {
-                    idInput.classList.remove('is-invalid');
-                    idInput.classList.add('is-valid');
-                    if (idFeedback) idFeedback.style.display = '';
-                } else {
-                    idInput.classList.add('is-invalid');
-                    idInput.classList.remove('is-valid');
-                    setIdInvalidMessage((data && data.message) ? data.message : 'No se pudo validar el documento.');
-                }
-                checkFormValidity();
-            })
-            .catch(() => {
-                idInput.classList.add('is-invalid');
-                idInput.classList.remove('is-valid');
-                setIdInvalidMessage('No se pudo validar el documento. Intenta de nuevo.');
-                checkFormValidity();
-            })
-            .finally(() => {
-                if (idSpinner) idSpinner.style.display = 'none';
-            });
+            checkFormValidity();
+        })
+        .catch(() => {
+            idInput.classList.add('is-invalid');
+            idInput.classList.remove('is-valid');
+            setIdInvalidMessage('No se pudo validar el documento. Intenta de nuevo.');
+            checkFormValidity();
+        })
+        .finally(() => {
+            idValidationInProgress = false;
+            if (idSpinner) idSpinner.style.display = 'none';
         });
+    };
+
+    if (idInput) {
+        // Validacion en input (debounced) — igual que el email, para prevenir
+        // que el usuario envie antes de que se verifique si el documento ya existe.
+        idInput.addEventListener('input', function() {
+            if (idTimer) {
+                clearTimeout(idTimer);
+            }
+            idTimer = setTimeout(validateDocumentRealtime, 400);
+        });
+
+        idInput.addEventListener('blur', validateDocumentRealtime);
     }
 
     const validateEmailRealtime = () => {
@@ -244,9 +285,43 @@ document.addEventListener("DOMContentLoaded", function() {
         emailInput.addEventListener('blur', validateEmailRealtime);
     }
 
+    const phoneInput = document.getElementById('telefono');
+    const phoneFeedback = document.getElementById('telefonoFeedback');
+    if (phoneInput) {
+        phoneInput.addEventListener('input', function() {
+            const phoneVal = this.value.trim();
+            if (phoneVal.length === 0) {
+                phoneInput.classList.remove('is-invalid', 'is-valid');
+                if (phoneFeedback) phoneFeedback.style.display = '';
+            } else if (!/^\d{10}$/.test(phoneVal)) {
+                phoneInput.classList.add('is-invalid');
+                phoneInput.classList.remove('is-valid');
+                if (phoneFeedback) {
+                    phoneFeedback.textContent = phoneVal.length < 10
+                        ? 'Faltan ' + (10 - phoneVal.length) + ' digitos. Debe tener exactamente 10 digitos.'
+                        : 'El telefono debe tener exactamente 10 digitos.';
+                    phoneFeedback.style.display = 'block';
+                }
+            } else {
+                phoneInput.classList.remove('is-invalid');
+                phoneInput.classList.add('is-valid');
+                if (phoneFeedback) phoneFeedback.style.display = '';
+            }
+            checkFormValidity();
+        });
+    }
+
+    // El flujo de submit para admin (rol 3) es manejado por los handlers de submit.
+    // Los handlers ya retornan sin prevenir cuando el rol es 3, asi que no se necesita
+    // un click handler especial que interfiera con el envio normal del formulario.
+
     const registrationForm = document.querySelector('.needs-validation');
     if (registrationForm) {
         registrationForm.addEventListener('submit', function(event) {
+            const isAdminRole = roleSelect && roleSelect.value === '3';
+            if (isAdminRole) {
+                return;
+            }
             checkFormValidity();
             if (!registrationForm.checkValidity() || (submitBtn && submitBtn.disabled)) {
                 event.preventDefault();

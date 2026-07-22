@@ -49,7 +49,7 @@ if (isset($_POST["id_usuario"])) {
         $hasInvoice = (bool)$stmtInvoice->fetchColumn();
 
         if ($hasInvoice) {
-            $sqlUser = $conexion->prepare("UPDATE usuarios SET estado = 'pendiente' WHERE id_usuario = :id_usuario AND estado = 'pago_pendiente'");
+            $sqlUser = $conexion->prepare("UPDATE usuarios SET estado = 'crear_escuela', habilitado = 1 WHERE id_usuario = :id_usuario AND estado = 'pago_pendiente'");
             $sqlUser->bindParam(":id_usuario", $id_usuario, PDO::PARAM_INT);
             $sqlUser->execute();
         }

@@ -53,12 +53,22 @@ $dashboardActionChunks = array_chunk($dashboardActions, $rol === 3 ? 3 : 2);
 </style>
 <div class="dashboard position-relative">
     <div class="dashboard-shield-watermark" style="background-image: url(<?= htmlspecialchars($dashboardShieldPath, ENT_QUOTES, 'UTF-8') ?>);"></div>
-    <?php if (count($events) > 0): ?>
-        <div class="alert alert-success" id="eventosAlert">
-            <span>Tienes <?= count($events) ?> evento(s) disponible(s)</span>
-            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#seleccionarEventoModal">Ver</button>
-        </div>
+    <div class="dashboard-topline">
+        <?php if (count($events) > 0): ?>
+            <button type="button" class="dashboard-event-banner" data-bs-toggle="modal" data-bs-target="#seleccionarEventoModal">
+                <span class="dashboard-event-banner__tag">EVENTOS</span>
+                <span class="dashboard-event-banner__value"><?= count($events) ?> evento(s) disponible(s)</span>
+                <span class="dashboard-event-banner__action">Ver</span>
+            </button>
+        <?php endif; ?>
 
+        <div class="dashboard-role-banner">
+            <span class="dashboard-role-banner__tag">ROL</span>
+            <span class="dashboard-role-banner__value"><?= htmlspecialchars($rolLabel, ENT_QUOTES, 'UTF-8') ?></span>
+        </div>
+    </div>
+
+    <?php if (count($events) > 0): ?>
         <div class="modal fade" id="seleccionarEventoModal" tabindex="-1">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content" style="border: 2px solid var(--school-primary-color); background-color: #fff;">
@@ -87,11 +97,6 @@ $dashboardActionChunks = array_chunk($dashboardActions, $rol === 3 ? 3 : 2);
             </div>
         </div>
     <?php endif; ?>
-
-    <div class="dashboard-role-banner">
-        <span class="dashboard-role-banner__tag">ROL</span>
-        <span class="dashboard-role-banner__value"><?= htmlspecialchars($rolLabel, ENT_QUOTES, 'UTF-8') ?></span>
-    </div>
 
     <!-- <div class="dashboard-search">
         <label for="dashboardSearch" class="dashboard-search__label">Buscar accesos</label>

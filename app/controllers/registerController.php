@@ -53,6 +53,34 @@ function sm_register_ensure_payment_structure(PDO $conexion): void
     }
 }
 
+function sm_register_ensure_admin_user_structure(PDO $conexion): bool
+{
+    try {
+        $columnStmt = $conexion->query("SHOW COLUMNS FROM usuarios LIKE 'id_escuela'");
+        $column = $columnStmt !== false ? $columnStmt->fetch(PDO::FETCH_ASSOC) : false;
+
+        if (is_array($column) && strtoupper((string)($column['Null'] ?? '')) !== 'YES') {
+            $conexion->exec('ALTER TABLE usuarios MODIFY id_escuela INT(11) NULL DEFAULT NULL');
+        }
+
+        return true;
+    } catch (Throwable $e) {
+        error_log('No se pudo ajustar usuarios.id_escuela para admin: ' . $e->getMessage());
+        return false;
+    }
+}
+
+function sm_register_first_school_id(PDO $conexion): int
+{
+    try {
+        $schoolId = (int)$conexion->query('SELECT id_escuela FROM escuelas ORDER BY id_escuela ASC LIMIT 1')->fetchColumn();
+        return $schoolId > 0 ? $schoolId : 0;
+    } catch (Throwable $e) {
+        error_log('No se pudo obtener una escuela fallback para admin: ' . $e->getMessage());
+        return 0;
+    }
+}
+
 function sm_register_payment_method_for_school(PDO $conexion, int $methodId, int $schoolId): ?array
 {
     if ($methodId <= 0 || $schoolId <= 0) {
@@ -225,7 +253,7 @@ if (isset($_POST["register"])) {
 
     // La columna id_usuario en BD es INT firmado (maximo 2147483647).
     if ((int)$id_usuario > 2147483647) {
-        header("Location: register?error=duplicateid");
+        header("Location: register?error=idrange");
         exit();
     }
 
@@ -263,20 +291,25 @@ if (isset($_POST["register"])) {
     if ($id_rol === 3) {
         // El administrador debe existir desde este momento para que el superadmin
         // pueda verlo y validar posteriormente la factura generada por la pasarela.
-        $id_escuela = null;
-        $passwordHash = password_hash($password, PASSWORD_DEFAULT);
-        if ($passwordHash === false) {
-            header("Location: register?error=db");
+        if (!sm_register_ensure_admin_user_structure($conexion)) {
+            sm_register_redirect_error('adminschema', 'No se pudo dejar id_escuela en modo nullable para el administrador.');
             exit();
         }
+        $id_escuela = null;
 
         if (!$usuarioModel->registrar($id_usuario, $tipo_documento, $id_escuela, $nombres, $apellidos, $email, $password, $telefono, $id_rol)) {
             $debug = $usuarioModel->lastError();
             if ($debug !== '') {
-                header("Location: register?error=db&debug=" . urlencode(substr($debug, 0, 220)));
+                sm_register_redirect_error('adminregister', $debug);
             } else {
-                header("Location: register?error=db");
+                sm_register_redirect_error('adminregister', 'No se pudo guardar el usuario administrador.');
             }
+            exit();
+        }
+
+        $passwordHash = $usuarioModel->lastPasswordHash();
+        if ($passwordHash === '') {
+            sm_register_redirect_error('adminregister', 'No se pudo obtener el hash de la contrasena.');
             exit();
         }
 
@@ -295,6 +328,8 @@ if (isset($_POST["register"])) {
             'tipo_persona' => 'N',
             'flujo' => 'registro_admin',
         ];
+        $_SESSION['id_usuario'] = (int)$id_usuario;
+        $_SESSION['rol'] = 3;
 
         $returnTo = urlencode('iniciar?evento=Pago registro administrador&monto=35000&cantidad=1');
         header("Location: iniciar?evento=Pago%20registro%20administrador&monto=35000&cantidad=1&return_to={$returnTo}");

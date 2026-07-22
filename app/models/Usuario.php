@@ -5,6 +5,7 @@ class Usuario
 
     private PDO $conexion;
     private string $lastError = '';
+    private string $lastPasswordHash = '';
 
     public function __construct(PDO $conexion)
     {
@@ -37,8 +38,10 @@ class Usuario
     public function registrar($id_usuario, string $tipo_documento, $id_escuela, string $nombres, string $apellidos, string $email, string $password, string $telefono, int $id_rol): bool
     {
         $this->lastError = '';
+        $this->lastPasswordHash = '';
 
         $passwordHash = password_hash($password, PASSWORD_DEFAULT);
+        $this->lastPasswordHash = $passwordHash;
 
         // Formador (2) y admin escuela (3) requieren aprobacion.
         if ($id_rol == 2) {
@@ -90,19 +93,6 @@ class Usuario
         try {
             return $insertUser($id_escuela);
         } catch (PDOException $e) {
-            // En algunos entornos el esquema puede exigir escuela para admin.
-            if ($id_rol === 3 && ($id_escuela === null || $id_escuela === '')) {
-                try {
-                    $fallbackSchoolId = (int)$this->conexion->query("SELECT id_escuela FROM escuelas ORDER BY id_escuela ASC LIMIT 1")->fetchColumn();
-                    if ($fallbackSchoolId > 0) {
-                        return $insertUser($fallbackSchoolId);
-                    }
-                    $this->lastError = 'No existe escuela fallback para rol administrador.';
-                } catch (PDOException $fallbackEx) {
-                    error_log('Error fallback registro admin: ' . $fallbackEx->getMessage());
-                    $this->lastError = 'Fallback admin fallo: ' . $fallbackEx->getMessage();
-                }
-            }
             error_log('Error al registrar usuario: ' . $e->getMessage());
             if ($this->lastError === '') {
                 $this->lastError = $e->getMessage();
@@ -114,6 +104,11 @@ class Usuario
     public function lastError(): string
     {
         return $this->lastError;
+    }
+
+    public function lastPasswordHash(): string
+    {
+        return $this->lastPasswordHash;
     }
 
     public function escuelaExiste($idEscuela): bool
