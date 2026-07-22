@@ -4,7 +4,7 @@ $tablas = is_array($viewData['tablas'] ?? null) ? $viewData['tablas'] : [];
 ?>
 <br>
 <br>
-<div class="container mt-5">
+<div class="container mt-5 school-style-page reports-page">
     <h2>Reportes</h2>
     <p>Selecciona una tabla y el formato de descarga.</p>
     <?php if (isset($_GET['error']) && $_GET['error'] === 'forbidden_table'): ?>
@@ -18,9 +18,9 @@ $tablas = is_array($viewData['tablas'] ?? null) ? $viewData['tablas'] : [];
             <?php foreach ($tablas as $tabla): ?>
                 <tr>
                     <td><?= htmlspecialchars((string)$tabla) ?></td>
-                    <td><a class="btn btn-success btn-sm" href="descargar&tabla=<?= urlencode((string)$tabla) ?>&formato=xlsx">XLSX</a></td>
-                    <td><a class="btn btn-secondary btn-sm" href="descargar&tabla=<?= urlencode((string)$tabla) ?>&formato=csv">CSV</a></td>
-                    <td><a class="btn btn-danger btn-sm" href="descargar&tabla=<?= urlencode((string)$tabla) ?>&formato=pdf">PDF</a></td>
+                    <td><a class="btn btn-outline-success btn-sm" href="descargar&tabla=<?= urlencode((string)$tabla) ?>&formato=xlsx">XLSX</a></td>
+                    <td><a class="btn btn-outline-secondary btn-sm" href="descargar&tabla=<?= urlencode((string)$tabla) ?>&formato=csv">CSV</a></td>
+                    <td><a class="btn btn-outline-danger btn-sm" href="descargar&tabla=<?= urlencode((string)$tabla) ?>&formato=pdf">PDF</a></td>
                 </tr>
             <?php endforeach; ?>
         </tbody>

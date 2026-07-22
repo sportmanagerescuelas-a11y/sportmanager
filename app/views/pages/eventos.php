@@ -5,7 +5,7 @@ $rol = (int)($_SESSION['rol'] ?? 0);
 ?>
 <br>
 <br>
-<div class="container mt-5">
+<div class="container mt-5 school-style-page events-page">
     <h2 class="mb-4 text-center">Eventos</h2>
     <?php if ($rol === 3): ?>
         <div class="mb-3 text-end">

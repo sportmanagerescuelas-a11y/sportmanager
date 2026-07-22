@@ -3,7 +3,7 @@ $viewData = get_defined_vars();
 $facturas = is_array($viewData['facturas'] ?? null) ? $viewData['facturas'] : [];
 ?>
 
-<div class="container my-5 pt-5">
+<div class="container my-5 pt-5 school-style-page payments-page">
     
     <div class="mb-4">
         <a href="panel" class="btn btn-secondary">

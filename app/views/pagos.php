@@ -5,7 +5,7 @@ $idEvento = (int)($viewData['idEvento'] ?? 0);
 ?>
 <br>
 <br>
-<section class="container py-5">
+<section class="container py-5 school-style-page payments-page">
     <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
         <div>
             <h2 class="mb-1">Mis pagos</h2>

@@ -829,19 +829,23 @@ footer.site-footer::before {
 
 /* BOTONES */
 .card-dashboard {
-    background: rgba(255, 255, 255, 0.9);
+    background: var(--sm-white);
     padding: 25px;
     width: 180px;
     text-align: center;
     text-decoration: none;
-    color: #333;
+    color: var(--school-btn-secondary-bg);
     font-weight: bold;
     border-radius: 10px;
     transition: 0.3s;
+    border: 1px solid var(--school-btn-secondary-bg);
+    box-shadow: 0 12px 28px rgba(19, 44, 66, 0.12);
 }
 
 .card-dashboard:hover {
     transform: scale(1.05);
+    background: var(--school-btn-primary-bg);
+    color: var(--sm-white);
 }
 
 .card-header {
@@ -1070,6 +1074,18 @@ body.modal-open #backToTop {
     --school-secondary-color: #526174;
     --school-primary-rgb: 47, 127, 189;
     --school-secondary-rgb: 82, 97, 116;
+    --school-btn-primary-bg: #2f7fbd;
+    --school-btn-primary-hover: #275b86;
+    --school-btn-secondary-bg: #526174;
+    --school-btn-secondary-hover: #3f4c5d;
+    --school-btn-success-bg: #6f8ea6;
+    --school-btn-success-hover: #526174;
+    --school-btn-info-bg: #1f5f91;
+    --school-btn-info-hover: #17486e;
+    --school-btn-warning-bg: #18456a;
+    --school-btn-warning-hover: #12324d;
+    --school-btn-danger-bg: #334155;
+    --school-btn-danger-hover: #1f2937;
     --sm-blue-900: #1d3f5f;
     --sm-blue-800: #275b86;
     --sm-blue-700: #2f7fbd;
@@ -1178,45 +1194,66 @@ footer {
 .btn-primary,
 .bg-primary,
 .text-bg-primary {
-    background: var(--sm-blue-700) !important;
-    border-color: var(--sm-blue-700) !important;
+    background: var(--school-btn-primary-bg) !important;
+    border-color: var(--school-btn-primary-bg) !important;
 }
 
 .btn-primary:hover,
 #backToTop:hover {
-    background: var(--sm-blue-800) !important;
-    border-color: var(--sm-blue-800) !important;
+    background: var(--school-btn-primary-hover) !important;
+    border-color: var(--school-btn-primary-hover) !important;
 }
 
 .btn-secondary,
 .bg-secondary,
 .text-bg-secondary {
-    background: var(--sm-gray-700) !important;
-    border-color: var(--sm-gray-700) !important;
+    background: var(--school-btn-secondary-bg) !important;
+    border-color: var(--school-btn-secondary-bg) !important;
     color: var(--sm-white) !important;
+}
+
+.btn-secondary:hover {
+    background: var(--school-btn-secondary-hover) !important;
+    border-color: var(--school-btn-secondary-hover) !important;
 }
 
 .btn-success,
 .bg-success,
 .btn-info,
 .bg-info {
-    background: var(--sm-blue-600) !important;
-    border-color: var(--sm-blue-600) !important;
+    background: var(--school-btn-success-bg) !important;
+    border-color: var(--school-btn-success-bg) !important;
     color: var(--sm-white) !important;
+}
+
+.btn-success:hover,
+.btn-info:hover {
+    background: var(--school-btn-success-hover) !important;
+    border-color: var(--school-btn-success-hover) !important;
 }
 
 .btn-warning,
 .bg-warning {
-    background: var(--sm-gray-500) !important;
-    border-color: var(--sm-gray-500) !important;
+    background: var(--school-btn-warning-bg) !important;
+    border-color: var(--school-btn-warning-bg) !important;
     color: var(--sm-white) !important;
+}
+
+.btn-warning:hover {
+    background: var(--school-btn-warning-hover) !important;
+    border-color: var(--school-btn-warning-hover) !important;
 }
 
 .btn-danger,
 .bg-danger {
-    background: var(--sm-gray-800) !important;
-    border-color: var(--sm-gray-800) !important;
+    background: var(--school-btn-danger-bg) !important;
+    border-color: var(--school-btn-danger-bg) !important;
     color: var(--sm-white) !important;
+}
+
+.btn-danger:hover {
+    background: var(--school-btn-danger-hover) !important;
+    border-color: var(--school-btn-danger-hover) !important;
 }
 
 .btn,
@@ -1325,24 +1362,62 @@ footer {
 }
 
 .btn-outline-primary {
-    color: var(--sm-blue-700) !important;
-    border-color: var(--sm-blue-700) !important;
+    color: var(--school-btn-primary-bg) !important;
+    border-color: var(--school-btn-primary-bg) !important;
 }
 
 .btn-outline-primary:hover {
-    background: var(--sm-blue-700) !important;
+    background: var(--school-btn-primary-bg) !important;
     color: var(--sm-white) !important;
 }
 
-.btn-outline-danger,
 .btn-outline-secondary {
-    color: var(--sm-gray-800) !important;
-    border-color: var(--sm-gray-800) !important;
+    color: var(--school-btn-secondary-bg) !important;
+    border-color: var(--school-btn-secondary-bg) !important;
 }
 
-.btn-outline-danger:hover,
 .btn-outline-secondary:hover {
-    background: var(--sm-gray-800) !important;
+    background: var(--school-btn-secondary-bg) !important;
+    color: var(--sm-white) !important;
+}
+
+.btn-outline-danger {
+    color: var(--school-btn-danger-bg) !important;
+    border-color: var(--school-btn-danger-bg) !important;
+}
+
+.btn-outline-danger:hover {
+    background: var(--school-btn-danger-bg) !important;
+    color: var(--sm-white) !important;
+}
+
+.btn-outline-success {
+    color: var(--school-btn-success-bg) !important;
+    border-color: var(--school-btn-success-bg) !important;
+}
+
+.btn-outline-success:hover {
+    background: var(--school-btn-success-bg) !important;
+    color: var(--sm-white) !important;
+}
+
+.btn-outline-warning {
+    color: var(--school-btn-warning-bg) !important;
+    border-color: var(--school-btn-warning-bg) !important;
+}
+
+.btn-outline-warning:hover {
+    background: var(--school-btn-warning-bg) !important;
+    color: var(--sm-white) !important;
+}
+
+.btn-outline-info {
+    color: var(--school-btn-info-bg) !important;
+    border-color: var(--school-btn-info-bg) !important;
+}
+
+.btn-outline-info:hover {
+    background: var(--school-btn-info-bg) !important;
     color: var(--sm-white) !important;
 }
 
@@ -1412,8 +1487,22 @@ footer {
 .table thead,
 .table-dark,
 .table-secondary {
-    background: var(--sm-blue-900) !important;
+    background: linear-gradient(135deg, var(--school-primary-color), var(--school-secondary-color)) !important;
     color: var(--sm-white) !important;
+}
+
+.table thead th,
+.table-dark th,
+.table-secondary th {
+    border-color: rgba(255, 255, 255, 0.18) !important;
+}
+
+.table tbody tr:nth-child(even) {
+    background: rgba(var(--school-primary-rgb), 0.045);
+}
+
+.table tbody tr:hover {
+    background: rgba(var(--school-primary-rgb), 0.08);
 }
 
 .table th,
@@ -1437,6 +1526,321 @@ footer {
 .table td:first-child,
 .table th:first-child {
     text-align: center;
+}
+
+.badge.bg-primary,
+.badge.text-bg-primary {
+    background: var(--school-btn-primary-bg) !important;
+    color: var(--sm-white) !important;
+}
+
+.badge.bg-secondary,
+.badge.text-bg-secondary {
+    background: var(--school-btn-secondary-bg) !important;
+    color: var(--sm-white) !important;
+}
+
+.badge.bg-dark,
+.badge.text-bg-dark {
+    background: var(--school-btn-secondary-bg) !important;
+    color: var(--sm-white) !important;
+}
+
+.badge.bg-success,
+.badge.text-bg-success,
+.badge.bg-info,
+.badge.text-bg-info {
+    background: var(--school-btn-success-bg) !important;
+    color: var(--sm-white) !important;
+}
+
+.badge.bg-warning,
+.badge.text-bg-warning {
+    background: var(--school-btn-warning-bg) !important;
+    color: var(--sm-white) !important;
+}
+
+.badge.bg-danger,
+.badge.text-bg-danger {
+    background: var(--school-btn-danger-bg) !important;
+    color: var(--sm-white) !important;
+}
+
+.alert-primary {
+    background: rgba(var(--school-primary-rgb), 0.14) !important;
+    border-color: rgba(var(--school-primary-rgb), 0.32) !important;
+    color: var(--sm-blue-900) !important;
+}
+
+.alert-secondary {
+    background: rgba(var(--school-secondary-rgb), 0.14) !important;
+    border-color: rgba(var(--school-secondary-rgb), 0.32) !important;
+    color: var(--sm-gray-950) !important;
+}
+
+.alert-success,
+.alert-info {
+    background: rgba(var(--school-secondary-rgb), 0.12) !important;
+    border-color: rgba(var(--school-secondary-rgb), 0.3) !important;
+    color: var(--sm-gray-950) !important;
+}
+
+.alert-warning {
+    background: rgba(var(--school-primary-rgb), 0.14) !important;
+    border-color: rgba(var(--school-primary-rgb), 0.3) !important;
+    color: var(--sm-blue-900) !important;
+}
+
+.alert-danger {
+    background: rgba(var(--school-secondary-rgb), 0.14) !important;
+    border-color: rgba(var(--school-secondary-rgb), 0.3) !important;
+    color: var(--sm-gray-950) !important;
+}
+
+.alert-primary .alert-link,
+.alert-secondary .alert-link,
+.alert-success .alert-link,
+.alert-info .alert-link,
+.alert-warning .alert-link,
+.alert-danger .alert-link {
+    color: inherit;
+}
+
+.text-primary {
+    color: var(--school-btn-primary-bg) !important;
+}
+
+.products-page .card-header,
+.uniformes-page .card-header {
+    background: linear-gradient(135deg, var(--school-primary-color), var(--school-secondary-color)) !important;
+    color: var(--sm-white) !important;
+    border-bottom: 0 !important;
+}
+
+.products-page .card-header h1,
+.products-page .card-header h2,
+.products-page .card-header h3,
+.products-page .card-header h4,
+.products-page .card-header h5,
+.products-page .card-header h6,
+.uniformes-page .card-header h1,
+.uniformes-page .card-header h2,
+.uniformes-page .card-header h3,
+.uniformes-page .card-header h4,
+.uniformes-page .card-header h5,
+.uniformes-page .card-header h6 {
+    color: inherit;
+}
+
+.products-page .table thead th,
+.products-page .table thead td,
+.uniformes-page .table thead th,
+.uniformes-page .table thead td {
+    background: linear-gradient(135deg, var(--school-primary-color), var(--school-secondary-color)) !important;
+    color: var(--sm-white) !important;
+}
+
+.school-style-page .table-responsive {
+    background: rgba(255, 255, 255, 0.96);
+    border-radius: 18px;
+    box-shadow: var(--sm-shadow);
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.72);
+}
+
+.school-style-page .table {
+    margin-bottom: 0;
+}
+
+.school-style-page .table thead th,
+.school-style-page .table thead td,
+.school-style-page .table-dark > :not(caption) > *,
+.school-style-page .table-secondary > :not(caption) > * {
+    background: linear-gradient(135deg, var(--school-primary-color), var(--school-secondary-color)) !important;
+    color: var(--sm-white) !important;
+    border-color: rgba(255, 255, 255, 0.18) !important;
+}
+
+.school-style-page .card-header {
+    background: linear-gradient(135deg, var(--school-primary-color), var(--school-secondary-color)) !important;
+    color: var(--sm-white) !important;
+    border-bottom: 0 !important;
+}
+
+.school-style-page .badge.bg-primary,
+.school-style-page .badge.text-bg-primary,
+.school-style-page .badge.bg-secondary,
+.school-style-page .badge.text-bg-secondary,
+.school-style-page .badge.bg-dark,
+.school-style-page .badge.text-bg-dark,
+.school-style-page .badge.bg-success,
+.school-style-page .badge.text-bg-success,
+.school-style-page .badge.bg-info,
+.school-style-page .badge.text-bg-info,
+.school-style-page .badge.bg-warning,
+.school-style-page .badge.text-bg-warning,
+.school-style-page .badge.bg-danger,
+.school-style-page .badge.text-bg-danger {
+    color: var(--sm-white) !important;
+}
+
+.school-style-page .btn {
+    border-radius: 999px;
+}
+
+.school-style-page .btn-outline-primary {
+    color: var(--school-btn-primary-bg) !important;
+    border-color: var(--school-btn-primary-bg) !important;
+}
+
+.school-style-page .btn-outline-primary:hover {
+    background: var(--school-btn-primary-bg) !important;
+    color: var(--sm-white) !important;
+}
+
+.school-style-page .btn-outline-secondary {
+    color: var(--school-btn-secondary-bg) !important;
+    border-color: var(--school-btn-secondary-bg) !important;
+}
+
+.school-style-page .btn-outline-secondary:hover {
+    background: var(--school-btn-secondary-bg) !important;
+    color: var(--sm-white) !important;
+}
+
+.school-style-page .btn-outline-success {
+    color: var(--school-btn-success-bg) !important;
+    border-color: var(--school-btn-success-bg) !important;
+}
+
+.school-style-page .btn-outline-success:hover {
+    background: var(--school-btn-success-bg) !important;
+    color: var(--sm-white) !important;
+}
+
+.school-style-page .btn-outline-warning {
+    color: var(--school-btn-warning-bg) !important;
+    border-color: var(--school-btn-warning-bg) !important;
+}
+
+.school-style-page .btn-outline-warning:hover {
+    background: var(--school-btn-warning-bg) !important;
+    color: var(--sm-white) !important;
+}
+
+.school-style-page .btn-outline-danger {
+    color: var(--school-btn-danger-bg) !important;
+    border-color: var(--school-btn-danger-bg) !important;
+}
+
+.school-style-page .btn-outline-danger:hover {
+    background: var(--school-btn-danger-bg) !important;
+    color: var(--sm-white) !important;
+}
+
+.payments-page .table thead th,
+.payments-page .table thead td,
+.attendance-page .table thead th,
+.attendance-page .table thead td {
+    background: linear-gradient(135deg, var(--school-primary-color), var(--school-secondary-color)) !important;
+    color: var(--sm-white) !important;
+    border-color: rgba(255, 255, 255, 0.18) !important;
+}
+
+.payments-page .table-responsive {
+    background: rgba(255, 255, 255, 0.96);
+    border-radius: 18px;
+    box-shadow: var(--sm-shadow);
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.72);
+}
+
+.payments-page .card-header {
+    background: linear-gradient(135deg, var(--school-primary-color), var(--school-secondary-color)) !important;
+    color: var(--sm-white) !important;
+    border-bottom: 0 !important;
+}
+
+.attendance-page {
+    max-width: 1100px;
+    margin-left: auto;
+    margin-right: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.attendance-page .card {
+    border-radius: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.72);
+    box-shadow: var(--sm-shadow);
+    overflow: hidden;
+}
+
+.attendance-page .card-body {
+    background: rgba(255, 255, 255, 0.96);
+}
+
+.attendance-page .attendance-title-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.attendance-page .attendance-guardian-filter {
+    display: grid;
+    gap: 8px;
+    max-width: 260px;
+}
+
+.attendance-page .attendance-list {
+    display: grid;
+    gap: 12px;
+}
+
+.attendance-page .attendance-card {
+    background: rgba(255, 255, 255, 0.96);
+    border: 1px solid rgba(var(--school-primary-rgb), 0.18);
+    border-left: 6px solid var(--school-primary-color);
+    border-radius: 18px;
+    box-shadow: var(--sm-shadow);
+    padding: 16px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+}
+
+.attendance-page .attendance-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 18px 38px rgba(16, 42, 67, 0.14);
+}
+
+.attendance-page .attendance-card h2 {
+    margin: 0 0 6px;
+    color: var(--sm-blue-900);
+    font-size: 1.05rem;
+}
+
+.attendance-page .attendance-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 12px;
+    color: var(--sm-gray-700);
+    font-size: 0.9rem;
+}
+
+.attendance-page .attendance-comment {
+    margin-top: 10px;
+    color: var(--sm-gray-700);
+}
+
+.attendance-page .attendance-status-badge {
+    min-width: 120px;
+    border-radius: 999px;
 }
 
 .form-control,
@@ -1499,7 +1903,7 @@ footer {
 }
 
 .text-primary {
-    color: var(--sm-blue-700) !important;
+    color: var(--school-btn-primary-bg) !important;
 }
 
 .text-muted {
@@ -1720,11 +2124,11 @@ footer {
     width: 100%;
     min-height: 76px;
     padding: 12px 14px;
-    background: rgba(255, 255, 255, 0.92);
-    color: var(--sm-blue-900);
-    border: 1px solid var(--sm-gray-200);
+    background: var(--sm-white);
+    color: var(--school-btn-secondary-bg);
+    border: 1px solid var(--school-btn-secondary-bg);
     border-radius: var(--sm-radius);
-    box-shadow: var(--sm-shadow);
+    box-shadow: 0 12px 28px rgba(19, 44, 66, 0.12);
     font-size: 0.92rem;
     font-weight: 700;
     text-transform: none;
@@ -1733,8 +2137,13 @@ footer {
 
 .card-dashboard:hover {
     transform: translateY(-3px);
-    background: var(--sm-blue-700);
+    background: var(--school-btn-primary-bg);
     color: var(--sm-white);
+}
+
+.card-dashboard:focus-visible {
+    outline: 3px solid rgba(var(--school-primary-rgb), 0.28);
+    outline-offset: 2px;
 }
 
 .rol-box {

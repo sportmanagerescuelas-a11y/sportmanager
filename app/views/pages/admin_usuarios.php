@@ -13,7 +13,7 @@ function rol_nombre(int $rol): string
 ?>
 <br>
 <br>
-<div class="container-fluid admin-users-page mt-5">
+<div class="container-fluid admin-users-page school-style-page mt-5">
     <?php if (!$isSchoolAdminView): ?>
     <h2 class="text-center mb-4">Usuarios Pendientes</h2>
     <div class="table-responsive admin-users-table-wrap">

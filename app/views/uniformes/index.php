@@ -8,7 +8,7 @@ $message = (string)($viewData['message'] ?? '');
 $messageClass = str_contains(strtolower($message), 'no se') ? 'alert-danger' : 'alert-success';
 ?>
 
-<section class="container py-5 mt-4">
+<section class="container py-5 mt-4 uniformes-page">
     <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
         <div>
             <h2 class="mb-1">Uniformes</h2>
@@ -29,7 +29,7 @@ $messageClass = str_contains(strtolower($message), 'no se') ? 'alert-danger' : '
     <?php endif; ?>
 
     <div class="card border-0 shadow-sm rounded-4">
-        <div class="card-header bg-white border-0 pt-4 px-4 pb-0">
+        <div class="card-header border-0 pt-4 px-4 pb-0">
             <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
                 <h5 class="mb-0">Uniformes registrados</h5>
                 <span class="badge text-bg-primary"><?= count($uniformes) ?> registro(s)</span>
@@ -39,7 +39,7 @@ $messageClass = str_contains(strtolower($message), 'no se') ? 'alert-danger' : '
             <?php if (count($uniformes) > 0): ?>
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0">
-                        <thead class="table-light">
+                        <thead class="table-secondary">
                             <tr>
                                 <th>#</th>
                                 <th>Numero</th>
@@ -57,7 +57,7 @@ $messageClass = str_contains(strtolower($message), 'no se') ? 'alert-danger' : '
                             <?php foreach ($uniformes as $uniforme): ?>
                                 <tr>
                                     <td class="fw-semibold"><?= htmlspecialchars((string)($uniforme['id_uniforme'] ?? ''), ENT_QUOTES, 'UTF-8') ?></td>
-                                    <td><span class="badge text-bg-dark"><?= htmlspecialchars((string)($uniforme['numero_camiseta'] ?? ''), ENT_QUOTES, 'UTF-8') ?></span></td>
+                                    <td><span class="badge text-bg-secondary"><?= htmlspecialchars((string)($uniforme['numero_camiseta'] ?? ''), ENT_QUOTES, 'UTF-8') ?></span></td>
                                     <td>
                                         <?= htmlspecialchars(trim((string)($uniforme['nombres'] ?? '') . ' ' . (string)($uniforme['apellidos'] ?? '')), ENT_QUOTES, 'UTF-8') ?>
                                     </td>

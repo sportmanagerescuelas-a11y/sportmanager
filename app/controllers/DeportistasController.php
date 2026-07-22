@@ -96,12 +96,17 @@ class DeportistasController extends Controller
 
         $rows = $fecha !== '' ? Asistencia::forGuardianByDate($userId, $fecha) : [];
 
-        $this->render('deportistas/asistencia_hijos', [
+        $viewData = [
             'title' => 'Asistencias de mis hijos',
             'fechas' => $fechas,
             'fecha' => $fecha,
             'rows' => $rows,
-        ]);
+        ];
+
+        extract($viewData, EXTR_SKIP);
+        require __DIR__ . '/../views/layout/header.php';
+        require __DIR__ . '/../views/deportistas/asistencia_hijos.php';
+        require __DIR__ . '/../views/layout/footer.php';
     }
 
     public function guardar(): void

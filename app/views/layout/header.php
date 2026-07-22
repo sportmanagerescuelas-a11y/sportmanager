@@ -77,6 +77,44 @@
 
     $primaryRgb = $hexToRgb($schoolPrimaryColor);
     $secondaryRgb = $hexToRgb($schoolSecondaryColor);
+    $mixColor = static function (string $hex, string $targetHex, float $amount): string {
+        $hex = ltrim($hex, '#');
+        $targetHex = ltrim($targetHex, '#');
+        if (strlen($hex) !== 6 || strlen($targetHex) !== 6 || !ctype_xdigit($hex) || !ctype_xdigit($targetHex)) {
+            return '#212529';
+        }
+
+        $amount = max(0.0, min(1.0, $amount));
+        $from = [
+            hexdec(substr($hex, 0, 2)),
+            hexdec(substr($hex, 2, 2)),
+            hexdec(substr($hex, 4, 2)),
+        ];
+        $to = [
+            hexdec(substr($targetHex, 0, 2)),
+            hexdec(substr($targetHex, 2, 2)),
+            hexdec(substr($targetHex, 4, 2)),
+        ];
+
+        $rgb = [];
+        for ($i = 0; $i < 3; $i++) {
+            $rgb[$i] = (int)round($from[$i] + (($to[$i] - $from[$i]) * $amount));
+        }
+
+        return sprintf('#%02x%02x%02x', $rgb[0], $rgb[1], $rgb[2]);
+    };
+    $buttonPrimaryBg = $schoolPrimaryColor;
+    $buttonPrimaryHover = $mixColor($schoolPrimaryColor, '#000000', 0.12);
+    $buttonSecondaryBg = $schoolSecondaryColor;
+    $buttonSecondaryHover = $mixColor($schoolSecondaryColor, '#000000', 0.12);
+    $buttonSuccessBg = $mixColor($schoolSecondaryColor, '#ffffff', 0.16);
+    $buttonSuccessHover = $mixColor($schoolSecondaryColor, '#000000', 0.08);
+    $buttonInfoBg = $mixColor($schoolPrimaryColor, '#000000', 0.1);
+    $buttonInfoHover = $mixColor($schoolPrimaryColor, '#000000', 0.18);
+    $buttonWarningBg = $mixColor($schoolPrimaryColor, '#000000', 0.22);
+    $buttonWarningHover = $mixColor($schoolPrimaryColor, '#000000', 0.32);
+    $buttonDangerBg = $mixColor($schoolSecondaryColor, '#000000', 0.18);
+    $buttonDangerHover = $mixColor($schoolSecondaryColor, '#000000', 0.28);
     $shieldCssPath = str_replace('\\', '/', trim((string)$schoolShieldPath));
     $shieldCssPath = str_replace(['"', "'", ' '], ['%22', '%27', '%20'], $shieldCssPath);
     $schoolShieldCssImage = $shieldCssPath !== '' ? "url({$shieldCssPath})" : 'none';
@@ -90,7 +128,7 @@
     <link rel="stylesheet" href="assets/css/style.css?v=<?= urlencode($styleVersion) ?>">
 </head>
 
-    <body style="--school-primary-color: <?= htmlspecialchars($schoolPrimaryColor, ENT_QUOTES, 'UTF-8') ?>; --school-secondary-color: <?= htmlspecialchars($schoolSecondaryColor, ENT_QUOTES, 'UTF-8') ?>; --school-primary-rgb: <?= (int)$primaryRgb[0] ?>, <?= (int)$primaryRgb[1] ?>, <?= (int)$primaryRgb[2] ?>; --school-secondary-rgb: <?= (int)$secondaryRgb[0] ?>, <?= (int)$secondaryRgb[1] ?>, <?= (int)$secondaryRgb[2] ?>; --school-shield-image: <?= htmlspecialchars($schoolShieldCssImage, ENT_QUOTES, 'UTF-8') ?>;">
+    <body style="--school-primary-color: <?= htmlspecialchars($schoolPrimaryColor, ENT_QUOTES, 'UTF-8') ?>; --school-secondary-color: <?= htmlspecialchars($schoolSecondaryColor, ENT_QUOTES, 'UTF-8') ?>; --school-primary-rgb: <?= (int)$primaryRgb[0] ?>, <?= (int)$primaryRgb[1] ?>, <?= (int)$primaryRgb[2] ?>; --school-secondary-rgb: <?= (int)$secondaryRgb[0] ?>, <?= (int)$secondaryRgb[1] ?>, <?= (int)$secondaryRgb[2] ?>; --school-btn-primary-bg: <?= htmlspecialchars($buttonPrimaryBg, ENT_QUOTES, 'UTF-8') ?>; --school-btn-primary-hover: <?= htmlspecialchars($buttonPrimaryHover, ENT_QUOTES, 'UTF-8') ?>; --school-btn-secondary-bg: <?= htmlspecialchars($buttonSecondaryBg, ENT_QUOTES, 'UTF-8') ?>; --school-btn-secondary-hover: <?= htmlspecialchars($buttonSecondaryHover, ENT_QUOTES, 'UTF-8') ?>; --school-btn-success-bg: <?= htmlspecialchars($buttonSuccessBg, ENT_QUOTES, 'UTF-8') ?>; --school-btn-success-hover: <?= htmlspecialchars($buttonSuccessHover, ENT_QUOTES, 'UTF-8') ?>; --school-btn-info-bg: <?= htmlspecialchars($buttonInfoBg, ENT_QUOTES, 'UTF-8') ?>; --school-btn-info-hover: <?= htmlspecialchars($buttonInfoHover, ENT_QUOTES, 'UTF-8') ?>; --school-btn-warning-bg: <?= htmlspecialchars($buttonWarningBg, ENT_QUOTES, 'UTF-8') ?>; --school-btn-warning-hover: <?= htmlspecialchars($buttonWarningHover, ENT_QUOTES, 'UTF-8') ?>; --school-btn-danger-bg: <?= htmlspecialchars($buttonDangerBg, ENT_QUOTES, 'UTF-8') ?>; --school-btn-danger-hover: <?= htmlspecialchars($buttonDangerHover, ENT_QUOTES, 'UTF-8') ?>; --bs-primary: <?= htmlspecialchars($schoolPrimaryColor, ENT_QUOTES, 'UTF-8') ?>; --bs-secondary: <?= htmlspecialchars($schoolSecondaryColor, ENT_QUOTES, 'UTF-8') ?>; --bs-success: <?= htmlspecialchars($buttonSuccessBg, ENT_QUOTES, 'UTF-8') ?>; --bs-info: <?= htmlspecialchars($buttonInfoBg, ENT_QUOTES, 'UTF-8') ?>; --bs-warning: <?= htmlspecialchars($buttonWarningBg, ENT_QUOTES, 'UTF-8') ?>; --bs-danger: <?= htmlspecialchars($buttonDangerBg, ENT_QUOTES, 'UTF-8') ?>; --bs-primary-rgb: <?= (int)$primaryRgb[0] ?>, <?= (int)$primaryRgb[1] ?>, <?= (int)$primaryRgb[2] ?>; --bs-secondary-rgb: <?= (int)$secondaryRgb[0] ?>, <?= (int)$secondaryRgb[1] ?>, <?= (int)$secondaryRgb[2] ?>; --school-shield-image: <?= htmlspecialchars($schoolShieldCssImage, ENT_QUOTES, 'UTF-8') ?>;">
     <header>
         <div class="top-bar top-bar--brand text-white py-1">
             <div class="container top-bar__inner">

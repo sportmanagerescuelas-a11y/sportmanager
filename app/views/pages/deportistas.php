@@ -5,7 +5,7 @@ $rol = (int)($viewData['rol'] ?? ($_SESSION['rol'] ?? 0));
 ?>
 <br>
 <br>
-<div class="container mt-4">
+<div class="container mt-4 school-style-page athletes-page">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2>Lista de Deportistas</h2>
         <?php if ($rol !== 2): ?>
