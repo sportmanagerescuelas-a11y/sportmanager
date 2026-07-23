@@ -10,6 +10,7 @@ ini_set('display_errors', '1');
 
 define('APP_BASE_PATH', dirname(__DIR__));
 require_once APP_BASE_PATH . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'session.php';
+require_once APP_BASE_PATH . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'env.php';
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'helpers' . DIRECTORY_SEPARATOR . 'ui.php';
 
 define('APP_PATH', __DIR__);

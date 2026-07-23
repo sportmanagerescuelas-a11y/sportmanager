@@ -7,19 +7,30 @@ $messageMode = (string)($messageMode ?? 'reset_sent');
 $config = [
     'reset_sent' => [
         'title' => 'Solicitud enviada',
-        'kicker' => 'Recuperación de cuenta',
+        'kicker' => 'Recuperacion de cuenta',
         'subtitle' => 'Revisa tu bandeja de entrada.',
         'image' => 'editar.gif',
-        'body' => 'Si el correo existe o la contraseña fue actualizada, recibirás instrucciones para continuar.',
+        'body' => 'Si el correo existe, recibirás instrucciones para continuar.',
         'button' => 'Aceptar',
+        'href' => 'login',
+    ],
+    'reset_failed' => [
+        'title' => 'No se pudo enviar',
+        'kicker' => 'Recuperacion de cuenta',
+        'subtitle' => 'Hubo un problema con el correo.',
+        'image' => 'editar.gif',
+        'body' => 'Generamos la solicitud, pero el sistema no pudo entregar el mensaje. Revisa la configuracion de correo del servidor e intenta de nuevo.',
+        'button' => 'Volver a intentar',
+        'href' => 'recuperar',
     ],
     'password_success' => [
-        'title' => 'Contraseña actualizada',
+        'title' => 'Contrasena actualizada',
         'kicker' => 'Cambio exitoso',
-        'subtitle' => 'Ya puedes iniciar sesión.',
+        'subtitle' => 'Ya puedes iniciar sesion.',
         'image' => 'controlar.gif',
-        'body' => 'Tu contraseña fue cambiada correctamente. Ahora puedes volver a acceder con tu nueva clave.',
+        'body' => 'Tu contrasena fue cambiada correctamente. Ahora puedes volver a acceder con tu nueva clave.',
         'button' => 'Ir al inicio',
+        'href' => 'login',
     ],
 ];
 
@@ -85,7 +96,7 @@ $current = $config[$messageMode] ?? $config['reset_sent'];
         <p class="mb-0 fs-6"><?= htmlspecialchars($current['body'], ENT_QUOTES, 'UTF-8') ?></p>
       </div>
       <div class="modal-footer border-0 justify-content-center pb-4 pt-0">
-        <a href="<?= $messageMode === 'password_success' ? 'login' : 'login' ?>" class="btn btn-success px-4 py-2 fw-semibold">
+        <a href="<?= htmlspecialchars($current['href'], ENT_QUOTES, 'UTF-8') ?>" class="btn btn-success px-4 py-2 fw-semibold">
           <?= htmlspecialchars($current['button'], ENT_QUOTES, 'UTF-8') ?>
         </a>
       </div>

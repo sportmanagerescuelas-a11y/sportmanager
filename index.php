@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/config/session.php';
+require_once __DIR__ . '/config/env.php';
 
 if (isset($_GET['action'])) {
     require_once __DIR__ . '/config/conexion.php';
