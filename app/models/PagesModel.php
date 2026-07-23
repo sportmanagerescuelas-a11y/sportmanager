@@ -97,6 +97,7 @@ class PagesModel
                    f.monto AS factura_monto,
                    f.descripcion AS factura_descripcion,
                    f.tipo_pago AS factura_tipo_pago,
+                   f.comprobante_path AS factura_comprobante_path,
                    f.id_evento AS factura_id_evento,
                    f.id_deportista AS factura_id_deportista
             FROM usuarios u
@@ -123,12 +124,28 @@ class PagesModel
         }
 
         $stmt = $this->db->prepare("
-            SELECT u.*, e.nombre AS nombre_escuela
+            SELECT u.*, e.nombre AS nombre_escuela,
+                   f.id_factura AS factura_id,
+                   f.numero_factura AS factura_numero,
+                   f.fecha_emision AS factura_fecha,
+                   f.monto AS factura_monto,
+                   f.descripcion AS factura_descripcion,
+                   f.tipo_pago AS factura_tipo_pago,
+                   f.comprobante_path AS factura_comprobante_path
             FROM usuarios u
             LEFT JOIN escuelas e ON e.id_escuela = u.id_escuela
+            LEFT JOIN (
+                SELECT f1.*
+                FROM facturas f1
+                INNER JOIN (
+                    SELECT id, MAX(id_factura) AS max_factura
+                    FROM facturas
+                    GROUP BY id
+                ) f2 ON f1.id = f2.id AND f1.id_factura = f2.max_factura
+            ) f ON f.id = u.id_usuario
             WHERE u.id_escuela = :school_id
-              AND u.id_rol = 2
-              AND u.estado = 'pendiente'
+              AND u.id_rol IN (1, 2)
+              AND u.estado IN ('pendiente', 'pago_pendiente')
             ORDER BY u.nombres ASC, u.apellidos ASC
         ");
         $stmt->execute([':school_id' => $schoolId]);

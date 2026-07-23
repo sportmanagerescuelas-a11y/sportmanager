@@ -47,12 +47,16 @@ $facturas = is_array($viewData['facturas'] ?? null) ? $viewData['facturas'] : []
                                             Visualizar
                                         </a>
                                         
-                                        <a href="index.php?action=pdf&id=<?= urlencode((string)($f['id_factura'] ?? '')) ?>" class="btn btn-sm btn-danger">
+                                        <a href="index.php?action=pdf&id=<?= urlencode((string)($f['id_factura'] ?? '')) ?>" class="btn btn-sm btn-danger" target="_blank" rel="noopener noreferrer">
                                             Descargar PDF
                                         </a>
                                         <?php if (!empty($f['comprobante_path'])): ?>
-                                            <a href="index.php?action=comprobante&id=<?= urlencode((string)($f['id_factura'] ?? '')) ?>" class="btn btn-sm btn-outline-secondary">
+                                            <a href="index.php?action=comprobante&id=<?= urlencode((string)($f['id_factura'] ?? '')) ?>" class="btn btn-sm btn-outline-secondary" target="_blank" rel="noopener noreferrer">
                                                 Comprobante
+                                            </a>
+                                        <?php else: ?>
+                                            <a href="index.php?action=subir_comprobante&id=<?= urlencode((string)($f['id_factura'] ?? '')) ?>" class="btn btn-sm btn-outline-secondary">
+                                                Subir comprobante
                                             </a>
                                         <?php endif; ?>
                                     </td>

@@ -22,7 +22,7 @@ $rol = (int)($_SESSION['rol'] ?? 0);
                 $idEvento = (int)($e['id_evento'] ?? 0);
                 $costoEvento = (float)($e['costo'] ?? 0);
                 $registeredQuantity = max(0, (int)($e['registered_quantity'] ?? 0));
-                $urlPagar = 'pago_evento&id_evento=' . urlencode((string)$idEvento);
+                $urlPagar = 'iniciar&id_evento=' . urlencode((string)$idEvento) . '&return_to=' . urlencode('eventos');
                 ?>
                 <tr>
                     <td><?= htmlspecialchars((string)$e['titulo']) ?></td>

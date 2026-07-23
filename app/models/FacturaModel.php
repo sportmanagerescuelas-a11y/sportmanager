@@ -105,4 +105,15 @@ class FacturaModel {
         ]);
         return $stmt->fetch();
     }
+
+    public function actualizarComprobantePath(int $id_factura, string $comprobantePath): bool {
+        $query = "UPDATE facturas
+                  SET comprobante_path = :comprobante_path
+                  WHERE id_factura = :id_factura";
+        $stmt = $this->db->prepare($query);
+        return $stmt->execute([
+            'id_factura' => $id_factura,
+            'comprobante_path' => $comprobantePath,
+        ]);
+    }
 }

@@ -220,7 +220,7 @@ $assetBase = '/sportmanager/';
                     </div>
                     <div class="col-12" id="comprobantePagoWrap" style="display:none;">
                         <div class="alert alert-info mb-0 py-2">
-                            Solo el registro de administrador usa la pasarela de pago. Acudientes y formadores se crean directamente.
+                            El acudiente se enviara a la pasarela de pago despues de registrarse. El formador se crea con aprobacion del administrador.
                         </div>
                     </div>
                     <input type="hidden" name="id_metodo_pago" id="registrationPaymentMethod" value="">

@@ -2,16 +2,22 @@
 $viewData = get_defined_vars();
 $rows = is_array($viewData['rows'] ?? null) ? $viewData['rows'] : [];
 $rol = (int)($viewData['rol'] ?? ($_SESSION['rol'] ?? 0));
+$canCreateAthletes = (bool)($viewData['canCreateAthletes'] ?? true);
+$athleteAccessMessage = (string)($viewData['athleteAccessMessage'] ?? '');
 ?>
 <br>
 <br>
 <div class="container mt-4 school-style-page athletes-page">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2>Lista de Deportistas</h2>
-        <?php if ($rol !== 2): ?>
+        <?php if ($rol !== 2 && $canCreateAthletes): ?>
             <a href="crear_deportista" class="btn btn-success">Nuevo deportista</a>
         <?php endif; ?>
     </div>
+
+    <?php if ($athleteAccessMessage !== ''): ?>
+        <div class="alert alert-warning"><?= htmlspecialchars($athleteAccessMessage, ENT_QUOTES, 'UTF-8') ?></div>
+    <?php endif; ?>
 
     <div class="table-responsive">
         <table class="table table-striped table-bordered">

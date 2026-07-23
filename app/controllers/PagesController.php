@@ -247,19 +247,31 @@ class PagesController
     public function athletes(): void
     {
         $this->requireLogin();
+        $athleteAccessMessage = $this->athleteRegistrationBlockedMessage();
+        $canCreateAthletes = $athleteAccessMessage === '';
         $this->render('deportistas', [
             'rows' => $this->model()->athletesForRole((int)$_SESSION['id_usuario'], (int)$_SESSION['rol']),
             'rol' => (int)$_SESSION['rol'],
+            'canCreateAthletes' => $canCreateAthletes,
+            'athleteAccessMessage' => $athleteAccessMessage,
         ]);
     }
 
     public function createAthlete(): void
     {
         $this->requireLogin();
+        $blockedMessage = $this->athleteRegistrationBlockedMessage();
+        if ($blockedMessage !== '') {
+            $messageMode = 'athlete_payment_pending';
+            require __DIR__ . '/../views/layout/mensaje.php';
+            return;
+        }
+
         $error = null;
         $errorDetails = [];
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
             $payload = $this->athletePayload('default.png');
             $payload['id_usuario'] = (int)$_SESSION['id_usuario'];
             $payload['foto'] = $this->storeUploadedPhoto('default.png');
@@ -634,6 +646,22 @@ class PagesController
     private function requestId(): string
     {
         return trim((string)($_POST['id'] ?? $_GET['id'] ?? ''));
+    }
+
+    private function athleteRegistrationBlockedMessage(): string
+    {
+        if ((int)($_SESSION['rol'] ?? 0) !== 1) {
+            return '';
+        }
+
+        $currentUser = $this->model()->userById((string)($_SESSION['id_usuario'] ?? ''));
+        $estadoUsuario = strtolower(trim((string)($currentUser['estado'] ?? ($_SESSION['usuario']['estado'] ?? ''))));
+        $habilitadoUsuario = (int)($currentUser['habilitado'] ?? ($_SESSION['usuario']['habilitado'] ?? 0));
+        if ($estadoUsuario !== 'aprobado' || $habilitadoUsuario !== 1) {
+            return 'Aun no puedes registrar deportistas porque tu pago no ha sido validado por el administrador de la escuela.';
+        }
+
+        return '';
     }
 
     private function redirect(string $url): void

@@ -12,8 +12,11 @@ $factura = is_array($viewData['factura'] ?? null) ? $viewData['factura'] : [];
         <div class="d-flex gap-2 flex-wrap justify-content-end">
             <?php if (!empty($factura['comprobante_path'])): ?>
                 <a href="index.php?action=comprobante&id=<?= urlencode((string)($factura['id_factura'] ?? '')) ?>" class="btn btn-outline-primary">Ver comprobante</a>
+                <a href="index.php?action=subir_comprobante&id=<?= urlencode((string)($factura['id_factura'] ?? '')) ?>" class="btn btn-outline-secondary">Reemplazar comprobante</a>
+            <?php else: ?>
+                <a href="index.php?action=subir_comprobante&id=<?= urlencode((string)($factura['id_factura'] ?? '')) ?>" class="btn btn-outline-secondary">Subir comprobante</a>
             <?php endif; ?>
-            <a href="index.php?action=pdf&id=<?= urlencode((string)($factura['id_factura'] ?? '')) ?>" class="btn btn-danger">Descargar PDF</a>
+            <a href="index.php?action=pdf&id=<?= urlencode((string)($factura['id_factura'] ?? '')) ?>" class="btn btn-danger" target="_blank" rel="noopener noreferrer">Descargar PDF</a>
         </div>
     </div>
 

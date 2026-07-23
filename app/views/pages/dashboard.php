@@ -127,7 +127,7 @@ $dashboardActionChunks = array_chunk($dashboardActions, $rol === 3 ? 3 : 2);
                     <div class="modal-footer" style="background-color: #fff; border-top: 1px solid var(--school-primary-color);">
                         <span class="me-auto">Inscritos: <b id="count<?= (int)$e->id_evento ?>"><?= (int)$e->total_inscritos ?></b></span>
                         <?php if ((float)$e->costo > 0 && count($registeredAthleteIds) > 0): ?>
-                            <a href="pago_evento&id_evento=<?= (int)$e->id_evento ?>" class="btn btn-warning">Pagar</a>
+                            <a href="iniciar&id_evento=<?= (int)$e->id_evento ?>&return_to=<?= urlencode('dashboard') ?>" class="btn btn-warning">Pagar</a>
                         <?php elseif ((float)$e->costo <= 0): ?>
                             <span class="badge text-bg-secondary">Evento gratuito</span>
                         <?php endif; ?>

@@ -13,7 +13,7 @@ $idEvento = (int)($viewData['idEvento'] ?? 0);
         </div>
         <div class="d-flex flex-wrap gap-2">
             <?php if ($idEvento > 0): ?>
-                <a href="pago_evento&id_evento=<?= urlencode((string)$idEvento) ?>" class="btn btn-primary">
+                <a href="iniciar&id_evento=<?= urlencode((string)$idEvento) ?>&return_to=<?= urlencode('pagos') ?>" class="btn btn-primary">
                     Pagar evento
                 </a>
             <?php endif; ?>
@@ -74,7 +74,7 @@ $idEvento = (int)($viewData['idEvento'] ?? 0);
                                         <div class="d-flex justify-content-center gap-1 flex-wrap">
                                             <a href="index.php?action=ver&id=<?= urlencode((string)($factura['id_factura'] ?? '')) ?>" class="btn btn-sm btn-outline-primary">Factura</a>
                                             <?php if (!empty($factura['comprobante_path'])): ?>
-                                                <a href="index.php?action=comprobante&id=<?= urlencode((string)($factura['id_factura'] ?? '')) ?>" class="btn btn-sm btn-outline-secondary">Comprobante</a>
+                                                <a href="index.php?action=comprobante&id=<?= urlencode((string)($factura['id_factura'] ?? '')) ?>" class="btn btn-sm btn-outline-secondary" target="_blank" rel="noopener noreferrer">Comprobante</a>
                                             <?php endif; ?>
                                         </div>
                                     </td>

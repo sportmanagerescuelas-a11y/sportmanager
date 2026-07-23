@@ -43,8 +43,11 @@ class Usuario
         $passwordHash = password_hash($password, PASSWORD_DEFAULT);
         $this->lastPasswordHash = $passwordHash;
 
-        // Formador (2) y admin escuela (3) requieren aprobacion.
-        if ($id_rol == 2) {
+        // Formador (2), acudiente (1) y admin escuela (3) requieren flujo de validacion.
+        if ($id_rol == 1) {
+            $estado = 'pago_pendiente';
+            $habilitado = 0;
+        } elseif ($id_rol == 2) {
             $estado = 'pendiente';
             $habilitado = 0;
         } elseif ($id_rol == 3) {

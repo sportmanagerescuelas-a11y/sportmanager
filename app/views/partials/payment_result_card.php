@@ -8,6 +8,7 @@ $refreshUrl = (string)($viewData['refreshUrl'] ?? '');
 $retryUrl = (string)($viewData['retryUrl'] ?? 'iniciar');
 $nextUrl = (string)($viewData['nextUrl'] ?? '');
 $nextLabel = (string)($viewData['nextLabel'] ?? 'Continuar');
+$invoiceId = (int)($invoiceResult['factura_id'] ?? 0);
 
 $status = is_array($paymentResult['status'] ?? null) ? $paymentResult['status'] : [];
 $statusTone = (string)($status['tone'] ?? 'secondary');
@@ -54,6 +55,10 @@ if ($statusTone === 'success') {
         </div>
 
         <div class="d-flex flex-wrap gap-2">
+            <?php if ($statusKey === 'approved' && !empty($invoiceResult['saved']) && $invoiceId > 0): ?>
+                <a href="index.php?action=pdf&id=<?= urlencode((string)$invoiceId) ?>" class="btn btn-outline-primary" target="_blank" rel="noopener noreferrer">Descargar comprobante</a>
+                <a href="index.php?action=subir_comprobante&id=<?= urlencode((string)$invoiceId) ?>" class="btn btn-info text-white">Subir comprobante manual</a>
+            <?php endif; ?>
             <?php if ($statusKey === 'pending' && $refreshUrl !== ''): ?>
                 <a href="<?= htmlspecialchars($refreshUrl, ENT_QUOTES, 'UTF-8') ?>" class="btn btn-warning">Consultar estado</a>
             <?php elseif ($statusKey === 'rejected' || $statusKey === 'error'): ?>

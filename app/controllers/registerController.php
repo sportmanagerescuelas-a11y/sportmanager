@@ -304,6 +304,47 @@ if (isset($_POST["register"])) {
                 $conexion->commit();
             }
 
+            if ($id_rol === 1) {
+                $amount = sm_register_school_amount($conexion, (int)$id_escuela);
+                if ($amount > 0) {
+                    $_SESSION['id_usuario'] = (int)$id_usuario;
+                    $_SESSION['rol'] = 1;
+                    $_SESSION['usuario'] = [
+                        'id_usuario' => (int)$id_usuario,
+                        'tipo_documento' => $tipo_documento,
+                        'id_escuela' => (int)$id_escuela,
+                        'nombres' => $nombres,
+                        'apellidos' => $apellidos,
+                        'email' => $email,
+                        'telefono' => $telefono,
+                        'id_rol' => 1,
+                        'habilitado' => 0,
+                        'estado' => 'pago_pendiente',
+                    ];
+                    $_SESSION['registro_temporal'] = [
+                        'id_usuario' => (int)$id_usuario,
+                        'tipo_documento' => $tipo_documento,
+                        'id_escuela' => (int)$id_escuela,
+                        'nombres' => $nombres,
+                        'apellidos' => $apellidos,
+                        'nombre' => trim($nombres . ' ' . $apellidos),
+                        'email' => $email,
+                        'password' => $usuarioModel->lastPasswordHash(),
+                        'telefono' => $telefono,
+                        'id_rol' => 1,
+                        'cantidad' => 1,
+                        'tipo_persona' => 'N',
+                        'flujo' => 'registro_acudiente',
+                    ];
+
+                    $eventoTitulo = urlencode('Pago registro acudiente');
+                    $amountParam = urlencode((string)$amount);
+                    $returnTo = urlencode('register?success=payment_registered');
+                    header("Location: iniciar?evento={$eventoTitulo}&monto={$amountParam}&cantidad=1&return_to={$returnTo}");
+                    exit();
+                }
+            }
+
             if ($id_rol === 2) {
                 header('Location: register?success=pending_approval');
             } else {

@@ -19,10 +19,14 @@ function rol_nombre(int $rol): string
     <div class="table-responsive admin-users-table-wrap">
         <table class="table table-bordered text-center admin-users-table">
             <thead>
-                <tr><th>ID</th><th>Nombre</th><th>Email</th><th>Escuela</th><th>Rol solicitado</th><th>Pago admin</th><th class="admin-users-actions-head">Acciones</th></tr>
+                <tr><th>ID</th><th>Nombre</th><th>Email</th><th>Escuela</th><th>Rol solicitado</th><th>Pago admin</th><th>Comprobante</th><th class="admin-users-actions-head">Acciones</th></tr>
             </thead>
             <tbody>
                 <?php foreach ($usuariosPendientes as $user): ?>
+                    <?php
+                    $facturaId = (string)($user['factura_id'] ?? '');
+                    $comprobanteUrl = $facturaId !== '' ? 'index.php?action=comprobante&id=' . urlencode($facturaId) : '';
+                    ?>
                     <tr>
                         <td><?= htmlspecialchars((string)$user['id_usuario']) ?></td>
                         <td><?= htmlspecialchars($user['nombres'] . ' ' . $user['apellidos']) ?></td>
@@ -38,6 +42,31 @@ function rol_nombre(int $rol): string
                                 </span>
                             <?php else: ?>
                                 N/A
+                            <?php endif; ?>
+                        </td>
+                        <td>
+                            <?php if ($comprobanteUrl !== '' && !empty($user['factura_comprobante_path'])): ?>
+                                <?php if ($isSchoolAdminView): ?>
+                                    <a
+                                        href="<?= htmlspecialchars($comprobanteUrl, ENT_QUOTES, 'UTF-8') ?>"
+                                        class="btn btn-outline-primary btn-sm"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                    >
+                                        Ver
+                                    </a>
+                                <?php else: ?>
+                                    <button
+                                        type="button"
+                                        class="btn btn-outline-primary btn-sm btn-open-comprobante-modal"
+                                        data-comprobante-url="<?= htmlspecialchars($comprobanteUrl, ENT_QUOTES, 'UTF-8') ?>"
+                                        data-comprobante-title="Comprobante de <?= htmlspecialchars((string)$user['nombres'] . ' ' . (string)$user['apellidos'], ENT_QUOTES, 'UTF-8') ?>"
+                                    >
+                                        Ver
+                                    </button>
+                                <?php endif; ?>
+                            <?php else: ?>
+                                <span class="badge bg-secondary">Sin comprobante</span>
                             <?php endif; ?>
                         </td>
                         <td class="admin-users-actions-cell">
@@ -132,6 +161,30 @@ function rol_nombre(int $rol): string
 </div>
 <br>
 
+<div class="modal fade" id="viewComprobanteModal" tabindex="-1" aria-labelledby="viewComprobanteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <h5 class="modal-title mb-0" id="viewComprobanteModalLabel">Comprobante</h5>
+                    <div class="small text-muted" id="viewComprobanteSubtitle"></div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <div class="ratio ratio-16x9 bg-light border rounded overflow-hidden">
+                    <iframe
+                        id="viewComprobanteFrame"
+                        src="about:blank"
+                        title="Vista previa del comprobante"
+                        style="border: 0;"
+                    ></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <?php if (!$isSchoolAdminView): ?>
 <div class="modal fade" id="verifyPaymentModal" tabindex="-1" aria-labelledby="verifyPaymentModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
@@ -177,6 +230,35 @@ function rol_nombre(int $rol): string
 
 <script>
 window.addEventListener('load', function () {
+    const comprobanteModalElement = document.getElementById('viewComprobanteModal');
+    const comprobanteFrame = document.getElementById('viewComprobanteFrame');
+    const comprobanteSubtitle = document.getElementById('viewComprobanteSubtitle');
+    const comprobanteModal = comprobanteModalElement && window.bootstrap && bootstrap.Modal
+        ? bootstrap.Modal.getOrCreateInstance(comprobanteModalElement)
+        : null;
+
+    document.querySelectorAll('.btn-open-comprobante-modal').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            const url = btn.getAttribute('data-comprobante-url') || '';
+            const title = btn.getAttribute('data-comprobante-title') || 'Comprobante';
+            if (!url || !comprobanteModal || !comprobanteFrame) return;
+            if (comprobanteSubtitle) {
+                comprobanteSubtitle.textContent = title;
+            }
+            comprobanteFrame.src = url;
+            comprobanteModal.show();
+        });
+    });
+
+    if (comprobanteModalElement && comprobanteFrame) {
+        comprobanteModalElement.addEventListener('hidden.bs.modal', function () {
+            comprobanteFrame.src = 'about:blank';
+            if (comprobanteSubtitle) {
+                comprobanteSubtitle.textContent = '';
+            }
+        });
+    }
+
     const modalElement = document.getElementById('verifyPaymentModal');
     if (!modalElement || !window.bootstrap || !bootstrap.Modal) return;
 

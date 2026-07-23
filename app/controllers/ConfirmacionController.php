@@ -199,6 +199,14 @@ final class ConfirmacionController
                 $nextUrl = 'deportistas';
                 $nextLabel = 'Ver deportistas';
             }
+
+            $isAcudienteRegistration = $contextFlow === 'registro_acudiente'
+                || $temporalFlow === 'registro_acudiente'
+                || (int)($context['id_rol'] ?? 0) === 1;
+            if ($nextUrl === '' && $isAcudienteRegistration && !empty($invoiceResult['saved'])) {
+                $nextUrl = 'panel';
+                $nextLabel = 'Ir al panel';
+            }
         }
 
         $this->maybeMarkAdminPaymentVerified($context, $result);

@@ -32,6 +32,24 @@ $config = [
         'button' => 'Ir al inicio',
         'href' => 'login',
     ],
+    'athlete_payment_pending' => [
+        'title' => 'Registro bloqueado',
+        'kicker' => 'Pago pendiente',
+        'subtitle' => 'Aun no puedes registrar deportistas.',
+        'image' => 'silbato-deportivo.gif',
+        'body' => 'Tu cuenta de acudiente sigue pendiente de validacion. Hasta que el administrador de la escuela apruebe el pago, no podras registrar deportistas.',
+        'button' => 'Volver a mis deportistas',
+        'href' => 'deportistas',
+    ],
+    'receipt_saved' => [
+        'title' => 'Comprobante guardado',
+        'kicker' => 'Carga completada',
+        'subtitle' => 'Tu soporte quedo registrado.',
+        'image' => 'controlar.gif',
+        'body' => 'El comprobante fue guardado correctamente. Ahora puedes volver a tus pagos o continuar con la gestion que necesites.',
+        'button' => 'Iniciar sesion',
+        'href' => 'logout',
+    ],
 ];
 
 $current = $config[$messageMode] ?? $config['reset_sent'];

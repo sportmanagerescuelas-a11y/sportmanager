@@ -32,6 +32,13 @@ if (isset($_GET['action'])) {
             }
             $controller->verComprobante($id);
             break;
+        case 'subir_comprobante':
+            if (!$id) {
+                http_response_code(400);
+                die('Falta el ID de la factura.');
+            }
+            $controller->subirComprobante($id);
+            break;
         case 'listar':
         default:
             $controller->listar();
@@ -130,7 +137,7 @@ switch ($route) {
         } elseif ($route === 'reset') {
             $controller->showReset();
         } else {
-            $controller->guardarPassword();
+            $controller-> guardarPassword();
         }
         break;
     case 'registro-submit':
