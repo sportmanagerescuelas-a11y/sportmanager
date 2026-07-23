@@ -212,9 +212,13 @@ class PagesController
         $role = (int)($_SESSION['rol'] ?? 0);
         if ($role === 3) {
             $schoolId = (int)($_SESSION['usuario']['id_escuela'] ?? 0);
+            $usersBySchool = $schoolId > 0 ? $this->model()->usersBySchool($schoolId) : [];
+            $approvedUsers = array_values(array_filter($usersBySchool, static function ($user): bool {
+                return (string)($user['estado'] ?? '') !== 'pendiente';
+            }));
             $this->render('admin_usuarios', [
-                'usuariosPendientes' => [],
-                'usuariosAprobados' => $schoolId > 0 ? $this->model()->usersBySchool($schoolId) : [],
+                'usuariosPendientes' => $schoolId > 0 ? $this->model()->pendingUsersBySchool($schoolId) : [],
+                'usuariosAprobados' => $approvedUsers,
                 'isSchoolAdminView' => true,
             ]);
             return;
@@ -259,6 +263,7 @@ class PagesController
             $payload = $this->athletePayload('default.png');
             $payload['id_usuario'] = (int)$_SESSION['id_usuario'];
             $payload['foto'] = $this->storeUploadedPhoto('default.png');
+            $payload['id_estado'] = ((int)($_SESSION['rol'] ?? 0) === 1) ? 2 : 1;
 
             if (!preg_match('/^\d{1,11}$/', $payload['id_deportista'])) {
                 $errorDetails[] = 'El numero de documento del deportista debe tener maximo 11 digitos numericos.';
@@ -285,6 +290,23 @@ class PagesController
             if (!empty($errorDetails)) {
                 $error = 'Corrige los siguientes datos para registrar el deportista.';
             } elseif ($this->model()->createAthlete($payload)) {
+                $role = (int)($_SESSION['rol'] ?? 0);
+                if ($role === 1) {
+                    $schoolId = (int)($_SESSION['usuario']['id_escuela'] ?? 0);
+                    $school = $schoolId > 0 ? $this->model()->schoolById((string)$schoolId) : null;
+                    $enrollmentAmount = $school ? (float)($school->valor_inscripcion ?? 0) : 0.0;
+                    if ($enrollmentAmount > 0) {
+                        $_SESSION['registro_temporal'] = is_array($_SESSION['registro_temporal'] ?? null) ? $_SESSION['registro_temporal'] : [];
+                        $_SESSION['registro_temporal']['flujo'] = 'registro_deportista';
+                        $_SESSION['registro_temporal']['id_deportista'] = $payload['id_deportista'];
+                        $returnTo = urlencode('deportistas');
+                        $eventTitle = urlencode('Pago registro deportista');
+                        $amount = urlencode((string)$enrollmentAmount);
+                        $athleteId = urlencode((string)$payload['id_deportista']);
+                        $this->redirect("iniciar?evento={$eventTitle}&monto={$amount}&cantidad=1&id_deportista={$athleteId}&return_to={$returnTo}");
+                    }
+                }
+
                 $this->redirect('deportistas');
             } else {
                 $dbError = $this->model()->lastError();

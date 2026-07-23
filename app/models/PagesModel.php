@@ -116,6 +116,25 @@ class PagesModel
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function pendingUsersBySchool(int $schoolId): array
+    {
+        if ($schoolId <= 0) {
+            return [];
+        }
+
+        $stmt = $this->db->prepare("
+            SELECT u.*, e.nombre AS nombre_escuela
+            FROM usuarios u
+            LEFT JOIN escuelas e ON e.id_escuela = u.id_escuela
+            WHERE u.id_escuela = :school_id
+              AND u.id_rol = 2
+              AND u.estado = 'pendiente'
+            ORDER BY u.nombres ASC, u.apellidos ASC
+        ");
+        $stmt->execute([':school_id' => $schoolId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public function approvedUsers(): array
     {
         $stmt = $this->db->query("
@@ -671,8 +690,8 @@ class PagesModel
     {
         $stmt = $this->db->prepare("
             INSERT INTO deportistas
-            (tipo_documento, id_deportista, foto, nombres, apellidos, fecha_nacimiento, jornada, id_categoria, id_usuario, id_nivel, genero)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            (tipo_documento, id_deportista, foto, nombres, apellidos, fecha_nacimiento, jornada, id_categoria, id_usuario, id_estado, id_nivel, genero)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
         try {
             $ok = $stmt->execute([
@@ -685,6 +704,7 @@ class PagesModel
                 $data['jornada'],
                 $data['id_categoria'],
                 $data['id_usuario'],
+                isset($data['id_estado']) ? (int)$data['id_estado'] : 1,
                 $data['id_nivel'],
                 $data['genero'],
             ]);

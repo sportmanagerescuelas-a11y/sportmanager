@@ -74,8 +74,9 @@ final class IniciarController
         $telefonoUsuario = (string)($registroTemporal['telefono'] ?? $usuarioSesion['telefono'] ?? '');
         $dniUsuario = preg_replace('/\D+/', '', (string)($registroTemporal['id_usuario'] ?? $registroTemporal['dni'] ?? '')) ?? '';
         $tipoDocumentoUsuario = strtoupper(trim((string)($registroTemporal['tipo_documento'] ?? 'CC')));
-        $tipoPersonaUsuario = in_array((string)($registroTemporal['tipo_persona'] ?? 'N'), ['N', 'J'], true)
-            ? (string)$registroTemporal['tipo_persona']
+        $tipoPersonaTemporal = (string)($registroTemporal['tipo_persona'] ?? 'N');
+        $tipoPersonaUsuario = in_array($tipoPersonaTemporal, ['N', 'J'], true)
+            ? $tipoPersonaTemporal
             : 'N';
 
         if (!isset($_SESSION['registro_temporal']) || !is_array($_SESSION['registro_temporal'])) {

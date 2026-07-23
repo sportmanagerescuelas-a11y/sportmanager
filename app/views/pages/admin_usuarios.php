@@ -14,7 +14,7 @@ function rol_nombre(int $rol): string
 <br>
 <br>
 <div class="container-fluid admin-users-page school-style-page mt-5">
-    <?php if (!$isSchoolAdminView): ?>
+    <?php if (!$isSchoolAdminView || !empty($usuariosPendientes)): ?>
     <h2 class="text-center mb-4">Usuarios Pendientes</h2>
     <div class="table-responsive admin-users-table-wrap">
         <table class="table table-bordered text-center admin-users-table">
@@ -30,7 +30,9 @@ function rol_nombre(int $rol): string
                         <td><?= htmlspecialchars((string)($user['nombre_escuela'] ?? 'Sin escuela')) ?></td>
                         <td><?= htmlspecialchars(rol_nombre((int)$user['id_rol'])) ?></td>
                         <td>
-                            <?php if ((int)$user['id_rol'] === 3): ?>
+                            <?php if ($isSchoolAdminView): ?>
+                                <span class="badge bg-secondary">Pendiente de aprobación</span>
+                            <?php elseif ((int)$user['id_rol'] === 3): ?>
                                 <span class="badge <?= ($user['estado'] ?? '') === 'pago_pendiente' ? 'bg-warning text-dark' : 'bg-secondary' ?>">
                                     <?= htmlspecialchars((string)($user['estado'] ?? 'pendiente')) ?>
                                 </span>
@@ -40,7 +42,18 @@ function rol_nombre(int $rol): string
                         </td>
                         <td class="admin-users-actions-cell">
                             <div class="admin-users-actions">
-                                <?php if ((int)$user['id_rol'] === 3 && ($user['estado'] ?? '') === 'pago_pendiente'): ?>
+                                <?php if ($isSchoolAdminView): ?>
+                                    <form action="controllers/editarUsuarioController.php" method="POST" class="m-0">
+                                        <input type="hidden" name="id_usuario" value="<?= htmlspecialchars((string)$user['id_usuario']) ?>">
+                                        <input type="hidden" name="accion" value="activar">
+                                        <button class="btn btn-success btn-sm">Aprobar</button>
+                                    </form>
+                                    <form action="controllers/editarUsuarioController.php" method="POST" class="m-0">
+                                        <input type="hidden" name="id_usuario" value="<?= htmlspecialchars((string)$user['id_usuario']) ?>">
+                                        <input type="hidden" name="accion" value="deshabilitar">
+                                        <button class="btn btn-danger btn-sm">Rechazar</button>
+                                    </form>
+                                <?php elseif ((int)$user['id_rol'] === 3 && ($user['estado'] ?? '') === 'pago_pendiente'): ?>
                                     <button
                                         type="button"
                                         class="btn btn-primary btn-sm btn-open-verify-modal"
@@ -61,18 +74,20 @@ function rol_nombre(int $rol): string
                                     <a href="index.php?action=ver&id=<?= urlencode((string)$user['factura_id']) ?>" class="btn btn-info btn-sm">Ver factura</a>
                                 <?php endif; ?>
 
-                                <?php if ((int)$user['id_rol'] === 3 && ($user['estado'] ?? '') === 'pago_pendiente'): ?>
-                                    <button type="button" class="btn btn-success btn-sm" disabled title="Primero debes verificar el pago.">Aprobar</button>
-                                <?php else: ?>
+                                <?php if (!$isSchoolAdminView): ?>
+                                    <?php if ((int)$user['id_rol'] === 3 && ($user['estado'] ?? '') === 'pago_pendiente'): ?>
+                                        <button type="button" class="btn btn-success btn-sm" disabled title="Primero debes verificar el pago.">Aprobar</button>
+                                    <?php else: ?>
+                                        <form action="controllers/adminUsuarioController.php" method="POST" class="m-0">
+                                            <input type="hidden" name="id_usuario" value="<?= htmlspecialchars((string)$user['id_usuario']) ?>">
+                                            <button name="aprobar" class="btn btn-success btn-sm">Aprobar</button>
+                                        </form>
+                                    <?php endif; ?>
                                     <form action="controllers/adminUsuarioController.php" method="POST" class="m-0">
                                         <input type="hidden" name="id_usuario" value="<?= htmlspecialchars((string)$user['id_usuario']) ?>">
-                                        <button name="aprobar" class="btn btn-success btn-sm">Aprobar</button>
+                                        <button name="rechazar" class="btn btn-danger btn-sm">Rechazar</button>
                                     </form>
                                 <?php endif; ?>
-                                <form action="controllers/adminUsuarioController.php" method="POST" class="m-0">
-                                    <input type="hidden" name="id_usuario" value="<?= htmlspecialchars((string)$user['id_usuario']) ?>">
-                                    <button name="rechazar" class="btn btn-danger btn-sm">Rechazar</button>
-                                </form>
                             </div>
                         </td>
                     </tr>

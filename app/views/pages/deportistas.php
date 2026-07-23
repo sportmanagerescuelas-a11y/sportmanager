@@ -41,8 +41,8 @@ $rol = (int)($viewData['rol'] ?? ($_SESSION['rol'] ?? 0));
                                     </select>
                                 </form>
                             <?php else: ?>
-                                <span class="badge bg-<?= $row->nombre_estado === 'activo' ? 'success' : ($row->nombre_estado === 'suspendido' ? 'warning' : 'danger') ?>">
-                                    <?= htmlspecialchars(ucfirst((string)$row->nombre_estado)) ?>
+                                <span class="badge bg-<?= $row->nombre_estado === 'activo' ? 'success' : ($row->nombre_estado === 'suspendido' ? 'warning text-dark' : 'danger') ?>">
+                                    <?= htmlspecialchars((int)$row->id_estado === 2 ? 'Pendiente de validacion' : ucfirst((string)$row->nombre_estado), ENT_QUOTES, 'UTF-8') ?>
                                 </span>
                             <?php endif; ?>
                         </td>

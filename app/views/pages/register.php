@@ -77,11 +77,15 @@ $registerSuccessText = '';
 if ($registerSuccessCode !== '') {
     $registerSuccessText = $registerSuccessCode === '1'
         ? 'Registro exitoso.'
-        : ($registerSuccessCode === 'payment_pending'
+        : ($registerSuccessCode === 'registered'
+            ? 'Registro exitoso. Tu cuenta ya quedo activa y puedes ingresar con tus credenciales.'
+            : ($registerSuccessCode === 'pending_approval'
+                ? 'Registro exitoso. Tu cuenta quedo pendiente de aprobacion por el administrador de la escuela.'
+                : ($registerSuccessCode === 'payment_pending'
             ? 'Registro exitoso. Tu pago sera revisado por el superadmin antes de aprobar tu cuenta.'
             : ($registerSuccessCode === 'payment_registered'
                 ? 'Registro exitoso. Tu comprobante quedo guardado y podras verlo en tus pagos despues de iniciar sesion.'
-                : 'Registro exitoso. Tu cuenta esta pendiente de aprobacion.'));
+                : 'Registro exitoso. Tu cuenta esta pendiente de aprobacion.'))));
 }
 
 $modalTitle = '';
@@ -216,7 +220,7 @@ $assetBase = '/sportmanager/';
                     </div>
                     <div class="col-12" id="comprobantePagoWrap" style="display:none;">
                         <div class="alert alert-info mb-0 py-2">
-                            Para administrador ya no necesitas subir comprobante. Al registrarte te llevaremos a la pasarela de pago.
+                            Solo el registro de administrador usa la pasarela de pago. Acudientes y formadores se crean directamente.
                         </div>
                     </div>
                     <input type="hidden" name="id_metodo_pago" id="registrationPaymentMethod" value="">
@@ -558,12 +562,12 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     const sync = function () {
-        const isAdmin = roleSelect.value === '3';
-        wrap.style.display = isAdmin ? '' : 'none';
-        schoolWrap.style.display = isAdmin ? 'none' : '';
-        schoolSelect.required = !isAdmin;
-        schoolSelect.disabled = isAdmin;
-        if (isAdmin) {
+        const needsPayment = roleSelect.value === '3';
+        wrap.style.display = needsPayment ? '' : 'none';
+        schoolWrap.style.display = needsPayment ? 'none' : '';
+        schoolSelect.required = !needsPayment;
+        schoolSelect.disabled = needsPayment;
+        if (needsPayment) {
             schoolSelect.value = '';
             schoolSelect.classList.remove('is-invalid');
         }
@@ -616,20 +620,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     form.submit();
                 }
             });
-        });
-    }
-
-    if (form) {
-        form.addEventListener('submit', function (event) {
-            if (event.defaultPrevented || roleSelect.value === '3') {
-                return;
-            }
-            if (paymentConfirmed) {
-                return;
-            }
-            event.preventDefault();
-            event.stopPropagation();
-            openPaymentModal();
         });
     }
 

@@ -190,6 +190,15 @@ final class ConfirmacionController
                 $nextUrl = 'register?success=payment_pending';
                 $nextLabel = 'Finalizar registro';
             }
+
+            $isAthleteRegistration = $contextFlow === 'registro_deportista'
+                || $temporalFlow === 'registro_deportista'
+                || !empty($context['id_deportista'])
+                || !empty($_SESSION['registro_temporal']['id_deportista'] ?? null);
+            if ($nextUrl === '' && $isAthleteRegistration && !empty($invoiceResult['saved'])) {
+                $nextUrl = 'deportistas';
+                $nextLabel = 'Ver deportistas';
+            }
         }
 
         $this->maybeMarkAdminPaymentVerified($context, $result);

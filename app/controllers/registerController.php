@@ -288,6 +288,36 @@ if (isset($_POST["register"])) {
         exit();
     }
 
+    if ($id_rol !== 3) {
+        try {
+            $conexion->beginTransaction();
+
+            if (!$usuarioModel->registrar($id_usuario, $tipo_documento, $id_escuela, $nombres, $apellidos, $email, $password, $telefono, $id_rol)) {
+                if ($conexion->inTransaction()) {
+                    $conexion->rollBack();
+                }
+                $debug = $usuarioModel->lastError();
+                sm_register_redirect_error('db', $debug);
+            }
+
+            if ($conexion->inTransaction()) {
+                $conexion->commit();
+            }
+
+            if ($id_rol === 2) {
+                header('Location: register?success=pending_approval');
+            } else {
+                header('Location: register?success=registered');
+            }
+            exit();
+        } catch (Throwable $e) {
+            if ($conexion->inTransaction()) {
+                $conexion->rollBack();
+            }
+            sm_register_redirect_error('db', $e->getMessage());
+        }
+    }
+
     if ($id_rol === 3) {
         // El administrador debe existir desde este momento para que el superadmin
         // pueda verlo y validar posteriormente la factura generada por la pasarela.

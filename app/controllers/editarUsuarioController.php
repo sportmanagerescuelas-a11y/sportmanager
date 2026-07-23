@@ -10,6 +10,19 @@ if (!isset($_SESSION["rol"]) || !in_array((int)$_SESSION["rol"], [3, 4], true)) 
 
 $id = $_POST["id_usuario"];
 $accion = $_POST["accion"];
+$currentRole = (int)($_SESSION['rol'] ?? 0);
+$schoolId = (int)($_SESSION['usuario']['id_escuela'] ?? 0);
+
+if ($currentRole === 3) {
+    $stmtTarget = $conexion->prepare("SELECT id_escuela FROM usuarios WHERE id_usuario = :id_usuario LIMIT 1");
+    $stmtTarget->bindParam(":id_usuario", $id, PDO::PARAM_INT);
+    $stmtTarget->execute();
+    $targetSchoolId = (int)($stmtTarget->fetchColumn() ?: 0);
+    if ($schoolId <= 0 || $targetSchoolId !== $schoolId) {
+        header("Location: ../admin_usuarios");
+        exit();
+    }
+}
 
 // ???? ACTIVAR / ???? DESHABILITAR
 if ($accion == "activar" || $accion == "deshabilitar") {
