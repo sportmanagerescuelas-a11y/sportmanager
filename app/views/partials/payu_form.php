@@ -30,7 +30,7 @@ $identityReadonly = $prefillDni !== '';
     <div class="alert alert-danger"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></div>
 <?php endif; ?>
 
-<form method="POST" action="procesar-pago" id="payuForm" class="card border-0 shadow-sm rounded-4">
+<form method="POST" action="procesar-pago" id="payuForm" class="card border-0 shadow-sm rounded-4 payu-card">
     <div class="card-body">
         <h5 class="card-title mb-3 text-primary fw-bold">Formulario de pago</h5>
 

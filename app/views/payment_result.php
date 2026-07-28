@@ -5,30 +5,30 @@ $paymentDetails = is_array($viewData['paymentDetails'] ?? null) ? $viewData['pay
 $paymentError = (string)($viewData['paymentError'] ?? '');
 $invoiceResult = is_array($viewData['invoiceResult'] ?? null) ? $viewData['invoiceResult'] : [];
 $refreshUrl = (string)($viewData['refreshUrl'] ?? '');
+$retryUrl = (string)($viewData['retryUrl'] ?? 'iniciar');
+$nextUrl = (string)($viewData['nextUrl'] ?? '');
+$nextLabel = (string)($viewData['nextLabel'] ?? 'Continuar');
 ?>
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Resultado de pago</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-    <style>
-        body {
-            background: linear-gradient(180deg, #eef3f9 0%, #f7f9fc 100%);
-            min-height: 100vh;
-        }
-        .result-shell {
-            max-width: 760px;
-        }
-    </style>
-</head>
-<body>
-    <div class="container py-5 result-shell">
-        <h2 class="mb-4 fw-bold">Resultado de transaccion</h2>
-        <?php require APP_PATH . "/views/partials/payment_result_card.php"; ?>
-    </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
 
+<section class="container py-5 mt-4 payment-result-page">
+    <div class="payment-result-page__intro">
+        <nav class="payment-breadcrumb" aria-label="Navegación">
+            <a href="home">Inicio</a>
+            <span aria-hidden="true">/</span>
+            <span>Resultado de pago</span>
+        </nav>
+
+        <div class="payment-heading payment-heading--compact">
+            <div>
+                <span class="payment-eyebrow">Confirmación</span>
+                <h1>Resultado de transacción</h1>
+                <p>Consulta el estado final de tu pago y descarga el comprobante cuando esté disponible.</p>
+            </div>
+            <a href="pagos" class="btn btn-outline-secondary rounded-pill px-4">Volver a mis pagos</a>
+        </div>
+    </div>
+
+    <div class="payment-result-page__card">
+        <?php require APP_PATH . '/views/partials/payment_result_card.php'; ?>
+    </div>
+</section>

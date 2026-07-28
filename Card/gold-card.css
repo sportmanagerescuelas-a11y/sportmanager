@@ -1,0 +1,604 @@
+/* ============================================================
+   GOLD CARD ENGINE v2 — gold-card.css
+   100% vectorial/CSS, fully parametrized, infinite color combos.
+
+   Based on the proven Card.css layer architecture, now with
+   full CSS custom property support for dynamic theme switching.
+
+   Variable hierarchy:
+     Tier 1 (user-facing):  --primary-color, --secondary-color,
+                            --accent-color, --shine-opacity
+     Tier 2 (metallic 8-stop palette):
+                            --metal-highlight → --metal-abyss
+     Tier 3 (derived):      --frame-color, --border-color,
+                            --line-color, --glow-color, etc.
+     Tier 4 (background):   --bg-primary, --bg-secondary,
+                            --bg-cream, --bg-separator
+
+   Z-index stack (proven order, no conflicts with ::pseudo):
+     1   __bg              — CSS gradient background
+     2   ::before          — Left color strip
+     3   __bg-mask         — Atmospheric overlay (CSS, replaces SVG)
+     4   ::after           — Separator band
+     5   __lines           — Diagonal gold lines (inline SVG)
+     6   __shine           — Animated shine sweep (CSS-only)
+     7   __bottom-panel    — Dark diagonal panel (CSS, replaces SVG)
+     8   __metal-texture   — Subtle brushed metal (CSS, replaces PNG)
+     9   __glow            — Light burst (CSS radial-gradient)
+     10  __stats           — Rating + Position
+     11  __center          — Central icon / player image
+     12  __name            — Player name
+     13  __meta            — Category / Level / Gender badges
+     20  __frame           — Shield frame (inline SVG)
+   ============================================================ */
+
+/* ────────────────────────────────────────────────────────────
+   §1  CUSTOM PROPERTIES — Default: Gold Theme
+   ──────────────────────────────────────────────────────────── */
+.gold-card {
+  /* Tier 1 — Primary palette controls */
+  --primary-color:    #cba135;
+  --secondary-color:  #8a6415;
+  --accent-color:     #f0d78c;
+  --shine-opacity:    0.42;
+
+  /* Tier 2 — Metallic gradient palette (8 stops) */
+  --metal-highlight:     #FFF8D6;
+  --metal-bright:        #F7E5A5;
+  --metal-light:         #E8C96C;
+  --metal-midtone:       #D4AF37;
+  --metal-dark:          #B8860B;
+  --metal-shadow:        #8A6415;
+  --metal-deep-shadow:   #6B4707;
+  --metal-abyss:         #4A3004;
+
+  /* Tier 3 — Derived */
+  --frame-color:         var(--metal-midtone);
+  --border-color:        var(--metal-highlight);
+  --line-color:          var(--metal-bright);
+  --glow-color:          rgba(255, 255, 255, 0.6);
+  --glow-intensity:      0.50;
+  --glow-x:              50%;
+  --glow-y:              28%;
+
+  /* Tier 4 — Background palette */
+  --bg-primary:          #243b73;
+  --bg-secondary:        #1a2b56;
+  --bg-primary-rgb:      36, 59, 115;
+  --bg-secondary-rgb:    26, 43, 86;
+  --bg-cream:            #f8f2df;
+  --bg-separator:        #d9ccb0;
+
+  /* Gold constants (never changed by theme) */
+  --gold-light: #FFF8D6;
+  --gold-medium: #D4AF37;
+  --gold-dark: #8A6415;
+  --shadow: rgba(21, 17, 8, 0.26);
+  --highlight: rgba(255, 251, 228, 0.36);
+  --gold-lines: rgba(190, 160, 72, 0.72);
+}
+
+/* ────────────────────────────────────────────────────────────
+   §2  THEME VARIANTS
+   ──────────────────────────────────────────────────────────── */
+
+/* Silver */
+.gold-card--silver {
+  --primary-color:    #c0c0c0;
+  --secondary-color:  #808080;
+  --accent-color:     #e8e8e8;
+  --metal-highlight:     #F8F8F8;
+  --metal-bright:        #E8E8E8;
+  --metal-light:         #D0D0D0;
+  --metal-midtone:       #C0C0C0;
+  --metal-dark:          #A0A0A0;
+  --metal-shadow:        #808080;
+  --metal-deep-shadow:   #606060;
+  --metal-abyss:         #404040;
+  --glow-color:          rgba(230, 230, 255, 0.55);
+  --bg-primary:          #2a3a5c;
+  --bg-secondary:        #1e2e4a;
+  --bg-primary-rgb:      42, 58, 92;
+  --bg-secondary-rgb:    30, 46, 74;
+  --bg-cream:            #f2f2f0;
+  --bg-separator:        #ccccbb;
+}
+
+/* Prisma — Teal / Cyan */
+.gold-card--prisma {
+  --primary-color:    #40C4AA;
+  --secondary-color:  #1A7A6A;
+  --accent-color:     #5CB8FF;
+  --metal-highlight:     #E0FFF8;
+  --metal-bright:        #B0F0E0;
+  --metal-light:         #70D8C0;
+  --metal-midtone:       #40C4AA;
+  --metal-dark:          #20A888;
+  --metal-shadow:        #1A7A6A;
+  --metal-deep-shadow:   #0A4A3A;
+  --metal-abyss:         #042A1A;
+  --glow-color:          rgba(92, 184, 255, 0.55);
+  --bg-primary:          #1a2b3a;
+  --bg-secondary:        #0e1e2a;
+  --bg-primary-rgb:      26, 43, 58;
+  --bg-secondary-rgb:    14, 30, 42;
+  --bg-cream:            #f0f8f4;
+  --bg-separator:        #a0c8b8;
+}
+
+/* Ember — Red / Fire (bonus) */
+.gold-card--ember {
+  --primary-color:    #e04030;
+  --secondary-color:  #8b1a1a;
+  --accent-color:     #ff8c50;
+  --metal-highlight:     #FFF0E0;
+  --metal-bright:        #F7B090;
+  --metal-light:         #E88060;
+  --metal-midtone:       #D44830;
+  --metal-dark:          #B83020;
+  --metal-shadow:        #8A1A10;
+  --metal-deep-shadow:   #6B1008;
+  --metal-abyss:         #4A0804;
+  --glow-color:          rgba(255, 140, 50, 0.55);
+  --bg-primary:          #2b1a1a;
+  --bg-secondary:        #1a0e0e;
+  --bg-primary-rgb:      43, 26, 26;
+  --bg-secondary-rgb:    26, 14, 14;
+  --bg-cream:            #f8f0e8;
+  --bg-separator:        #c8a080;
+}
+
+/* ────────────────────────────────────────────────────────────
+   §3  ROOT CARD CONTAINER
+   ──────────────────────────────────────────────────────────── */
+.gold-card {
+  position: relative;
+  width: min(100%, 330px);
+  aspect-ratio: 2 / 3;
+  isolation: isolate;
+  background: #0a0e1a;
+  clip-path: polygon(
+    50% 0%, 54.1% 0.75%, 56.9% 2.3%, 59.9% 3.9%, 65% 5.2%,
+    71.7% 4.8%, 77.2% 2.7%, 84.4% 1%, 91.6% 2.3%, 96.3% 5.3%,
+    99.4% 9.2%, 99.4% 72.9%, 96.9% 81.2%, 88.5% 88.3%, 73.3% 94.6%,
+    50% 100%, 26.7% 94.6%, 11.5% 88.3%, 3.1% 81.2%, 0.6% 72.9%,
+    0.6% 9.2%, 3.7% 5.3%, 8.4% 2.3%, 15.6% 1%, 22.8% 2.7%,
+    28.3% 4.8%, 35% 5.2%, 40.1% 3.9%, 43.1% 2.3%, 45.9% 0.75%
+  );
+  -webkit-clip-path: polygon(
+    50% 0%, 54.1% 0.75%, 56.9% 2.3%, 59.9% 3.9%, 65% 5.2%,
+    71.7% 4.8%, 77.2% 2.7%, 84.4% 1%, 91.6% 2.3%, 96.3% 5.3%,
+    99.4% 9.2%, 99.4% 72.9%, 96.9% 81.2%, 88.5% 88.3%, 73.3% 94.6%,
+    50% 100%, 26.7% 94.6%, 11.5% 88.3%, 3.1% 81.2%, 0.6% 72.9%,
+    0.6% 9.2%, 3.7% 5.3%, 8.4% 2.3%, 15.6% 1%, 22.8% 2.7%,
+    28.3% 4.8%, 35% 5.2%, 40.1% 3.9%, 43.1% 2.3%, 45.9% 0.75%
+  );
+  filter:
+    drop-shadow(0 26px 55px rgba(53,40,10,0.18))
+    drop-shadow(0 10px 24px rgba(53,40,10,0.10));
+}
+
+/* ────────────────────────────────────────────────────────────
+   §4  PSEUDO-ELEMENTS — Left strip + Separator band
+   ──────────────────────────────────────────────────────────── */
+.gold-card::before,
+.gold-card::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+}
+
+/* Left color strip */
+.gold-card::before {
+  width: 20.4%;
+  inset: 0;
+  z-index: 2;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0) 16%),
+    linear-gradient(180deg,
+      rgba(var(--bg-secondary-rgb), 0.56) 0%,
+      rgba(var(--bg-secondary-rgb), 0.70) 18%,
+      rgba(var(--bg-secondary-rgb), 0.82) 42%,
+      rgba(var(--bg-secondary-rgb), 0.88) 76%,
+      rgba(var(--bg-secondary-rgb), 0.72) 100%);
+  clip-path: polygon(0 0, 74% 0, 100% 6.2%, 100% 100%, 0 100%);
+  -webkit-clip-path: polygon(0 0, 74% 0, 100% 6.2%, 100% 100%, 0 100%);
+  box-shadow:
+    inset -1px 0 0 rgba(92,71,21,0.45),
+    inset 1px 0 0 rgba(255,248,218,0.28);
+}
+
+/* Separator band */
+.gold-card::after {
+  left: 20.4%;
+  top: 52.8%;
+  height: 6.8%;
+  width: 79.6%;
+  z-index: 4;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.24), rgba(255,255,255,0) 50%),
+    linear-gradient(180deg,
+      rgba(var(--bg-secondary-rgb), 0.36) 0%,
+      rgba(var(--bg-secondary-rgb), 0.52) 48%,
+      rgba(var(--bg-primary-rgb), 0.34) 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.18),
+    inset 0 -1px 0 rgba(99,78,31,0.22);
+}
+
+/* ────────────────────────────────────────────────────────────
+   §5  LAYER BASE STYLES
+   ──────────────────────────────────────────────────────────── */
+.gold-card__bg,
+.gold-card__bg-mask,
+.gold-card__lines,
+.gold-card__shine,
+.gold-card__bottom-panel,
+.gold-card__metal-texture,
+.gold-card__glow,
+.gold-card__frame,
+.gold-card__stats,
+.gold-card__center,
+.gold-card__name,
+.gold-card__meta {
+  position: absolute;
+  inset: 0;
+}
+
+/* ────────────────────────────────────────────────────────────
+   §6  Z-INDEX STACK (proven order, no pseudo conflicts)
+   ────────────────────────────────────────────────────────────
+   1   __bg
+   2   ::before          — Left color strip
+   3   __bg-mask
+   4   ::after           — Separator band
+   5   __lines
+   6   __shine
+   7   __bottom-panel
+   8   __metal-texture
+   9   __glow
+   10  __stats
+   11  __center
+   12  __name
+   13  __meta
+   20  __frame
+   ──────────────────────────────────────────────────────────── */
+.gold-card__bg             { z-index: 1; }
+.gold-card__bg-mask        { z-index: 3; }
+.gold-card__lines          { z-index: 5; }
+.gold-card__shine          { z-index: 6; }
+.gold-card__bottom-panel   { z-index: 7; }
+.gold-card__metal-texture  { z-index: 8; }
+.gold-card__glow           { z-index: 9; }
+.gold-card__stats          { z-index: 10; }
+.gold-card__center         { z-index: 11; }
+.gold-card__name           { z-index: 12; }
+.gold-card__meta           { z-index: 13; }
+.gold-card__frame          { z-index: 20; pointer-events: none;
+                              filter: drop-shadow(0 4px 8px rgba(53,40,10,0.28))
+                                      drop-shadow(0 0 12px rgba(181,143,43,0.18)); }
+
+/* ────────────────────────────────────────────────────────────
+   §7  LAYER 1 — BACKGROUND (CSS-only)
+   ──────────────────────────────────────────────────────────── */
+.gold-card__bg {
+  background:
+    radial-gradient(circle at 78% 14%, rgba(255,255,255,0.16) 0 18%, transparent 33%),
+    radial-gradient(circle at 18% 18%, rgba(255,255,255,0.08) 0 10%, transparent 24%),
+    linear-gradient(180deg,
+      var(--bg-primary) 0 52.8%,
+      var(--bg-separator) 52.8% 60.3%,
+      var(--bg-cream) 60.3% 100%);
+}
+
+/* Background vignette + color spotlights */
+.gold-card__bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 67% 18%, rgba(var(--bg-primary-rgb), 0.72) 0 20%, transparent 54%),
+    radial-gradient(circle at 56% 30%, rgba(var(--bg-secondary-rgb), 0.62) 0 18%, transparent 50%);
+  mix-blend-mode: screen;
+  opacity: 0.35;
+}
+
+/* Background texture + bottom vignette */
+.gold-card__bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 18% 14%, rgba(255,255,255,0.18), transparent 24%),
+    radial-gradient(circle at 84% 18%, rgba(255,255,255,0.12), transparent 20%),
+    radial-gradient(circle at 48% 56%, rgba(0,0,0,0.18), transparent 44%),
+    repeating-linear-gradient(135deg, rgba(255,255,255,0.05) 0 2px, transparent 2px 14px);
+  opacity: 0.42;
+  mix-blend-mode: overlay;
+}
+
+/* ────────────────────────────────────────────────────────────
+   §8  LAYER 3 — BG MASK (<img> reference to BackgroundMask.svg)
+   Uses the proven SVG with curved brush strokes + vignette + blur.
+   Always gold-themed (never changes per theme — like FIFA cards).
+   ──────────────────────────────────────────────────────────── */
+.gold-card__bg-mask {
+  object-fit: cover;
+  opacity: 0.58;
+  mix-blend-mode: overlay;
+}
+
+/* ────────────────────────────────────────────────────────────
+   §9  LAYER 5 — DIAGONAL LINES (inline SVG)
+   ──────────────────────────────────────────────────────────── */
+.gold-card__lines {
+  mix-blend-mode: screen;
+  opacity: 0.93;
+}
+.gold-card__lines svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* ────────────────────────────────────────────────────────────
+   §10  LAYER 6 — SHINE SWEEP (<img> reference to Shine.svg)
+   Uses the proven SVG with nuanced gradient band + 12deg rotation.
+   Larger canvas (inset: -20% -18%) so shine sweeps across edges.
+   Always gold-themed (never changes per theme).
+   ──────────────────────────────────────────────────────────── */
+.gold-card__shine {
+  inset: -20% -18%;
+  object-fit: cover;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  opacity: var(--shine-opacity, 0.42);
+  animation: goldCardShineSweep 12s linear infinite;
+}
+
+/* ────────────────────────────────────────────────────────────
+   §11  LAYER 7 — BOTTOM PANEL (<img> reference to BottomPanel.svg)
+   Uses the proven SVG with dark diagonal sweep + soft blur.
+   Theme-independent (dark overlay works for all themes).
+   ──────────────────────────────────────────────────────────── */
+.gold-card__bottom-panel {
+  object-fit: cover;
+  opacity: 0.88;
+  mix-blend-mode: multiply;
+}
+
+/* ────────────────────────────────────────────────────────────
+   §12  LAYER 8 — METAL TEXTURE (CSS, replaces goldTexture.png)
+   Very subtle brushed metal overlay
+   ──────────────────────────────────────────────────────────── */
+.gold-card__metal-texture {
+  mix-blend-mode: overlay;
+  opacity: 0.28;
+  background:
+    repeating-linear-gradient(90deg,
+      rgba(255,255,255,0.10) 0px, transparent 1px, transparent 3px, rgba(255,255,255,0.05) 4px),
+    linear-gradient(135deg,
+      rgba(255,255,255,0.18) 0%, transparent 38%, rgba(255,255,255,0.10) 58%, transparent 100%);
+}
+
+/* ────────────────────────────────────────────────────────────
+   §13  LAYER 9 — GLOW (CSS radial-gradient, replaces glow.png)
+   ──────────────────────────────────────────────────────────── */
+.gold-card__glow {
+  mix-blend-mode: screen;
+  opacity: var(--glow-intensity, 0.50);
+  background:
+    radial-gradient(circle at var(--glow-x) var(--glow-y),
+      var(--glow-color) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%,
+      rgba(255,255,255,0.08) 0%, transparent 70%);
+}
+
+/* ────────────────────────────────────────────────────────────
+   §14  LAYER 10 — STATS (Rating + Position)
+   ──────────────────────────────────────────────────────────── */
+.gold-card__stats {
+  inset: 0;
+  padding: 30px 30px 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  pointer-events: none;
+}
+
+.gold-card__rating {
+  display: inline-flex;
+  min-width: 54px;
+  justify-content: center;
+  align-items: center;
+  color: #fff;
+  font-weight: 900;
+  font-size: 2rem;
+  line-height: 1;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.55);
+}
+
+.gold-card__position {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 14px;
+  border-radius: 999px;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.2);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+/* ────────────────────────────────────────────────────────────
+   §15  LAYER 11 — CENTER ELEMENT (icon / player image)
+   ──────────────────────────────────────────────────────────── */
+.gold-card__center {
+  inset: auto 50% 28% auto;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 32%;
+  height: auto;
+  max-height: 28%;
+  object-fit: contain;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gold-card__center-icon {
+  width: 100%;
+  height: auto;
+  filter:
+    drop-shadow(0 14px 22px rgba(0,0,0,0.5))
+    drop-shadow(0 0 16px rgba(111,198,255,0.18));
+}
+.gold-card__center-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* ────────────────────────────────────────────────────────────
+   §16  LAYER 12 — NAME
+   ──────────────────────────────────────────────────────────── */
+.gold-card__name {
+  inset: auto 0 18%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 54px;
+  padding: 0 30px;
+  color: #fff;
+  font-weight: 900;
+  font-size: clamp(1.1rem, 3vw, 1.9rem);
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-shadow:
+    0 2px 0 rgba(0,0,0,0.45),
+    0 8px 16px rgba(0,0,0,0.45);
+  pointer-events: none;
+}
+
+.gold-card__name::before {
+  content: "";
+  position: absolute;
+  inset: 0 18% auto;
+  top: 50%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.45), transparent);
+  opacity: 0.75;
+}
+
+/* ────────────────────────────────────────────────────────────
+   §17  LAYER 13 — META BADGES
+   ──────────────────────────────────────────────────────────── */
+.gold-card__meta {
+  inset: auto 0 5%;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  padding: 0 24px;
+  pointer-events: none;
+}
+
+.gold-card__meta-badge {
+  display: grid;
+  place-items: center;
+  min-height: 36px;
+  padding: 6px 10px;
+  border-radius: 12px;
+  color: rgba(120,93,21,0.94);
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-align: center;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: rgba(255,255,255,0.64);
+  border: 1px solid rgba(194,168,95,0.34);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.45);
+  backdrop-filter: blur(7px);
+  -webkit-backdrop-filter: blur(7px);
+}
+
+/* ────────────────────────────────────────────────────────────
+   §18  LAYER 20 — FRAME (inline SVG)
+   ──────────────────────────────────────────────────────────── */
+.gold-card__frame svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* ────────────────────────────────────────────────────────────
+   §19  HOVER EFFECTS
+   ──────────────────────────────────────────────────────────── */
+.gold-card:hover .gold-card__shine {
+  opacity: 0.72;
+}
+.gold-card:hover .gold-card__glow {
+  opacity: calc(var(--glow-intensity, 0.50) + 0.15);
+}
+
+/* ────────────────────────────────────────────────────────────
+   §20  ANIMATIONS
+   ──────────────────────────────────────────────────────────── */
+@keyframes goldCardShineSweep {
+  0%   { transform: translateX(-72%) rotate(12deg); }
+  100% { transform: translateX(72%) rotate(12deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gold-card__shine { animation: none; }
+}
+
+/* ────────────────────────────────────────────────────────────
+   §21  DEMO PAGE LAYOUT
+   ──────────────────────────────────────────────────────────── */
+.gold-card-demo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 40px;
+  justify-content: center;
+  align-items: center;
+  padding: 60px 20px;
+  min-height: 100vh;
+  background: radial-gradient(circle at 50% 30%, #1a2040, #0a0e1a 70%);
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+.gold-card-demo__title {
+  width: 100%;
+  text-align: center;
+  color: #e8e0d0;
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.gold-card-demo__subtitle {
+  width: 100%;
+  text-align: center;
+  color: #a09880;
+  font-size: 1rem;
+  letter-spacing: 0.04em;
+  margin-bottom: 30px;
+}
+
+.gold-card-demo__variant-label {
+  text-align: center;
+  color: var(--metal-midtone, #D4AF37);
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-top: 16px;
+}

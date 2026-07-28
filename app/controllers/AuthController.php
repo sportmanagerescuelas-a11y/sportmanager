@@ -85,9 +85,9 @@ class AuthController
                     $mail->setFrom($fromAddress, $fromName);
                     $mail->addAddress($email);
 
-                    $logoPath = $this->projectRoot . '/assets/img/balonfutbol.png';
+                    $logoPath = $this->projectRoot . '/assets/img/escudo_sportmanager.png';
                     if (is_file($logoPath)) {
-                        $mail->addEmbeddedImage($logoPath, 'sportmanager-logo', 'balonfutbol.png');
+                        $mail->addEmbeddedImage($logoPath, 'sportmanager-logo', 'escudo_sportmanager.png');
                     }
 
                     if ($smtp['host'] !== '' && $smtp['username'] !== '' && $smtp['password'] !== '') {
@@ -312,4 +312,3 @@ HTML;
 HTML;
     }
 }
-

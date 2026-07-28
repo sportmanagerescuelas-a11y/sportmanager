@@ -14,10 +14,10 @@ $passwordToggleVersion = is_file($passwordTogglePath) ? (string)filemtime($passw
 $assetBase = '/sportmanager/';
 
 $publicAssetPath = static function (string $path) use ($assetBase): string {
-    $trimmed = trim($path);
-    if ($trimmed === '') {
-        return $assetBase . 'assets/img/balonfutbol.png';
-    }
+        $trimmed = trim($path);
+        if ($trimmed === '') {
+            return $assetBase . 'assets/img/escudo_sportmanager.png';
+        }
     if (preg_match('#^(?:https?:)?//#i', $trimmed) === 1 || str_starts_with($trimmed, '/')) {
         return $trimmed;
     }
@@ -27,7 +27,7 @@ $modalManagerVersion = is_file($modalManagerPath) ? (string)filemtime($modalMana
 
 $schoolPrimaryColor = '#212529';
 $schoolSecondaryColor = '#001285';
-$schoolShieldPath = $assetBase . 'assets/img/balonfutbol.png';
+$schoolShieldPath = $assetBase . 'assets/img/escudo_sportmanager.png';
 $currentRole = (int)($_SESSION['rol'] ?? 0);
 $roleLabel = [1 => 'Acudiente', 2 => 'Entrenador', 3 => 'Administrador', 4 => 'Superadmin'][$currentRole] ?? 'Usuario';
 if ($currentRole !== 4 && isset($_SESSION['usuario']['id_escuela']) && (int)$_SESSION['usuario']['id_escuela'] > 0) {
@@ -119,7 +119,7 @@ $schoolShieldCssImage = $shieldCssPath !== '' ? "url({$shieldCssPath})" : 'none'
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= htmlspecialchars($title) ?></title>
-    <link rel="icon" type="image/png" href="<?= htmlspecialchars($assetBase . 'assets/img/balonfutbol.png', ENT_QUOTES, 'UTF-8') ?>">
+    <link rel="icon" type="image/png" href="<?= htmlspecialchars($assetBase . 'assets/img/escudo_sportmanager.png', ENT_QUOTES, 'UTF-8') ?>">
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="assets/css/app.css?v=<?= urlencode($appCssVersion) ?>" rel="stylesheet">

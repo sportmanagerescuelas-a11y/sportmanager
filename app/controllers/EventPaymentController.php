@@ -348,9 +348,9 @@ final class EventPaymentController
         $mail->CharSet = 'UTF-8';
         $mail->Timeout = 8;
         $mail->setFrom($smtp['email'] !== '' ? $smtp['email'] : 'no-reply@sportmanager.local', $smtp['name'] !== '' ? $smtp['name'] : 'Sport Manager');
-        $logoPath = APP_BASE_PATH . '/assets/img/balonfutbol.png';
+        $logoPath = APP_BASE_PATH . '/assets/img/escudo_sportmanager.png';
         if (is_file($logoPath)) {
-            $mail->addEmbeddedImage($logoPath, 'sportmanager-logo', 'balonfutbol.png');
+            $mail->addEmbeddedImage($logoPath, 'sportmanager-logo', 'escudo_sportmanager.png');
         }
         if ($smtp['email'] !== '' && $smtp['password'] !== '') {
             $mail->isSMTP();

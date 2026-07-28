@@ -962,6 +962,10 @@ footer.site-footer::before {
     font-size: 18px;
     z-index: 50;
 }
+
+.athlete-create-page {
+    max-width: 1280px;
+}
 /* 🔥 CAJA DERECHA */
 .eventos-box {
     position: absolute;
@@ -1736,6 +1740,27 @@ footer {
 .school-style-page .btn-outline-danger:hover {
     background: var(--school-btn-danger-bg) !important;
     color: var(--sm-white) !important;
+}
+
+.invoice-page .invoice-info-card,
+.invoice-page .invoice-summary-card {
+    background: rgba(255, 255, 255, 0.96);
+    border: 1px solid rgba(var(--school-primary-rgb), 0.14);
+    border-radius: 18px;
+    box-shadow: var(--sm-shadow);
+    padding: 1.1rem 1.2rem;
+}
+
+.invoice-page .invoice-summary-card {
+    border-left: 6px solid var(--school-primary-color);
+}
+
+.invoice-page .table-responsive {
+    background: rgba(255, 255, 255, 0.96);
+    border-radius: 18px;
+    box-shadow: var(--sm-shadow);
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.72);
 }
 
 .payments-page .table thead th,
@@ -3829,6 +3854,63 @@ header {
     max-width: 540px;
     margin: 0 auto 22px;
     color: #64748b;
+}
+
+.payu-page,
+.payment-result-page {
+    max-width: 980px;
+    margin-left: auto;
+    margin-right: auto;
+    display: grid;
+    gap: 18px;
+}
+
+.payu-page__intro,
+.payment-result-page__intro {
+    display: grid;
+    gap: 12px;
+}
+
+.payment-heading--compact {
+    margin-bottom: 0;
+}
+
+.payu-page__card,
+.payment-result-page__card {
+    overflow: hidden;
+}
+
+.payu-page .payu-card,
+.payment-result-page .payment-result-card {
+    margin: 0;
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    border-radius: 24px;
+    box-shadow: 0 18px 48px rgba(15, 23, 42, 0.08);
+}
+
+.payu-page .payu-card .card-body,
+.payment-result-page .payment-result-card .card-body {
+    padding: 1.75rem;
+}
+
+.payu-page .form-control,
+.payu-page .form-select,
+.payment-result-page .form-control,
+.payment-result-page .form-select {
+    border-radius: 14px;
+}
+
+.payu-page .btn,
+.payment-result-page .btn {
+    border-radius: 999px;
+}
+
+.payment-result-page .payment-result-card .table-responsive {
+    background: rgba(255, 255, 255, 0.96);
+    border-radius: 18px;
+    box-shadow: var(--sm-shadow);
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.72);
 }
 
 @media (max-width: 991.98px) {

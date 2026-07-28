@@ -12,7 +12,7 @@ $modalManagerVersion = is_file($modalManagerPath) ? (string)filemtime($modalMana
     <div class="container site-footer__grid">
         <div class="site-footer__brand">
             <div class="site-footer__brand-row">
-                <img src="<?= htmlspecialchars($assetBase . 'assets/img/balonfutbol.png', ENT_QUOTES, 'UTF-8') ?>" alt="Sport Manager" class="site-footer__logo">
+                <img src="<?= htmlspecialchars($assetBase . 'assets/img/escudo_sportmanager.png', ENT_QUOTES, 'UTF-8') ?>" alt="Sport Manager" class="site-footer__logo">
                 <div>
                     <h2>Sport Manager</h2>
                     <p>Gestión deportiva con estilo, control y cercanía.</p>

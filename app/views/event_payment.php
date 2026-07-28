@@ -14,7 +14,7 @@ $paymentToken = (string)($viewData['paymentToken'] ?? '');
 $selectedMethod = (string)($_POST['id_metodo_pago'] ?? ($methods[0]['id_metodo'] ?? ''));
 $userName = trim((string)($user['nombres'] ?? '') . ' ' . (string)($user['apellidos'] ?? ''));
 ?>
-<section class="payment-page">
+<section class="payment-page school-style-page">
     <div class="container payment-page__container">
         <nav class="payment-breadcrumb" aria-label="Navegación">
             <a href="eventos">Eventos</a>

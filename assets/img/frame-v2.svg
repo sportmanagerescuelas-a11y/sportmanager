@@ -1,0 +1,99 @@
+<svg width="320" height="480" viewBox="0 0 320 480" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <defs>
+    <!--
+      PARAMETRIZED FRAME SVG — Reference file.
+      When embedded inline in HTML, all gradient stop-colors
+      reference CSS custom properties (--metal-highlight → --metal-abyss).
+      Change those 8 CSS variables on the parent .gold-card element
+      to get a completely different frame color without touching SVG markup.
+
+      When used as <img src="frame-v2.svg">, CSS variables won't cascade.
+      In that case, the hardcoded fallback values (gold palette) are used.
+    -->
+
+    <!-- Outer fill gradient — polished metal sweep -->
+    <linearGradient id="outerGrad" x1="18" y1="8" x2="302" y2="472" gradientUnits="userSpaceOnUse">
+      <stop offset="0%"   style="stop-color: var(--metal-highlight, #FFF8D6)"/>
+      <stop offset="10%"  style="stop-color: var(--metal-bright, #F7E5A5)"/>
+      <stop offset="22%"  style="stop-color: var(--metal-light, #E8C96C)"/>
+      <stop offset="38%"  style="stop-color: var(--metal-midtone, #D4AF37)"/>
+      <stop offset="55%"  style="stop-color: var(--metal-dark, #B8860B)"/>
+      <stop offset="75%"  style="stop-color: var(--metal-shadow, #8A6415)"/>
+      <stop offset="92%"  style="stop-color: var(--metal-deep-shadow, #6B4707)"/>
+      <stop offset="100%" style="stop-color: var(--metal-abyss, #4A3004)"/>
+    </linearGradient>
+
+    <!-- Inner fill gradient — lighter metallic sheen -->
+    <linearGradient id="innerGrad" x1="26" y1="16" x2="294" y2="460" gradientUnits="userSpaceOnUse">
+      <stop offset="0%"   style="stop-color: var(--metal-highlight, #FFF8D6)"/>
+      <stop offset="14%"  style="stop-color: var(--metal-bright, #F7E5A5)"/>
+      <stop offset="30%"  style="stop-color: var(--metal-light, #E8C96C)"/>
+      <stop offset="50%"  style="stop-color: var(--metal-midtone, #D4AF37)"/>
+      <stop offset="72%"  style="stop-color: var(--metal-dark, #B8860B)"/>
+      <stop offset="90%"  style="stop-color: var(--metal-shadow, #8A6415)"/>
+      <stop offset="100%" style="stop-color: var(--metal-deep-shadow, #6B4707)"/>
+    </linearGradient>
+
+    <!-- Highlight gradient — edge catch light -->
+    <linearGradient id="highlightGrad" x1="160" y1="0" x2="160" y2="480" gradientUnits="userSpaceOnUse">
+      <stop offset="0%"   style="stop-color: var(--metal-highlight, #FFF8D6)"/>
+      <stop offset="15%"  style="stop-color: var(--metal-bright, #F7E5A5)"/>
+      <stop offset="50%"  style="stop-color: var(--metal-light, #E8C96C)"/>
+      <stop offset="85%"  style="stop-color: var(--metal-midtone, #D4AF37)"/>
+      <stop offset="100%" style="stop-color: var(--metal-shadow, #8A6415)"/>
+    </linearGradient>
+
+    <!-- Inner shadow gradient — depth (generic black, theme-independent) -->
+    <linearGradient id="innerShadowGrad" x1="160" y1="24" x2="160" y2="456" gradientUnits="userSpaceOnUse">
+      <stop offset="0%"  stop-color="#000000" stop-opacity="0.22"/>
+      <stop offset="40%" stop-color="#000000" stop-opacity="0.08"/>
+      <stop offset="70%" stop-color="#000000" stop-opacity="0.04"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0.18"/>
+    </linearGradient>
+
+    <!-- Outer edge light gradient -->
+    <linearGradient id="edgeLightGrad" x1="0" y1="0" x2="320" y2="480" gradientUnits="userSpaceOnUse">
+      <stop offset="0%"   style="stop-color: var(--metal-highlight, #FFF8D6); stop-opacity: 0.72"/>
+      <stop offset="30%"  style="stop-color: var(--metal-bright, #F7E5A5);  stop-opacity: 0.52"/>
+      <stop offset="60%"  style="stop-color: var(--metal-light, #E8C96C);   stop-opacity: 0.28"/>
+      <stop offset="100%" style="stop-color: var(--metal-midtone, #D4AF37); stop-opacity: 0.08"/>
+    </linearGradient>
+
+    <!-- Bevel mid-gradient — between outer and inner -->
+    <linearGradient id="bevelGrad" x1="160" y1="6" x2="160" y2="474" gradientUnits="userSpaceOnUse">
+      <stop offset="0%"   style="stop-color: var(--metal-bright, #F7E5A5)"/>
+      <stop offset="25%"  style="stop-color: var(--metal-light, #E8C96C)"/>
+      <stop offset="50%"  style="stop-color: var(--metal-midtone, #D4AF37)"/>
+      <stop offset="75%"  style="stop-color: var(--metal-dark, #B8860B)"/>
+      <stop offset="100%" style="stop-color: var(--metal-shadow, #8A6415)"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Outer-outer edge highlight stroke -->
+  <path d="M160 6 C171 6 178 12 183 18 C188 23 195 29 208 31 C223 34 236 28 247 20 C259 11 276 10 289 18 C300 25 307 36 312 48 L312 352 C312 405 275 444 160 474 C45 444 8 405 8 352 L8 48 C13 36 20 25 31 18 C44 10 61 11 74 20 C85 28 98 34 112 31 C125 29 132 23 137 18 C142 12 149 6 160 6 Z"
+    fill="none" stroke="url(#edgeLightGrad)" stroke-width="0.8" stroke-linejoin="round" opacity="0.5"/>
+
+  <!-- Main outer fill (double frame with transparent center via fill-rule) -->
+  <path fill-rule="evenodd" clip-rule="evenodd" d="M160 6 C171 6 178 12 183 18 C188 23 195 29 208 31 C223 34 236 28 247 20 C259 11 276 10 289 18 C300 25 307 36 312 48 L312 352 C312 405 275 444 160 474 C45 444 8 405 8 352 L8 48 C13 36 20 25 31 18 C44 10 61 11 74 20 C85 28 98 34 112 31 C125 29 132 23 137 18 C142 12 149 6 160 6 Z M160 24 C170 24 177 29 182 34 C187 39 194 43 206 45 C219 48 230 43 240 36 C251 29 264 27 274 33 C282 38 288 46 292 54 L292 348 C292 397 260 430 160 456 C60 430 28 397 28 348 L28 54 C32 46 38 38 46 33 C56 27 69 29 80 36 C90 43 101 48 114 45 C126 43 133 39 138 34 C143 29 150 24 160 24 Z"
+    fill="url(#outerGrad)"/>
+
+  <!-- Outer highlight stroke — bright edge reflection -->
+  <path d="M160 6 C171 6 178 12 183 18 C188 23 195 29 208 31 C223 34 236 28 247 20 C259 11 276 10 289 18 C300 25 307 36 312 48 L312 352 C312 405 275 444 160 474 C45 444 8 405 8 352 L8 48 C13 36 20 25 31 18 C44 10 61 11 74 20 C85 28 98 34 112 31 C125 29 132 23 137 18 C142 12 149 6 160 6 Z"
+    fill="none" style="stroke: var(--metal-highlight, #FFF8D6)" stroke-width="2.5" stroke-linejoin="round" opacity="0.92"/>
+
+  <!-- Mid-bevel stroke — depth separator -->
+  <path d="M160 15 C170 15 176 20 181 25 C186 30 192 35 204 37 C218 40 228 36 238 29 C249 22 262 19 272 25 C280 31 286 40 290 50 L290 350 C290 400 256 434 160 462 C64 434 30 400 30 350 L30 50 C34 40 40 31 48 25 C58 19 71 22 82 29 C92 36 103 40 116 37 C128 35 134 30 139 25 C144 20 150 15 160 15 Z"
+    fill="none" stroke="url(#bevelGrad)" stroke-width="1" stroke-linejoin="round" opacity="0.58"/>
+
+  <!-- Inner edge highlight stroke -->
+  <path d="M160 24 C170 24 177 29 182 34 C187 39 194 43 206 45 C219 48 230 43 240 36 C251 29 264 27 274 33 C282 38 288 46 292 54 L292 348 C292 397 260 430 160 456 C60 430 28 397 28 348 L28 54 C32 46 38 38 46 33 C56 27 69 29 80 36 C90 43 101 48 114 45 C126 43 133 39 138 34 C143 29 150 24 160 24 Z"
+    fill="none" stroke="url(#innerGrad)" stroke-width="1.4" stroke-linejoin="round" opacity="0.95"/>
+
+  <!-- Inner shadow stroke — depth from inner cutout edge -->
+  <path d="M160 24 C170 24 177 29 182 34 C187 39 194 43 206 45 C219 48 230 43 240 36 C251 29 264 27 274 33 C282 38 288 46 292 54 L292 348 C292 397 260 430 160 456 C60 430 28 397 28 348 L28 54 C32 46 38 38 46 33 C56 27 69 29 80 36 C90 43 101 48 114 45 C126 43 133 39 138 34 C143 29 150 24 160 24 Z"
+    fill="none" stroke="url(#innerShadowGrad)" stroke-width="1.8" stroke-linejoin="round" opacity="0.72"/>
+
+  <!-- Inner bevel highlight — thin bright line just inside the inner cutout -->
+  <path d="M160 25.5 C170 25.5 177 30 182 35 C187 40 194 44 206 46 C219 49 230 44.5 240 37 C251 30 264 28 274 34 C282 39 288 47 292 55 L292 349 C292 398 260 432 160 457.5 C60 432 28 398 28 349 L28 55 C32 47 38 39 46 34 C56 28 69 30 80 37 C90 44 101 49 114 46 C126 44 133 40 138 35 C143 30 150 25.5 160 25.5 Z"
+    fill="none" style="stroke: var(--metal-light, #E8C96C)" stroke-width="0.6" stroke-linejoin="round" opacity="0.55"/>
+</svg>

@@ -25,7 +25,7 @@ if ($statusTone === 'success') {
 }
 ?>
 
-<div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden payment-result-card">
     <div class="card-header <?= htmlspecialchars($headerClass, ENT_QUOTES, 'UTF-8') ?> py-3">
         <h5 class="mb-0 fw-bold"><?= htmlspecialchars($statusLabel, ENT_QUOTES, 'UTF-8') ?></h5>
     </div>

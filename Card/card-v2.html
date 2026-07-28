@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gold Card Engine v2 — Demo</title>
+  <link rel="stylesheet" href="gold-card.css">
+  <style>
+    html, body { margin: 0; overflow-x: hidden; }
+  </style>
+</head>
+<body>
+
+<div class="gold-card-demo">
+  <h1 class="gold-card-demo__title">Gold Card Engine v2</h1>
+  <p class="gold-card-demo__subtitle">100% vectorial / CSS · Parametrizado · Infinitas combinaciones de color</p>
+  <div id="card-slot-0"></div>
+  <div id="card-slot-1"></div>
+  <div id="card-slot-2"></div>
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  const CARDS = [
+    { theme:'gold',   rating:'94', position:'MC', name:'Sport Manager', badges:['Elite','★5','2026'], label:'Gold'   },
+    { theme:'silver', rating:'88', position:'DC', name:'Silver Star',   badges:['Pro','★4','2026'],   label:'Silver' },
+    { theme:'prisma', rating:'96', position:'EI', name:'Prisma Elite',  badges:['Legend','★5','2026'],label:'Prisma' },
+  ];
+
+  /* ── Frame SVG template (unique IDs per card via {N}) ── */
+  const FRAME_TPL = `<svg width="320" height="480" viewBox="0 0 320 480" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+<defs>
+  <linearGradient id="og{N}" x1="18" y1="8" x2="302" y2="472" gradientUnits="userSpaceOnUse">
+    <stop offset="0%"   style="stop-color:var(--metal-highlight)"/>
+    <stop offset="10%"  style="stop-color:var(--metal-bright)"/>
+    <stop offset="22%"  style="stop-color:var(--metal-light)"/>
+    <stop offset="38%"  style="stop-color:var(--metal-midtone)"/>
+    <stop offset="55%"  style="stop-color:var(--metal-dark)"/>
+    <stop offset="75%"  style="stop-color:var(--metal-shadow)"/>
+    <stop offset="92%"  style="stop-color:var(--metal-deep-shadow)"/>
+    <stop offset="100%" style="stop-color:var(--metal-abyss)"/>
+  </linearGradient>
+  <linearGradient id="ig{N}" x1="26" y1="16" x2="294" y2="460" gradientUnits="userSpaceOnUse">
+    <stop offset="0%"   style="stop-color:var(--metal-highlight)"/>
+    <stop offset="14%"  style="stop-color:var(--metal-bright)"/>
+    <stop offset="30%"  style="stop-color:var(--metal-light)"/>
+    <stop offset="50%"  style="stop-color:var(--metal-midtone)"/>
+    <stop offset="72%"  style="stop-color:var(--metal-dark)"/>
+    <stop offset="90%"  style="stop-color:var(--metal-shadow)"/>
+    <stop offset="100%" style="stop-color:var(--metal-deep-shadow)"/>
+  </linearGradient>
+  <linearGradient id="isg{N}" x1="160" y1="24" x2="160" y2="456" gradientUnits="userSpaceOnUse">
+    <stop offset="0%"  stop-color="#000000" stop-opacity="0.22"/>
+    <stop offset="40%" stop-color="#000000" stop-opacity="0.08"/>
+    <stop offset="70%" stop-color="#000000" stop-opacity="0.04"/>
+    <stop offset="100%" stop-color="#000000" stop-opacity="0.18"/>
+  </linearGradient>
+  <linearGradient id="elg{N}" x1="0" y1="0" x2="320" y2="480" gradientUnits="userSpaceOnUse">
+    <stop offset="0%"   style="stop-color:var(--metal-highlight);stop-opacity:0.72"/>
+    <stop offset="30%"  style="stop-color:var(--metal-bright);stop-opacity:0.52"/>
+    <stop offset="60%"  style="stop-color:var(--metal-light);stop-opacity:0.28"/>
+    <stop offset="100%" style="stop-color:var(--metal-midtone);stop-opacity:0.08"/>
+  </linearGradient>
+  <linearGradient id="bvg{N}" x1="160" y1="6" x2="160" y2="474" gradientUnits="userSpaceOnUse">
+    <stop offset="0%"   style="stop-color:var(--metal-bright)"/>
+    <stop offset="25%"  style="stop-color:var(--metal-light)"/>
+    <stop offset="50%"  style="stop-color:var(--metal-midtone)"/>
+    <stop offset="75%"  style="stop-color:var(--metal-dark)"/>
+    <stop offset="100%" style="stop-color:var(--metal-shadow)"/>
+  </linearGradient>
+</defs>
+<path d="M160 6 C171 6 178 12 183 18 C188 23 195 29 208 31 C223 34 236 28 247 20 C259 11 276 10 289 18 C300 25 307 36 312 48 L312 352 C312 405 275 444 160 474 C45 444 8 405 8 352 L8 48 C13 36 20 25 31 18 C44 10 61 11 74 20 C85 28 98 34 112 31 C125 29 132 23 137 18 C142 12 149 6 160 6 Z" fill="none" stroke="url(#elg{N})" stroke-width="0.8" stroke-linejoin="round" opacity="0.5"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M160 6 C171 6 178 12 183 18 C188 23 195 29 208 31 C223 34 236 28 247 20 C259 11 276 10 289 18 C300 25 307 36 312 48 L312 352 C312 405 275 444 160 474 C45 444 8 405 8 352 L8 48 C13 36 20 25 31 18 C44 10 61 11 74 20 C85 28 98 34 112 31 C125 29 132 23 137 18 C142 12 149 6 160 6 Z M160 24 C170 24 177 29 182 34 C187 39 194 43 206 45 C219 48 230 43 240 36 C251 29 264 27 274 33 C282 38 288 46 292 54 L292 348 C292 397 260 430 160 456 C60 430 28 397 28 348 L28 54 C32 46 38 38 46 33 C56 27 69 29 80 36 C90 43 101 48 114 45 C126 43 133 39 138 34 C143 29 150 24 160 24 Z" fill="url(#og{N})"/>
+<path d="M160 6 C171 6 178 12 183 18 C188 23 195 29 208 31 C223 34 236 28 247 20 C259 11 276 10 289 18 C300 25 307 36 312 48 L312 352 C312 405 275 444 160 474 C45 444 8 405 8 352 L8 48 C13 36 20 25 31 18 C44 10 61 11 74 20 C85 28 98 34 112 31 C125 29 132 23 137 18 C142 12 149 6 160 6 Z" fill="none" style="stroke:var(--metal-highlight)" stroke-width="2.5" stroke-linejoin="round" opacity="0.92"/>
+<path d="M160 15 C170 15 176 20 181 25 C186 30 192 35 204 37 C218 40 228 36 238 29 C249 22 262 19 272 25 C280 31 286 40 290 50 L290 350 C290 400 256 434 160 462 C64 434 30 400 30 350 L30 50 C34 40 40 31 48 25 C58 19 71 22 82 29 C92 36 103 40 116 37 C128 35 134 30 139 25 C144 20 150 15 160 15 Z" fill="none" stroke="url(#bvg{N})" stroke-width="1" stroke-linejoin="round" opacity="0.58"/>
+<path d="M160 24 C170 24 177 29 182 34 C187 39 194 43 206 45 C219 48 230 43 240 36 C251 29 264 27 274 33 C282 38 288 46 292 54 L292 348 C292 397 260 430 160 456 C60 430 28 397 28 348 L28 54 C32 46 38 38 46 33 C56 27 69 29 80 36 C90 43 101 48 114 45 C126 43 133 39 138 34 C143 29 150 24 160 24 Z" fill="none" stroke="url(#ig{N})" stroke-width="1.4" stroke-linejoin="round" opacity="0.95"/>
+<path d="M160 24 C170 24 177 29 182 34 C187 39 194 43 206 45 C219 48 230 43 240 36 C251 29 264 27 274 33 C282 38 288 46 292 54 L292 348 C292 397 260 430 160 456 C60 430 28 397 28 348 L28 54 C32 46 38 38 46 33 C56 27 69 29 80 36 C90 43 101 48 114 45 C126 43 133 39 138 34 C143 29 150 24 160 24 Z" fill="none" stroke="url(#isg{N})" stroke-width="1.8" stroke-linejoin="round" opacity="0.72"/>
+<path d="M160 25.5 C170 25.5 177 30 182 35 C187 40 194 44 206 46 C219 49 230 44.5 240 37 C251 30 264 28 274 34 C282 39 288 47 292 55 L292 349 C292 398 260 432 160 457.5 C60 432 28 398 28 349 L28 55 C32 47 38 39 46 34 C56 28 69 30 80 37 C90 44 101 49 114 46 C126 44 133 40 138 35 C143 30 150 25.5 160 25.5 Z" fill="none" style="stroke:var(--metal-light)" stroke-width="0.6" stroke-linejoin="round" opacity="0.55"/>
+</svg>`;
+
+  /* ── Lines SVG template ── */
+  const LINES_TPL = `<svg width="320" height="480" viewBox="0 0 320 480" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+<defs>
+  <clipPath id="tf{N}"><rect x="0" y="0" width="320" height="252"/></clipPath>
+  <linearGradient id="sm{N}" x1="120" y1="20" x2="290" y2="220" gradientUnits="userSpaceOnUse">
+    <stop offset="0%"  style="stop-color:var(--metal-highlight);stop-opacity:0.28"/>
+    <stop offset="15%" style="stop-color:var(--metal-bright);stop-opacity:0.52"/>
+    <stop offset="30%" style="stop-color:var(--metal-light);stop-opacity:0.82"/>
+    <stop offset="50%" style="stop-color:var(--metal-midtone);stop-opacity:0.92"/>
+    <stop offset="70%" style="stop-color:var(--metal-dark);stop-opacity:0.88"/>
+    <stop offset="85%" style="stop-color:var(--metal-shadow);stop-opacity:0.78"/>
+    <stop offset="100%" style="stop-color:var(--metal-deep-shadow);stop-opacity:0.62"/>
+  </linearGradient>
+</defs>
+<g clip-path="url(#tf{N})">
+  <path d="M130 -6 L84 50"  stroke="url(#sm{N})" stroke-width="2.6" stroke-linecap="round"/>
+  <path d="M148 -6 L102 50" stroke="url(#sm{N})" stroke-width="2.2" stroke-linecap="round"/>
+  <path d="M168 -6 L122 50" stroke="url(#sm{N})" stroke-width="2.8" stroke-linecap="round"/>
+  <path d="M188 -6 L142 50" stroke="url(#sm{N})" stroke-width="2"   stroke-linecap="round"/>
+  <path d="M208 -6 L162 50" stroke="url(#sm{N})" stroke-width="3.1" stroke-linecap="round"/>
+  <path d="M228 -6 L182 50" stroke="url(#sm{N})" stroke-width="2.2" stroke-linecap="round"/>
+  <path d="M248 -6 L202 50" stroke="url(#sm{N})" stroke-width="2.9" stroke-linecap="round"/>
+  <path d="M268 -6 L222 50" stroke="url(#sm{N})" stroke-width="2.3" stroke-linecap="round"/>
+  <path d="M288 -6 L242 50" stroke="url(#sm{N})" stroke-width="3.1" stroke-linecap="round"/>
+  <path d="M308 -6 L262 50" stroke="url(#sm{N})" stroke-width="2.4" stroke-linecap="round"/>
+  <path d="M120 34 L72 92"  stroke="url(#sm{N})" stroke-width="3.2" stroke-linecap="round"/>
+  <path d="M144 30 L96 88"  stroke="url(#sm{N})" stroke-width="2"   stroke-linecap="round"/>
+  <path d="M165 29 L117 86" stroke="url(#sm{N})" stroke-width="2.8" stroke-linecap="round"/>
+  <path d="M188 31 L140 89" stroke="url(#sm{N})" stroke-width="2.3" stroke-linecap="round"/>
+  <path d="M210 28 L162 86" stroke="url(#sm{N})" stroke-width="3.1" stroke-linecap="round"/>
+  <path d="M233 29 L185 87" stroke="url(#sm{N})" stroke-width="2.2" stroke-linecap="round"/>
+  <path d="M256 30 L208 88" stroke="url(#sm{N})" stroke-width="2.9" stroke-linecap="round"/>
+  <path d="M279 32 L231 90" stroke="url(#sm{N})" stroke-width="2.1" stroke-linecap="round"/>
+  <path d="M302 35 L254 93" stroke="url(#sm{N})" stroke-width="3"   stroke-linecap="round"/>
+  <path d="M132 76 L86 132"  stroke="url(#sm{N})" stroke-width="2.4" stroke-linecap="round"/>
+  <path d="M152 74 L106 130" stroke="url(#sm{N})" stroke-width="3"   stroke-linecap="round"/>
+  <path d="M176 75 L130 131" stroke="url(#sm{N})" stroke-width="2.2" stroke-linecap="round"/>
+  <path d="M200 77 L154 133" stroke="url(#sm{N})" stroke-width="3.1" stroke-linecap="round"/>
+  <path d="M224 76 L178 132" stroke="url(#sm{N})" stroke-width="2.1" stroke-linecap="round"/>
+  <path d="M248 78 L202 134" stroke="url(#sm{N})" stroke-width="2.8" stroke-linecap="round"/>
+  <path d="M272 76 L226 132" stroke="url(#sm{N})" stroke-width="2.2" stroke-linecap="round"/>
+  <path d="M296 79 L250 135" stroke="url(#sm{N})" stroke-width="3.2" stroke-linecap="round"/>
+  <path d="M320 82 L274 138" stroke="url(#sm{N})" stroke-width="2.1" stroke-linecap="round"/>
+  <path d="M146 120 L100 176" stroke="url(#sm{N})" stroke-width="2.1" stroke-linecap="round" opacity="0.86"/>
+  <path d="M170 118 L124 174" stroke="url(#sm{N})" stroke-width="3"   stroke-linecap="round" opacity="0.88"/>
+  <path d="M194 121 L148 177" stroke="url(#sm{N})" stroke-width="2.2" stroke-linecap="round" opacity="0.82"/>
+  <path d="M218 119 L172 175" stroke="url(#sm{N})" stroke-width="2.8" stroke-linecap="round" opacity="0.84"/>
+  <path d="M242 120 L196 176" stroke="url(#sm{N})" stroke-width="2.1" stroke-linecap="round" opacity="0.78"/>
+  <path d="M266 122 L220 178" stroke="url(#sm{N})" stroke-width="3.1" stroke-linecap="round" opacity="0.82"/>
+  <path d="M290 120 L244 176" stroke="url(#sm{N})" stroke-width="2.2" stroke-linecap="round" opacity="0.76"/>
+  <path d="M112 162 L68 216"  stroke="url(#sm{N})" stroke-width="2.4" stroke-linecap="round" opacity="0.72"/>
+  <path d="M156 160 L110 216" stroke="url(#sm{N})" stroke-width="2.8" stroke-linecap="round" opacity="0.68"/>
+  <path d="M200 160 L154 216" stroke="url(#sm{N})" stroke-width="2.4" stroke-linecap="round" opacity="0.62"/>
+  <path d="M244 160 L198 216" stroke="url(#sm{N})" stroke-width="2.9" stroke-linecap="round" opacity="0.58"/>
+  <path d="M288 160 L242 216" stroke="url(#sm{N})" stroke-width="2.3" stroke-linecap="round" opacity="0.52"/>
+</g>
+</svg>`;
+
+  /* ── Trophy SVG (no gradient IDs → no conflicts) ── */
+  const TROPHY_TPL = `<svg viewBox="0 0 80 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M20 30 L20 55 C20 68 40 78 40 78 C40 78 60 68 60 55 L60 30" style="fill:var(--accent-color)" opacity="0.9"/>
+<path d="M15 20 L20 30 L60 30 L65 20" style="stroke:var(--metal-bright)" stroke-width="2.5" stroke-linecap="round"/>
+<path d="M15 25 C5 25 2 40 15 45" style="stroke:var(--metal-midtone)" stroke-width="3" fill="none" stroke-linecap="round"/>
+<path d="M65 25 C75 25 78 40 65 45" style="stroke:var(--metal-midtone)" stroke-width="3" fill="none" stroke-linecap="round"/>
+<rect x="32" y="76" width="16" height="4" rx="2" style="fill:var(--metal-shadow)"/>
+<rect x="28" y="80" width="24" height="5" rx="2.5" style="fill:var(--metal-dark)"/>
+<polygon points="40,12 43,20 51,20 44,25 47,33 40,28 33,33 36,25 29,20 37,20" style="fill:var(--metal-highlight)" opacity="0.95"/>
+<ellipse cx="40" cy="45" rx="14" ry="20" style="fill:var(--metal-highlight)" opacity="0.15"/>
+</svg>`;
+
+  /* ── Build each card ── */
+  function el(tag, cls, parent) {
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+
+  function svgLayer(cls, tpl, n, parent) {
+    const div = el('div', cls, parent);
+    div.innerHTML = tpl.replace(/\{N\}/g, n);
+    return div;
+  }
+
+  function buildCard(data, idx) {
+    const n = idx;
+    const slot = document.getElementById('card-slot-' + idx);
+    const wrapper = el('div', null, slot);
+
+    const card = el('div', 'gold-card gold-card--' + data.theme, wrapper);
+
+    // z:1  Background
+    el('div', 'gold-card__bg', card);
+
+    // z:3  Background mask (CSS-only atmospheric overlay)
+    el('div', 'gold-card__bg-mask', card);
+
+    // z:5  Lines (SVG with unique IDs)
+    svgLayer('gold-card__lines', LINES_TPL, n, card);
+
+    // z:6  Shine (CSS-only animated sweep)
+    el('div', 'gold-card__shine', card);
+
+    // z:7  Bottom panel (CSS-only dark diagonal)
+    el('div', 'gold-card__bottom-panel', card);
+
+    // z:8  Metal texture (CSS-only, subtle)
+    el('div', 'gold-card__metal-texture', card);
+
+    // z:9  Glow (CSS radial-gradient)
+    el('div', 'gold-card__glow', card);
+
+    // z:10 Stats (rating + position)
+    const stats = el('div', 'gold-card__stats', card);
+    const rating = el('span', 'gold-card__rating', stats);
+    rating.textContent = data.rating;
+    const position = el('span', 'gold-card__position', stats);
+    position.textContent = data.position;
+
+    // z:11 Center (trophy icon)
+    const center = el('div', 'gold-card__center', card);
+    const iconWrap = el('div', 'gold-card__center-icon', center);
+    iconWrap.innerHTML = TROPHY_TPL;
+
+    // z:12 Name
+    const nameEl = el('div', 'gold-card__name', card);
+    nameEl.textContent = data.name;
+
+    // z:13 Meta badges
+    const meta = el('div', 'gold-card__meta', card);
+    data.badges.forEach(text => {
+      const badge = el('div', 'gold-card__meta-badge', meta);
+      badge.textContent = text;
+    });
+
+    // z:20 Frame (SVG with unique IDs)
+    svgLayer('gold-card__frame', FRAME_TPL, n, card);
+
+    // Variant label below the card
+    const label = el('p', 'gold-card-demo__variant-label', wrapper);
+    label.textContent = data.label;
+  }
+
+  CARDS.forEach((data, idx) => buildCard(data, idx));
+})();
+</script>
+
+<script src="card-theme-v2.js"></script>
+
+</body>
+</html>

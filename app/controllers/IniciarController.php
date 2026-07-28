@@ -108,9 +108,20 @@ final class IniciarController
         ];
         unset($_SESSION['error']);
 
-        View::render('iniciar', [
+        $this->renderWithLayout('iniciar', [
             'transaction' => $transaction,
             'payuContext' => $payuContext,
         ]);
+    }
+
+    /**
+     * @param array<string,mixed> $data
+     */
+    private function renderWithLayout(string $viewName, array $data = []): void
+    {
+        extract($data, EXTR_SKIP);
+        require APP_PATH . '/views/layout/header.php';
+        View::render($viewName, $data);
+        require APP_PATH . '/views/layout/footer.php';
     }
 }

@@ -134,7 +134,7 @@ final class ConfirmacionController
                 'amount' => (float)($context['monto'] ?? 0),
             ], $context);
             $errorMessage = 'No se recibio una referencia de pago valida.';
-            View::render('payment_result', [
+            $this->renderWithLayout('payment_result', [
                 'paymentResult' => $result,
                 'paymentDetails' => $this->buildDetailRows($result),
                 'paymentError' => $errorMessage,
@@ -236,7 +236,7 @@ final class ConfirmacionController
         }
         $retryUrl = 'index.php?' . http_build_query($retryParams, '', '&', PHP_QUERY_RFC3986);
 
-        View::render('payment_result', [
+        $this->renderWithLayout('payment_result', [
             'paymentResult' => $result,
             'paymentDetails' => $this->buildDetailRows($result),
             'paymentError' => $errorMessage,
@@ -246,5 +246,16 @@ final class ConfirmacionController
             'nextUrl' => $nextUrl,
             'nextLabel' => $nextLabel,
         ]);
+    }
+
+    /**
+     * @param array<string,mixed> $data
+     */
+    private function renderWithLayout(string $viewName, array $data = []): void
+    {
+        extract($data, EXTR_SKIP);
+        require APP_PATH . '/views/layout/header.php';
+        View::render($viewName, $data);
+        require APP_PATH . '/views/layout/footer.php';
     }
 }

@@ -5,11 +5,13 @@
     <?php
     $stylePath = __DIR__ . '/../../../assets/css/style.css';
     $styleVersion = is_file($stylePath) ? (string)filemtime($stylePath) : (string)time();
+    $cardCssPath = __DIR__ . '/../../../Card/Card.css';
+    $cardCssVersion = is_file($cardCssPath) ? (string)filemtime($cardCssPath) : (string)time();
     $assetBase = '/sportmanager/';
     $publicAssetPath = static function (string $path) use ($assetBase): string {
         $trimmed = trim($path);
         if ($trimmed === '') {
-            return $assetBase . 'assets/img/balonfutbol.png';
+            return $assetBase . 'assets/img/escudo_sportmanager.png';
         }
         if (preg_match('#^(?:https?:)?//#i', $trimmed) === 1 || str_starts_with($trimmed, '/')) {
             return $trimmed;
@@ -18,7 +20,7 @@
     };
     $schoolPrimaryColor = '#212529';
     $schoolSecondaryColor = '#001285';
-    $schoolShieldPath = $assetBase . 'assets/img/balonfutbol.png';
+    $schoolShieldPath = $assetBase . 'assets/img/escudo_sportmanager.png';
     $brandName = 'Sport Manager';
     $currentRole = (int)($_SESSION['rol'] ?? 0);
     $archivoActual = basename($_SERVER['PHP_SELF']);
@@ -122,10 +124,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sport Manager | Gestión deportiva</title>
-    <link rel="icon" type="image/png" href="<?= htmlspecialchars($assetBase . 'assets/img/balonfutbol.png', ENT_QUOTES, 'UTF-8') ?>">
+    <link rel="icon" type="image/png" href="<?= htmlspecialchars($assetBase . 'assets/img/escudo_sportmanager.png', ENT_QUOTES, 'UTF-8') ?>">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css?v=<?= urlencode($styleVersion) ?>">
+    <link rel="stylesheet" href="Card/Card.css?v=<?= urlencode($cardCssVersion) ?>">
 </head>
 
     <body style="--school-primary-color: <?= htmlspecialchars($schoolPrimaryColor, ENT_QUOTES, 'UTF-8') ?>; --school-secondary-color: <?= htmlspecialchars($schoolSecondaryColor, ENT_QUOTES, 'UTF-8') ?>; --school-primary-rgb: <?= (int)$primaryRgb[0] ?>, <?= (int)$primaryRgb[1] ?>, <?= (int)$primaryRgb[2] ?>; --school-secondary-rgb: <?= (int)$secondaryRgb[0] ?>, <?= (int)$secondaryRgb[1] ?>, <?= (int)$secondaryRgb[2] ?>; --school-btn-primary-bg: <?= htmlspecialchars($buttonPrimaryBg, ENT_QUOTES, 'UTF-8') ?>; --school-btn-primary-hover: <?= htmlspecialchars($buttonPrimaryHover, ENT_QUOTES, 'UTF-8') ?>; --school-btn-secondary-bg: <?= htmlspecialchars($buttonSecondaryBg, ENT_QUOTES, 'UTF-8') ?>; --school-btn-secondary-hover: <?= htmlspecialchars($buttonSecondaryHover, ENT_QUOTES, 'UTF-8') ?>; --school-btn-success-bg: <?= htmlspecialchars($buttonSuccessBg, ENT_QUOTES, 'UTF-8') ?>; --school-btn-success-hover: <?= htmlspecialchars($buttonSuccessHover, ENT_QUOTES, 'UTF-8') ?>; --school-btn-info-bg: <?= htmlspecialchars($buttonInfoBg, ENT_QUOTES, 'UTF-8') ?>; --school-btn-info-hover: <?= htmlspecialchars($buttonInfoHover, ENT_QUOTES, 'UTF-8') ?>; --school-btn-warning-bg: <?= htmlspecialchars($buttonWarningBg, ENT_QUOTES, 'UTF-8') ?>; --school-btn-warning-hover: <?= htmlspecialchars($buttonWarningHover, ENT_QUOTES, 'UTF-8') ?>; --school-btn-danger-bg: <?= htmlspecialchars($buttonDangerBg, ENT_QUOTES, 'UTF-8') ?>; --school-btn-danger-hover: <?= htmlspecialchars($buttonDangerHover, ENT_QUOTES, 'UTF-8') ?>; --bs-primary: <?= htmlspecialchars($schoolPrimaryColor, ENT_QUOTES, 'UTF-8') ?>; --bs-secondary: <?= htmlspecialchars($schoolSecondaryColor, ENT_QUOTES, 'UTF-8') ?>; --bs-success: <?= htmlspecialchars($buttonSuccessBg, ENT_QUOTES, 'UTF-8') ?>; --bs-info: <?= htmlspecialchars($buttonInfoBg, ENT_QUOTES, 'UTF-8') ?>; --bs-warning: <?= htmlspecialchars($buttonWarningBg, ENT_QUOTES, 'UTF-8') ?>; --bs-danger: <?= htmlspecialchars($buttonDangerBg, ENT_QUOTES, 'UTF-8') ?>; --bs-primary-rgb: <?= (int)$primaryRgb[0] ?>, <?= (int)$primaryRgb[1] ?>, <?= (int)$primaryRgb[2] ?>; --bs-secondary-rgb: <?= (int)$secondaryRgb[0] ?>, <?= (int)$secondaryRgb[1] ?>, <?= (int)$secondaryRgb[2] ?>; --school-shield-image: <?= htmlspecialchars($schoolShieldCssImage, ENT_QUOTES, 'UTF-8') ?>;">
@@ -250,5 +253,35 @@
         </nav>
 
     </header>
+
+    <!-- Hidden SVG defs: responsive clip-path for FIFA card shape.
+         clipPathUnits="objectBoundingBox" makes coordinates scale
+         with any card size (0-1 = left/top to right/bottom). -->
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+      <defs>
+        <clipPath id="cardClip" clipPathUnits="objectBoundingBox">
+          <!-- Card silhouette: hex notch at top, pointed bottom, curved sides.
+               Coordinates normalized from 320×480 reference design. -->
+          <path d="
+            M 0.5 0
+            C 0.534375 0, 0.553125 0.0125, 0.56875 0.022917
+            C 0.584375 0.033333, 0.60625 0.045833, 0.65 0.052083
+            C 0.7 0.058333, 0.7375 0.04375, 0.771875 0.027083
+            C 0.815625 0.00625, 0.871875 0.004167, 0.915625 0.022917
+            C 0.953125 0.039583, 0.978125 0.064583, 0.99375 0.091667
+            L 0.99375 0.729167
+            C 0.99375 0.847917, 0.86875 0.93125, 0.5 1
+            C 0.13125 0.93125, 0.00625 0.847917, 0.00625 0.729167
+            L 0.00625 0.091667
+            C 0.021875 0.064583, 0.046875 0.039583, 0.084375 0.022917
+            C 0.128125 0.004167, 0.184375 0.00625, 0.228125 0.027083
+            C 0.2625 0.04375, 0.3 0.058333, 0.35 0.052083
+            C 0.39375 0.045833, 0.415625 0.033333, 0.43125 0.022917
+            C 0.446875 0.0125, 0.465625 0, 0.5 0
+            Z
+          "/>
+        </clipPath>
+      </defs>
+    </svg>
 
     <main>
