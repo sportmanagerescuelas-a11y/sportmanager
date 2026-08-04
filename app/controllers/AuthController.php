@@ -183,13 +183,20 @@ class AuthController
      */
     private function mailSettings(): array
     {
+        $host = trim((string)(getenv('MAIL_HOST') ?: 'smtp.gmail.com'));
+        $username = trim((string)(getenv('MAIL_USERNAME') ?: 'sportmanager.escuelas@gmail.com'));
+        $password = str_replace([' ', "\t", "\r", "\n"], '', trim((string)(getenv('MAIL_PASSWORD') ?: '')));
+        $port = (int)(getenv('MAIL_PORT') ?: 587);
+        $fromAddress = trim((string)(getenv('MAIL_FROM_ADDRESS') ?: 'sportmanager.escuelas@gmail.com'));
+        $fromName = trim((string)(getenv('MAIL_FROM_NAME') ?: 'Sport Manager'));
+
         return [
-            'host' => trim((string)(getenv('MAIL_HOST') ?: '')),
-            'username' => trim((string)(getenv('MAIL_USERNAME') ?: '')),
-            'password' => trim((string)(getenv('MAIL_PASSWORD') ?: '')),
-            'port' => (int)(getenv('MAIL_PORT') ?: 587),
-            'from_address' => trim((string)(getenv('MAIL_FROM_ADDRESS') ?: '')),
-            'from_name' => trim((string)(getenv('MAIL_FROM_NAME') ?: 'Soporte')),
+            'host' => $host,
+            'username' => $username,
+            'password' => $password,
+            'port' => $port,
+            'from_address' => $fromAddress,
+            'from_name' => $fromName,
         ];
     }
 
