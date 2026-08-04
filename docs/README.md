@@ -4,18 +4,18 @@ Sistema web para gestion deportiva por escuelas. Permite registrar y administrar
 
 ## Resumen
 
-- Backend en PHP nativo con acceso a base de datos MySQL/MariaDB.
+- Backend en PHP nativo con acceso a base de datos MySQL o MariaDB.
 - Frontend con HTML, CSS, Bootstrap y JavaScript ligero.
 - Soporte para multiples roles de usuario y tema visual por escuela.
 - Integracion con correo, exportacion de documentos y generacion de PDF.
 
-## Caracteristicas principales
+## Funcionalidades principales
 
 - Registro e inicio de sesion de usuarios.
 - Creacion y administracion de escuelas.
-- Panel con tema visual basado en los colores y escudo de cada escuela.
+- Panel con tema visual basado en los colores y el escudo de cada escuela.
 - Gestion de deportistas con formulario, vista previa y carga de foto.
-- Categoria automatica segun fecha de nacimiento.
+- Categoria automatica segun la fecha de nacimiento.
 - Gestion de eventos, inscripciones y pagos.
 - Generacion y consulta de facturas.
 - Gestion de uniformes y asistencia.
@@ -30,7 +30,7 @@ Sistema web para gestion deportiva por escuelas. Permite registrar y administrar
 - `app/helpers`: utilidades compartidas de UI, CSRF y renderizado.
 - `assets`: estilos, scripts e imagenes publicas.
 - `Card`: estilos y componentes visuales de la tarjeta de deportista.
-- `Database/sportmanager.sql`: dump de base de datos.
+- `Database/sportmanager.sql`: volcado de la base de datos.
 - `fotos`: archivos subidos por usuarios y deportistas.
 
 ## Requisitos
@@ -43,7 +43,7 @@ Sistema web para gestion deportiva por escuelas. Permite registrar y administrar
 ## Instalacion
 
 1. Clona o copia el proyecto en tu servidor local.
-2. Instala dependencias con Composer:
+2. Instala las dependencias con Composer:
 
 ```bash
 composer install
@@ -66,7 +66,7 @@ http://localhost/sportmanager
 
 - El nombre, colores y escudo de la escuela se usan en el header y en varias vistas.
 - La categoria del deportista se calcula segun la fecha de nacimiento.
-- La tarjeta visual de deportista reutiliza un unico componente compartido.
+- La tarjeta visual del deportista reutiliza un unico componente compartido.
 - No mezclar logica de vista con reglas de negocio cuando exista un helper o modelo para eso.
 
 ## Dependencias
@@ -80,4 +80,3 @@ http://localhost/sportmanager
 - Revisar siempre `app/helpers/ui.php` antes de crear componentes visuales nuevos.
 - Revisar `app/models/PagesModel.php` y `app/controllers/PagesController.php` para cambios de flujo.
 - Las vistas de usuarios de escuela usan `nombre_escuela` como dato principal.
-

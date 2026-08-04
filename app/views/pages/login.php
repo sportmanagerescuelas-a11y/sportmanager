@@ -1,13 +1,13 @@
 <?php
 $loginErrorCode = isset($_GET['error']) ? (string)$_GET['error'] : '';
 $loginErrorMap = [
-    'empty' => 'Debes completar correo y contrasena.',
-    'invalidemail' => 'El formato del correo no es valido.',
-    'invalid' => 'Usuario o contrasena incorrectos.',
-    'pending' => 'Tu cuenta esta pendiente de aprobacion por un administrador.',
-    'payment_pending' => 'Tu pago esta pendiente de verificacion por el superadmin.',
-    'disabled' => 'Tu cuenta esta deshabilitada.',
-    '404' => 'La pagina solicitada no existe o fue movida.',
+    'empty' => 'Debes completar correo y contraseña.',
+    'invalidemail' => 'El formato del correo no es válido.',
+    'invalid' => 'La contraseña ingresada es incorrecta.',
+    'pending' => 'Tu cuenta está pendiente de validación por un administrador.',
+    'payment_pending' => 'Tu cuenta está pendiente de validación por pago y será revisada por el superadmin.',
+    'disabled' => 'Tu cuenta está deshabilitada.',
+    '404' => 'La página solicitada no existe o fue movida.',
 ];
 $loginErrorText = sm_error_text($loginErrorCode, $loginErrorMap);
 $loginModalTitle = '';
@@ -26,11 +26,16 @@ if (!empty($_SESSION['flash_session_expired'])) {
     $loginSessionExpired = true;
     unset($_SESSION['flash_session_expired']);
 } elseif ($loginErrorCode === 'invalidemail') {
-    $loginFieldError = ['field' => 'email', 'message' => 'El formato del correo no es valido.'];
+    $loginFieldError = ['field' => 'email', 'message' => 'El formato del correo no es válido.'];
 } elseif ($loginErrorCode === 'empty') {
-    $loginFieldError = ['field' => 'email', 'message' => 'Debes completar correo y contrasena.'];
+    $loginFieldError = ['field' => 'email', 'message' => 'Debes completar correo y contraseña.'];
 } elseif ($loginErrorCode === 'invalid') {
-    $loginFieldError = ['field' => 'password', 'message' => 'Usuario o contrasena incorrectos.'];
+    $loginFieldError = ['field' => 'password', 'message' => 'La contraseña ingresada es incorrecta.'];
+    $loginInlineAlert = [
+        'title' => 'No fue posible iniciar',
+        'message' => $loginErrorText,
+        'variant' => 'danger',
+    ];
 } elseif ($loginErrorText !== '') {
     $loginInlineAlert = [
         'title' => 'No fue posible iniciar',
