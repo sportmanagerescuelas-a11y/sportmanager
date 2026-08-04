@@ -14,7 +14,27 @@ $data = is_object($viewData['athlete'] ?? null) ? $viewData['athlete'] : (object
 ];
 $categorias = is_array($viewData['categorias'] ?? null) ? $viewData['categorias'] : [];
 $niveles = is_array($viewData['niveles'] ?? null) ? $viewData['niveles'] : [];
+$error = $viewData['error'] ?? null;
+$errorDetails = is_array($viewData['errorDetails'] ?? null) ? $viewData['errorDetails'] : [];
 $fotoActual = !empty($data->foto) ? 'fotos/' . ltrim((string)$data->foto, '/\\') : 'fotos/default.png';
+$categoriaActual = sm_birth_date_to_category_label((string)$data->fecha_nacimiento);
+if ($categoriaActual === '') {
+    $categoriaActual = 'Categoria';
+}
+$categoriaActualId = 0;
+foreach ($categorias as $categoriaItem) {
+    if (strcasecmp((string)$categoriaItem->nombre_cat, $categoriaActual) === 0) {
+        $categoriaActualId = (int)$categoriaItem->id_categoria;
+        break;
+    }
+}
+$nivelActual = 'Nivel';
+foreach ($niveles as $nivelItem) {
+    if ((int)$nivelItem->id_nivel === (int)$data->id_nivel) {
+        $nivelActual = (string)$nivelItem->nombre;
+        break;
+    }
+}
 ?>
 
 <div class="container py-5 mt-4 school-style-page athlete-create-page">
@@ -22,43 +42,41 @@ $fotoActual = !empty($data->foto) ? 'fotos/' . ltrim((string)$data->foto, '/\\')
         <div>
             <span class="payment-eyebrow">Edicion de deportista</span>
             <h1 class="h2 fw-bold mb-2">Editar deportista</h1>
-            <p class="text-muted mb-0">Tarjeta de vista previa con motor FIFA 18 Card Engine.</p>
+            <p class="text-muted mb-0"></p>
         </div>
         <a href="deportistas" class="btn btn-outline-secondary rounded-pill px-4">Volver</a>
     </div>
 
+    <?php if (!empty($error)): ?>
+        <div class="alert alert-danger"><?= htmlspecialchars((string)$error, ENT_QUOTES, 'UTF-8') ?></div>
+    <?php endif; ?>
+
+    <?php if (!empty($errorDetails)): ?>
+        <div class="alert alert-warning">
+            <strong>Detalle de errores:</strong>
+            <ul class="mb-0 mt-2">
+                <?php foreach ($errorDetails as $detail): ?>
+                    <li><?= htmlspecialchars((string)$detail, ENT_QUOTES, 'UTF-8') ?></li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
+    <?php endif; ?>
+
     <form method="POST" action="editar_deportista&id=<?= urlencode((string)$data->id_deportista) ?>" enctype="multipart/form-data">
         <div class="row g-4 align-items-start">
-            <div class="col-lg-5 d-flex justify-content-center">
-                <div
-                    class="fifa-card"
-                    id="playerCard"
-                    style="--color1:var(--school-primary-color); --color2:var(--school-secondary-color); --color1-rgb:var(--school-primary-rgb); --color2-rgb:var(--school-secondary-rgb);"
-                >
-                    <!-- Layer 1: Background (CSS-only) -->
-                    <div class="fifa-card__bg" aria-hidden="true"></div>
-                    <!-- Layer 2: BackgroundMask -->
-                    <img src="Card/assets/BackgroundMask.svg" alt="" class="fifa-card__bg-mask" aria-hidden="true">
-                    <!-- Layer 3: DiagonalLines -->
-                    <img src="Card/assets/DiagonalLines.svg" alt="" class="fifa-card__diag-lines" aria-hidden="true">
-                    <!-- Layer 4: Shine (animated sweep via CSS) -->
-                    <img src="Card/assets/Shine.svg" alt="" class="fifa-card__shine" aria-hidden="true">
-                    <!-- Layer 5: BottomPanel -->
-                    <img src="Card/assets/BottomPanel.svg" alt="" class="fifa-card__bottom-panel" aria-hidden="true">
-                    <!-- Layer 6: Frame -->
-                    <img src="Card/assets/Frame.svg" alt="" class="fifa-card__frame" aria-hidden="true">
-                    <!-- Content -->
-                    <div class="fifa-card__stats">
-                        <span class="fifa-card__rating">99</span>
-                        <span class="fifa-card__position">DC</span>
-                    </div>
-                    <img src="<?= htmlspecialchars($fotoActual, ENT_QUOTES, 'UTF-8') ?>" alt="Vista previa del deportista" id="previewFoto" class="fifa-card__player">
-                    <div class="fifa-card__name" id="previewNombre"><?= htmlspecialchars(trim((string)$data->nombres . ' ' . (string)$data->apellidos) ?: 'Tu nombre', ENT_QUOTES, 'UTF-8') ?></div>
-                    <div class="fifa-card__meta">
-                        <div id="previewCategoria">Categoria</div>
-                        <div id="previewNivel">Nivel</div>
-                        <div id="previewGenero">Genero</div>
-                    </div>
+            <div class="col-lg-5">
+                <div class="d-flex justify-content-center">
+                    <?php sm_render_gold_card([
+                        'rating' => '99',
+                        'position' => 'DC',
+                        'name' => trim((string)$data->nombres . ' ' . (string)$data->apellidos) ?: 'Tu nombre',
+                        'category' => $categoriaActual,
+                        'jornada' => (string)$data->jornada,
+                        'gender' => (string)$data->genero,
+                        'imageSrc' => $fotoActual,
+                        'imageAlt' => 'Vista previa del deportista',
+                        'imageClass' => 'gold-card__image',
+                    ]); ?>
                 </div>
             </div>
 
@@ -105,13 +123,15 @@ $fotoActual = !empty($data->foto) ? 'fotos/' . ltrim((string)$data->foto, '/\\')
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Categoria</label>
-                                <select name="id_categoria" id="categoria" class="form-control" required>
+                                <select id="categoria" class="form-control" disabled>
+                                    <option value="">Se calcula con la fecha de nacimiento</option>
                                     <?php foreach ($categorias as $c): ?>
-                                        <option value="<?= (int)$c->id_categoria ?>" <?= (int)$data->id_categoria === (int)$c->id_categoria ? 'selected' : '' ?>>
+                                        <option value="<?= (int)$c->id_categoria ?>" <?= $categoriaActualId === (int)$c->id_categoria ? 'selected' : '' ?>>
                                             <?= htmlspecialchars((string)$c->nombre_cat, ENT_QUOTES, 'UTF-8') ?>
                                         </option>
                                     <?php endforeach; ?>
                                 </select>
+                                <small class="text-muted d-block mt-1">La categoria se ajusta automaticamente segun la fecha de nacimiento.</small>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Nivel</label>
@@ -139,40 +159,4 @@ $fotoActual = !empty($data->foto) ? 'fotos/' . ltrim((string)$data->foto, '/\\')
     </form>
 </div>
 
-<script src="Card/card-theme.js"></script>
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-    var nombres = document.getElementById("nombres");
-    var apellidos = document.getElementById("apellidos");
-    var categoria = document.getElementById("categoria");
-    var nivel = document.getElementById("nivel");
-    var genero = document.getElementById("genero");
-    var foto = document.getElementById("foto");
-    var previewNombre = document.getElementById("previewNombre");
-    var previewCategoria = document.getElementById("previewCategoria");
-    var previewNivel = document.getElementById("previewNivel");
-    var previewGenero = document.getElementById("previewGenero");
-    var previewFoto = document.getElementById("previewFoto");
-
-    function sync() {
-        previewNombre.innerText = (nombres.value + " " + apellidos.value).trim() || "Tu nombre";
-        previewCategoria.innerText = categoria.options[categoria.selectedIndex]?.text || "Categoria";
-        previewNivel.innerText = nivel.options[nivel.selectedIndex]?.text || "Nivel";
-        previewGenero.innerText = genero.value || "Genero";
-    }
-
-    [nombres, apellidos, categoria, nivel, genero].forEach(function (el) {
-        el.addEventListener("input", sync);
-        el.addEventListener("change", sync);
-    });
-
-    foto.addEventListener("change", function(e) {
-        var file = e.target.files && e.target.files[0];
-        if (file) {
-            previewFoto.src = URL.createObjectURL(file);
-        }
-    });
-
-    sync();
-});
-</script>
+<script src="assets/js/gold-card-preview.js"></script>

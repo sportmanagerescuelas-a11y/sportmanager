@@ -3,6 +3,9 @@ $viewData = get_defined_vars();
 $usuariosPendientes = is_array($viewData['usuariosPendientes'] ?? null) ? $viewData['usuariosPendientes'] : [];
 $usuariosAprobados = is_array($viewData['usuariosAprobados'] ?? null) ? $viewData['usuariosAprobados'] : [];
 $isSchoolAdminView = (bool)($viewData['isSchoolAdminView'] ?? false);
+$schoolName = trim((string)($viewData['schoolName'] ?? ''));
+$schoolNameFallback = $schoolName !== '' ? $schoolName : 'Tu Escuela';
+$schoolCellFallback = $schoolName !== '' ? $schoolName : 'Sin escuela';
 
 if (!function_exists('rol_nombre')) {
 function rol_nombre(int $rol): string
@@ -31,7 +34,7 @@ function rol_nombre(int $rol): string
                         <td><?= htmlspecialchars((string)$user['id_usuario']) ?></td>
                         <td><?= htmlspecialchars($user['nombres'] . ' ' . $user['apellidos']) ?></td>
                         <td><?= htmlspecialchars((string)$user['email']) ?></td>
-                        <td><?= htmlspecialchars((string)($user['nombre_escuela'] ?? 'Sin escuela')) ?></td>
+                        <td><?= htmlspecialchars((string)($user['nombre_escuela'] ?? $schoolCellFallback), ENT_QUOTES, 'UTF-8') ?></td>
                         <td><?= htmlspecialchars(rol_nombre((int)$user['id_rol'])) ?></td>
                         <td>
                             <?php if ($isSchoolAdminView): ?>
@@ -127,7 +130,7 @@ function rol_nombre(int $rol): string
     <?php endif; ?>
 
     <hr class="mt-5 mb-4">
-    <h2 class="text-center mb-4"><?= $isSchoolAdminView ? 'Usuarios Registrados En Tu Escuela' : 'Usuarios Activos y Deshabilitados' ?></h2>
+    <h2 class="text-center mb-4"><?= $isSchoolAdminView ? 'Usuarios Registrados En ' . htmlspecialchars($schoolNameFallback, ENT_QUOTES, 'UTF-8') : 'Usuarios Activos y Deshabilitados' ?></h2>
     <div class="table-responsive admin-users-table-wrap">
         <table class="table table-bordered text-center admin-users-table">
             <thead class="table-dark">
@@ -139,7 +142,7 @@ function rol_nombre(int $rol): string
                         <td><?= htmlspecialchars((string)$user['id_usuario']) ?></td>
                         <td><?= htmlspecialchars($user['nombres'] . ' ' . $user['apellidos']) ?></td>
                         <td><?= htmlspecialchars((string)$user['email']) ?></td>
-                        <td><?= htmlspecialchars((string)($user['nombre_escuela'] ?? 'Sin escuela')) ?></td>
+                        <td><?= htmlspecialchars((string)($user['nombre_escuela'] ?? $schoolCellFallback), ENT_QUOTES, 'UTF-8') ?></td>
                         <td><?= htmlspecialchars(rol_nombre((int)$user['id_rol'])) ?></td>
                         <td><?= (int)$user['total_deportistas'] ?></td>
                         <td><?= htmlspecialchars((string)$user['estado']) ?></td>

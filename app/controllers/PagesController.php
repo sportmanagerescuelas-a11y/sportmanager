@@ -212,6 +212,7 @@ class PagesController
         $role = (int)($_SESSION['rol'] ?? 0);
         if ($role === 3) {
             $schoolId = (int)($_SESSION['usuario']['id_escuela'] ?? 0);
+            $school = $schoolId > 0 ? $this->model()->schoolById((string)$schoolId) : null;
             $usersBySchool = $schoolId > 0 ? $this->model()->usersBySchool($schoolId) : [];
             $approvedUsers = array_values(array_filter($usersBySchool, static function ($user): bool {
                 return (string)($user['estado'] ?? '') !== 'pendiente';
@@ -220,6 +221,7 @@ class PagesController
                 'usuariosPendientes' => $schoolId > 0 ? $this->model()->pendingUsersBySchool($schoolId) : [],
                 'usuariosAprobados' => $approvedUsers,
                 'isSchoolAdminView' => true,
+                'schoolName' => is_object($school) ? (string)($school->nombre ?? '') : '',
             ]);
             return;
         }
@@ -269,6 +271,7 @@ class PagesController
 
         $error = null;
         $errorDetails = [];
+        $categories = $this->model()->categories();
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
@@ -289,8 +292,11 @@ class PagesController
             if ($payload['fecha_nacimiento'] === '' || DateTime::createFromFormat('Y-m-d', $payload['fecha_nacimiento']) === false) {
                 $errorDetails[] = 'La fecha de nacimiento no es valida.';
             }
-            if (!$this->model()->categoryExists((string)$payload['id_categoria'])) {
-                $errorDetails[] = 'Debes seleccionar una categoria valida.';
+            $computedCategoryId = sm_category_id_for_birth_date($payload['fecha_nacimiento'], $categories);
+            if ($computedCategoryId <= 0) {
+                $errorDetails[] = 'No se pudo calcular la categoria desde la fecha de nacimiento.';
+            } else {
+                $payload['id_categoria'] = (string)$computedCategoryId;
             }
             if (!$this->model()->levelExists((string)$payload['id_nivel'])) {
                 $errorDetails[] = 'Debes seleccionar un nivel valido.';
@@ -327,7 +333,7 @@ class PagesController
         }
 
         $this->render('crear_deportista', [
-            'categorias' => $this->model()->categories(),
+            'categorias' => $categories,
             'niveles' => $this->model()->levels(),
             'error' => $error,
             'errorDetails' => $errorDetails,
@@ -343,20 +349,41 @@ class PagesController
             $this->redirect('deportistas');
         }
 
+        $error = null;
+        $errorDetails = [];
+        $categories = $this->model()->categories();
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $payload = $this->athletePayload($athlete->foto);
             $payload['foto'] = $this->storeUploadedPhoto($athlete->foto);
             if ($payload['foto'] !== $athlete->foto) {
                 $this->deleteOldPhoto($athlete->foto);
             }
-            $this->model()->updateAthlete($id, $payload);
-            $this->redirect('deportistas');
+            if ($payload['fecha_nacimiento'] === '' || DateTime::createFromFormat('Y-m-d', $payload['fecha_nacimiento']) === false) {
+                $errorDetails[] = 'La fecha de nacimiento no es valida.';
+            }
+
+            $computedCategoryId = sm_category_id_for_birth_date($payload['fecha_nacimiento'], $categories);
+            if ($computedCategoryId <= 0) {
+                $errorDetails[] = 'No se pudo calcular la categoria desde la fecha de nacimiento.';
+            } else {
+                $payload['id_categoria'] = (string)$computedCategoryId;
+            }
+
+            if (!empty($errorDetails)) {
+                $error = 'Corrige los siguientes datos para actualizar el deportista.';
+            } else {
+                $this->model()->updateAthlete($id, $payload);
+                $this->redirect('deportistas');
+            }
         }
 
         $this->render('editar_deportista', [
             'athlete' => $athlete,
-            'categorias' => $this->model()->categories(),
+            'categorias' => $categories,
             'niveles' => $this->model()->levels(),
+            'error' => $error,
+            'errorDetails' => $errorDetails,
         ]);
     }
 

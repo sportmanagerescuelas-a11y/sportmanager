@@ -5,8 +5,8 @@
     <?php
     $stylePath = __DIR__ . '/../../../assets/css/style.css';
     $styleVersion = is_file($stylePath) ? (string)filemtime($stylePath) : (string)time();
-    $cardCssPath = __DIR__ . '/../../../Card/Card.css';
-    $cardCssVersion = is_file($cardCssPath) ? (string)filemtime($cardCssPath) : (string)time();
+    $goldCardCssPath = __DIR__ . '/../../../Card/gold-card.css';
+    $goldCardCssVersion = is_file($goldCardCssPath) ? (string)filemtime($goldCardCssPath) : (string)time();
     $assetBase = '/sportmanager/';
     $publicAssetPath = static function (string $path) use ($assetBase): string {
         $trimmed = trim($path);
@@ -22,6 +22,7 @@
     $schoolSecondaryColor = '#001285';
     $schoolShieldPath = $assetBase . 'assets/img/escudo_sportmanager.png';
     $brandName = 'Sport Manager';
+    $brandTitle = 'Sport Manager | Gestión deportiva';
     $currentRole = (int)($_SESSION['rol'] ?? 0);
     $archivoActual = basename($_SERVER['PHP_SELF']);
     $urlParam = $_GET['url'] ?? 'home';
@@ -47,8 +48,9 @@
                     $secondary = (string)($schoolTheme['color_secundario'] ?? '');
                     $shield = trim((string)($schoolTheme['escudo_path'] ?? ''));
                     $role = (int)($_SESSION['rol'] ?? 0);
-                    if ($role === 3 && $schoolName !== '') {
+                    if ($schoolName !== '') {
                         $brandName = $schoolName;
+                        $brandTitle = $schoolName . ' | Gestión deportiva';
                     }
                     if ($shield !== '') {
                         $schoolShieldPath = $publicAssetPath($shield);
@@ -123,12 +125,12 @@
     ?>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sport Manager | Gestión deportiva</title>
+    <title><?= htmlspecialchars($brandTitle, ENT_QUOTES, 'UTF-8') ?></title>
     <link rel="icon" type="image/png" href="<?= htmlspecialchars($assetBase . 'assets/img/escudo_sportmanager.png', ENT_QUOTES, 'UTF-8') ?>">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css?v=<?= urlencode($styleVersion) ?>">
-    <link rel="stylesheet" href="Card/Card.css?v=<?= urlencode($cardCssVersion) ?>">
+    <link rel="stylesheet" href="Card/gold-card.css?v=<?= urlencode($goldCardCssVersion) ?>">
 </head>
 
     <body style="--school-primary-color: <?= htmlspecialchars($schoolPrimaryColor, ENT_QUOTES, 'UTF-8') ?>; --school-secondary-color: <?= htmlspecialchars($schoolSecondaryColor, ENT_QUOTES, 'UTF-8') ?>; --school-primary-rgb: <?= (int)$primaryRgb[0] ?>, <?= (int)$primaryRgb[1] ?>, <?= (int)$primaryRgb[2] ?>; --school-secondary-rgb: <?= (int)$secondaryRgb[0] ?>, <?= (int)$secondaryRgb[1] ?>, <?= (int)$secondaryRgb[2] ?>; --school-btn-primary-bg: <?= htmlspecialchars($buttonPrimaryBg, ENT_QUOTES, 'UTF-8') ?>; --school-btn-primary-hover: <?= htmlspecialchars($buttonPrimaryHover, ENT_QUOTES, 'UTF-8') ?>; --school-btn-secondary-bg: <?= htmlspecialchars($buttonSecondaryBg, ENT_QUOTES, 'UTF-8') ?>; --school-btn-secondary-hover: <?= htmlspecialchars($buttonSecondaryHover, ENT_QUOTES, 'UTF-8') ?>; --school-btn-success-bg: <?= htmlspecialchars($buttonSuccessBg, ENT_QUOTES, 'UTF-8') ?>; --school-btn-success-hover: <?= htmlspecialchars($buttonSuccessHover, ENT_QUOTES, 'UTF-8') ?>; --school-btn-info-bg: <?= htmlspecialchars($buttonInfoBg, ENT_QUOTES, 'UTF-8') ?>; --school-btn-info-hover: <?= htmlspecialchars($buttonInfoHover, ENT_QUOTES, 'UTF-8') ?>; --school-btn-warning-bg: <?= htmlspecialchars($buttonWarningBg, ENT_QUOTES, 'UTF-8') ?>; --school-btn-warning-hover: <?= htmlspecialchars($buttonWarningHover, ENT_QUOTES, 'UTF-8') ?>; --school-btn-danger-bg: <?= htmlspecialchars($buttonDangerBg, ENT_QUOTES, 'UTF-8') ?>; --school-btn-danger-hover: <?= htmlspecialchars($buttonDangerHover, ENT_QUOTES, 'UTF-8') ?>; --bs-primary: <?= htmlspecialchars($schoolPrimaryColor, ENT_QUOTES, 'UTF-8') ?>; --bs-secondary: <?= htmlspecialchars($schoolSecondaryColor, ENT_QUOTES, 'UTF-8') ?>; --bs-success: <?= htmlspecialchars($buttonSuccessBg, ENT_QUOTES, 'UTF-8') ?>; --bs-info: <?= htmlspecialchars($buttonInfoBg, ENT_QUOTES, 'UTF-8') ?>; --bs-warning: <?= htmlspecialchars($buttonWarningBg, ENT_QUOTES, 'UTF-8') ?>; --bs-danger: <?= htmlspecialchars($buttonDangerBg, ENT_QUOTES, 'UTF-8') ?>; --bs-primary-rgb: <?= (int)$primaryRgb[0] ?>, <?= (int)$primaryRgb[1] ?>, <?= (int)$primaryRgb[2] ?>; --bs-secondary-rgb: <?= (int)$secondaryRgb[0] ?>, <?= (int)$secondaryRgb[1] ?>, <?= (int)$secondaryRgb[2] ?>; --school-shield-image: <?= htmlspecialchars($schoolShieldCssImage, ENT_QUOTES, 'UTF-8') ?>;">
