@@ -79,6 +79,12 @@ class AuthController
                 try {
                     $mail = new PHPMailer(true);
                     $mail->CharSet = 'UTF-8';
+                    $mail->Timeout = 12;
+                    $mail->SMTPDebug = 0;
+                    $mail->Debugoutput = static function (string $str): void {
+                        error_log('SMTP debug (recuperacion): ' . trim($str));
+                    };
+
                     $smtp = $this->mailSettings();
                     $fromAddress = $smtp['from_address'] !== '' ? $smtp['from_address'] : 'no-reply@sportmanager.local';
                     $fromName = $smtp['from_name'] !== '' ? $smtp['from_name'] : 'Soporte';
@@ -96,9 +102,23 @@ class AuthController
                         $mail->SMTPAuth = true;
                         $mail->Username = $smtp['username'];
                         $mail->Password = $smtp['password'];
-                        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
                         $mail->Port = $smtp['port'];
+                        $mail->SMTPAutoTLS = true;
+                        $secureMode = $this->normalizeSmtpEncryption($smtp['encryption']);
+                        if ($secureMode !== '') {
+                            $mail->SMTPSecure = $secureMode;
+                        } else {
+                            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+                        }
+                        $mail->SMTPOptions = [
+                            'ssl' => [
+                                'verify_peer' => false,
+                                'verify_peer_name' => false,
+                                'allow_self_signed' => true,
+                            ],
+                        ];
                     } else {
+                        error_log('No hay credenciales SMTP para recuperacion de contraseña. Se usara mail().');
                         $mail->isMail();
                     }
 
@@ -108,6 +128,9 @@ class AuthController
                     $sent = $mail->send();
                 } catch (Throwable $e) {
                     error_log('Error enviando correo de recuperacion: ' . $e->getMessage());
+                    if (isset($mail) && $mail instanceof PHPMailer) {
+                        error_log('Detalle SMTP de recuperacion: ' . $mail->ErrorInfo);
+                    }
                 }
             } else {
                 $subject = 'Recuperar contrasena';
@@ -179,7 +202,7 @@ class AuthController
     }
 
     /**
-     * @return array{host:string,username:string,password:string,port:int,from_address:string,from_name:string}
+     * @return array{host:string,username:string,password:string,port:int,from_address:string,from_name:string,encryption:string}
      */
     private function mailSettings(): array
     {
@@ -189,6 +212,7 @@ class AuthController
         $port = (int)(getenv('MAIL_PORT') ?: 587);
         $fromAddress = trim((string)(getenv('MAIL_FROM_ADDRESS') ?: 'sportmanager.escuelas@gmail.com'));
         $fromName = trim((string)(getenv('MAIL_FROM_NAME') ?: 'Sport Manager'));
+        $encryption = strtolower(trim((string)(getenv('MAIL_ENCRYPTION') ?: '')));
 
         return [
             'host' => $host,
@@ -197,7 +221,23 @@ class AuthController
             'port' => $port,
             'from_address' => $fromAddress,
             'from_name' => $fromName,
+            'encryption' => $encryption,
         ];
+    }
+
+    private function normalizeSmtpEncryption(string $encryption): string
+    {
+        $normalized = strtolower(trim($encryption));
+
+        if ($normalized === 'ssl') {
+            return PHPMailer::ENCRYPTION_SMTPS;
+        }
+
+        if ($normalized === 'tls') {
+            return PHPMailer::ENCRYPTION_STARTTLS;
+        }
+
+        return '';
     }
 
     private function recoverEmailBodyV2(string $resetUrl): string
