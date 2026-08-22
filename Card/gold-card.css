@@ -1,0 +1,181 @@
+.gold-card {
+  --color-top: var(--school-primary-color, #7c6c1e);
+  --color-mid: var(--school-secondary-color, #d4af37);
+  --color-bottom: #4f3a08;
+  --color-left: var(--school-primary-color, #9a7d24);
+  --color-right: var(--school-secondary-color, #8d6a19);
+  --line-color: #f4dc8d;
+  --line-opacity: 0.58;
+  --glow-color: #fff0a8;
+  --glow-opacity: 0;
+  --banner-color: #5b440f;
+  --banner-edge: #c7a94a;
+  --frame-dark: #4f3a08;
+  --frame-accent: #f4dc8d;
+  --line-spacing: 26px;
+  --line-width: 4px;
+
+  position: relative;
+  width: min(100%, 360px);
+  aspect-ratio: 540 / 840;
+  isolation: isolate;
+  display: grid;
+  place-items: stretch;
+  clip-path: polygon(50% 1.9%, 1.85% 11.1%, 1.48% 82.4%, 47.4% 98.9%, 97.8% 81.8%, 97.4% 11%);
+  -webkit-clip-path: polygon(50% 1.9%, 1.85% 11.1%, 1.48% 82.4%, 47.4% 98.9%, 97.8% 81.8%, 97.4% 11%);
+  filter:
+    drop-shadow(0 28px 52px rgba(17, 14, 6, 0.2))
+    drop-shadow(0 10px 20px rgba(17, 14, 6, 0.12));
+}
+
+.gold-card__svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+}
+
+.gold-card__shield {
+  position: absolute;
+  top: 13.8%;
+  left: 7.2%;
+  right: auto;
+  width: clamp(58px, 15.5%, 94px);
+  aspect-ratio: 1;
+  z-index: 3;
+  pointer-events: none;
+  background-image: var(--school-shield-image);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  filter:
+    drop-shadow(0 10px 16px rgba(0, 0, 0, 0.34))
+    drop-shadow(0 0 10px rgba(255, 240, 168, 0.08));
+}
+
+.gold-card__slot {
+  position: absolute;
+  inset: 0% 11.5% 42% 11.5%;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+
+.gold-card__image {
+  width: 38%;
+  height: auto;
+  max-height: 100%;
+  object-fit: contain;
+  filter:
+    drop-shadow(0 16px 24px rgba(0, 0, 0, 0.48))
+    drop-shadow(0 0 14px rgba(255, 240, 168, 0.12));
+  transform: translateY(2%);
+}
+
+.gold-card__name {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 45.5%;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 3.1rem;
+  padding: 0 2rem;
+  color: #fff;
+  font-size: clamp(1.15rem, 2.8vw, 1.9rem);
+  font-weight: 900;
+  line-height: 1.08;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-align: center;
+  text-shadow:
+    0 2px 0 rgba(0, 0, 0, 0.45),
+    0 10px 18px rgba(0, 0, 0, 0.42);
+}
+
+.gold-card__name::before {
+  content: "";
+  position: absolute;
+  left: 14%;
+  right: 14%;
+  top: 50%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+  opacity: 0.7;
+}
+
+.gold-card__meta {
+  position: absolute;
+  left: 12%;
+  right: 12%;
+  bottom: 25.2%;
+  z-index: 3;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.35rem;
+  padding: 0;
+  justify-items: start;
+}
+
+.gold-card__meta > div {
+  display: grid;
+  place-items: start;
+  min-height: 1.65rem;
+  padding: 0.1rem 0;
+  border-radius: 0;
+  color: rgba(255, 248, 216, 0.92);
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.1;
+  text-transform: uppercase;
+  text-align: left;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+@media (max-width: 992px) {
+  .gold-card {
+    width: min(100%, 340px);
+  }
+
+  .gold-card__shield {
+    top: 14.4%;
+    left: 6.8%;
+    right: auto;
+    width: clamp(54px, 15.2%, 88px);
+  }
+
+  .gold-card__name {
+    top: 44.5%;
+  }
+}
+
+@media (max-width: 576px) {
+  .gold-card {
+    width: min(100%, 310px);
+  }
+
+  .gold-card__shield {
+    top: 15%;
+    left: 6.8%;
+    right: auto;
+    width: clamp(50px, 16.2%, 78px);
+  }
+
+  .gold-card__slot {
+    inset: 0% 12% 43% 12%;
+  }
+
+  .gold-card__meta {
+    left: 12.5%;
+    right: 12.5%;
+  }
+}

@@ -1,0 +1,92 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Controllers;
+
+use App\Core\View;
+use PDO;
+
+if (!defined('APP_BASE_PATH')) {
+    require_once dirname(__DIR__) . '/bootstrap.php';
+}
+
+require_once dirname(__DIR__) . '/core/View.php';
+
+final class PagosPageController
+{
+    /**
+     * @param array<string,mixed> $data
+     */
+    private function renderWithLayout(string $viewName, array $data = []): void
+    {
+        extract($data, EXTR_SKIP);
+        require APP_PATH . '/views/layout/header.php';
+        View::render($viewName, $data);
+        require APP_PATH . '/views/layout/footer.php';
+    }
+
+    public function show(): void
+    {
+        if (!isset($_SESSION['usuario']) || !isset($_SESSION['id_usuario'])) {
+            header('Location: ' . sm_url('login'));
+            exit();
+        }
+
+        require APP_BASE_PATH . '/config/conexion.php';
+        if (!isset($conexion) || !($conexion instanceof PDO)) {
+            http_response_code(500);
+            $code = '500';
+            $title = 'Error interno';
+            $message = 'No fue posible establecer conexion para cargar los pagos.';
+            $backUrl = sm_url('home');
+            $backLabel = 'Volver al inicio';
+            require APP_PATH . '/views/layout/header.php';
+            require APP_PATH . '/views/pages/error_status.php';
+            require APP_PATH . '/views/layout/footer.php';
+            return;
+        }
+
+        $idEvento = isset($_GET['id_evento']) ? (int) $_GET['id_evento'] : 0;
+
+        $this->ensureInvoicePaymentColumns($conexion);
+
+        $facturasUsuario = [];
+        $idUsuarioSesion = (int)($_SESSION['id_usuario'] ?? ($_SESSION['usuario']['id_usuario'] ?? 0));
+        if ($idUsuarioSesion > 0) {
+            $stmtFacturas = $conexion->prepare(
+                "SELECT f.id_factura, f.numero_factura, f.fecha_emision, f.monto, f.descripcion,
+                        f.cantidad, f.comprobante_path,
+                        COALESCE(e.titulo, f.descripcion) AS nombre_evento,
+                        COALESCE(m.nombre_entidad, 'N/A') AS metodo_pago_texto,
+                        COALESCE(CONCAT(d.nombres, ' ', d.apellidos), 'No aplica') AS nombre_deportista
+                 FROM facturas f
+                 LEFT JOIN eventos e ON f.id_evento = e.id_evento
+                 LEFT JOIN metodos_pago m ON f.tipo_pago = m.id_metodo
+                 LEFT JOIN deportistas d ON f.id_deportista = d.id_deportista
+                 WHERE f.id = :id_usuario
+                 ORDER BY f.id_factura DESC"
+            );
+            $stmtFacturas->execute([':id_usuario' => $idUsuarioSesion]);
+            $facturasUsuario = $stmtFacturas->fetchAll(PDO::FETCH_ASSOC) ?: [];
+        }
+
+        $this->renderWithLayout('pagos', [
+            'facturasUsuario' => $facturasUsuario,
+            'idEvento' => $idEvento,
+        ]);
+    }
+
+    private function ensureInvoicePaymentColumns(PDO $conexion): void
+    {
+        $quantityStmt = $conexion->query("SHOW COLUMNS FROM facturas LIKE 'cantidad'");
+        if ($quantityStmt === false || $quantityStmt->fetch(PDO::FETCH_ASSOC) === false) {
+            $conexion->exec('ALTER TABLE facturas ADD COLUMN cantidad INT(11) NOT NULL DEFAULT 1 AFTER id_evento');
+        }
+
+        $receiptStmt = $conexion->query("SHOW COLUMNS FROM facturas LIKE 'comprobante_path'");
+        if ($receiptStmt === false || $receiptStmt->fetch(PDO::FETCH_ASSOC) === false) {
+            $conexion->exec('ALTER TABLE facturas ADD COLUMN comprobante_path VARCHAR(255) NULL AFTER cantidad');
+        }
+    }
+}

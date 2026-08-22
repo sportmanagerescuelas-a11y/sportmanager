@@ -1,0 +1,15 @@
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+RewriteEngine On
+
+RewriteRule ^(?:app/(?:views|models|core|helpers|Services)|config|storage|vendor|libs|Database)(?:/|$) - [F,L,NC]
+RewriteRule ^(?:tests(?:/|$)|composer-setup\.php$|composer\.phar$) - [F,L,NC]
+RewriteRule ^controllers/([^/]+\.php)$ app/controllers/$1 [L]
+
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+RewriteRule ^(.+)$ index.php?url=$1 [QSA,L]
+</IfModule>
