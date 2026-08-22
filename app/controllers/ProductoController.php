@@ -30,17 +30,28 @@ class ProductoController {
             $payload = $this->productPayload();
             if ($payload === null) {
                 $_SESSION['flash_product_error'] = 'Completa un nombre, una descripción y un precio válido.';
+<<<<<<< HEAD
                 header('Location: ' . sm_url('productos?product_action=nuevo'));
+=======
+                header('Location: productos&product_action=nuevo');
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
                 exit;
             }
 
             $ok = $this->modelo->crear($payload['nombre'], $payload['precio'], $payload['descripcion'], $payload['imagen'], $this->schoolId());
             if (!$ok) {
                 $_SESSION['flash_product_error'] = $this->modelo->lastError();
+<<<<<<< HEAD
                 header('Location: ' . sm_url('productos?product_action=nuevo'));
                 exit;
             }
             header('Location: ' . sm_url('productos?created=1'));
+=======
+                header('Location: productos&product_action=nuevo');
+                exit;
+            }
+            header('Location: productos&created=1');
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
             exit;
         }
     }
@@ -52,20 +63,32 @@ class ProductoController {
             $id = $_POST['id'] ?? null;
         }
         if ($id === null || $id === '' || !is_numeric($id)) {
+<<<<<<< HEAD
             header('Location: ' . sm_url('productos'));
+=======
+            header('Location: productos');
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
             exit;
         }
 
         if (!$this->modelo->eliminar($id, $this->schoolId())) {
             $_SESSION['flash_product_error'] = $this->modelo->lastError();
         }
+<<<<<<< HEAD
         header('Location: ' . sm_url('productos'));
+=======
+        header('Location: productos');
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
         exit;
     }
 
     public function actualizar($id): void {
         if ($id === null || $id === '' || !is_numeric($id)) {
+<<<<<<< HEAD
             header('Location: ' . sm_url('productos'));
+=======
+            header('Location: productos');
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
             exit;
         }
 
@@ -76,10 +99,17 @@ class ProductoController {
                 $_SESSION['flash_product_error'] = $payload === null
                     ? 'Completa un nombre, una descripción y un precio válido.'
                     : $this->modelo->lastError();
+<<<<<<< HEAD
                 header('Location: ' . sm_url('productos?product_action=editar&id=' . urlencode((string)$id)));
                 exit;
             }
             header('Location: ' . sm_url('productos?updated=1'));
+=======
+                header('Location: productos&product_action=editar&id=' . urlencode((string)$id));
+                exit;
+            }
+            header('Location: productos&updated=1');
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
             exit;
         }
     }
@@ -111,7 +141,11 @@ class ProductoController {
     private function requirePostRequest(): void
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+<<<<<<< HEAD
             header('Location: ' . sm_url('productos'));
+=======
+            header('Location: productos');
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
             exit;
         }
     }

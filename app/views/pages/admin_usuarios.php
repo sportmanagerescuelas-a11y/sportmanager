@@ -75,12 +75,20 @@ function rol_nombre(int $rol): string
                         <td class="admin-users-actions-cell">
                             <div class="admin-users-actions">
                                 <?php if ($isSchoolAdminView): ?>
+<<<<<<< HEAD
                                     <form action="<?= htmlspecialchars(sm_url('app/controllers/editarUsuarioController.php'), ENT_QUOTES, 'UTF-8') ?>" method="POST" class="m-0">
+=======
+                                    <form action="controllers/editarUsuarioController.php" method="POST" class="m-0">
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
                                         <input type="hidden" name="id_usuario" value="<?= htmlspecialchars((string)$user['id_usuario']) ?>">
                                         <input type="hidden" name="accion" value="activar">
                                         <button class="btn btn-success btn-sm">Aprobar</button>
                                     </form>
+<<<<<<< HEAD
                                     <form action="<?= htmlspecialchars(sm_url('app/controllers/editarUsuarioController.php'), ENT_QUOTES, 'UTF-8') ?>" method="POST" class="m-0">
+=======
+                                    <form action="controllers/editarUsuarioController.php" method="POST" class="m-0">
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
                                         <input type="hidden" name="id_usuario" value="<?= htmlspecialchars((string)$user['id_usuario']) ?>">
                                         <input type="hidden" name="accion" value="deshabilitar">
                                         <button class="btn btn-danger btn-sm">Rechazar</button>
@@ -110,12 +118,20 @@ function rol_nombre(int $rol): string
                                     <?php if ((int)$user['id_rol'] === 3 && ($user['estado'] ?? '') === 'pago_pendiente'): ?>
                                         <button type="button" class="btn btn-success btn-sm" disabled title="Primero debes verificar el pago.">Aprobar</button>
                                     <?php else: ?>
+<<<<<<< HEAD
                                         <form action="<?= htmlspecialchars(sm_url('app/controllers/adminUsuarioController.php'), ENT_QUOTES, 'UTF-8') ?>" method="POST" class="m-0">
+=======
+                                        <form action="controllers/adminUsuarioController.php" method="POST" class="m-0">
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
                                             <input type="hidden" name="id_usuario" value="<?= htmlspecialchars((string)$user['id_usuario']) ?>">
                                             <button name="aprobar" class="btn btn-success btn-sm">Aprobar</button>
                                         </form>
                                     <?php endif; ?>
+<<<<<<< HEAD
                                     <form action="<?= htmlspecialchars(sm_url('app/controllers/adminUsuarioController.php'), ENT_QUOTES, 'UTF-8') ?>" method="POST" class="m-0">
+=======
+                                    <form action="controllers/adminUsuarioController.php" method="POST" class="m-0">
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
                                         <input type="hidden" name="id_usuario" value="<?= htmlspecialchars((string)$user['id_usuario']) ?>">
                                         <button name="rechazar" class="btn btn-danger btn-sm">Rechazar</button>
                                     </form>
@@ -222,7 +238,11 @@ function rol_nombre(int $rol): string
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+<<<<<<< HEAD
                 <form id="verifyPaymentForm" action="<?= htmlspecialchars(sm_url('app/controllers/adminUsuarioController.php'), ENT_QUOTES, 'UTF-8') ?>" method="POST" class="m-0">
+=======
+                <form id="verifyPaymentForm" action="controllers/adminUsuarioController.php" method="POST" class="m-0">
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
                     <input type="hidden" name="id_usuario" id="verifyPaymentUserId" value="">
                     <button type="submit" name="verificar_pago" class="btn btn-warning">Aceptar y verificar</button>
                 </form>

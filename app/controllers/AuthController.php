@@ -55,11 +55,19 @@ class AuthController
         $emailRaw = $_POST['email'] ?? '';
         $email = trim((string)$emailRaw);
         if ($email === '') {
+<<<<<<< HEAD
             header('Location: ' . sm_url('recuperar?error=empty'));
             exit;
         }
         if (filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
             header('Location: ' . sm_url('recuperar?error=invalidemail'));
+=======
+            header('Location: recuperar?error=empty');
+            exit;
+        }
+        if (filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
+            header('Location: recuperar?error=invalidemail');
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
             exit;
         }
 
@@ -167,13 +175,21 @@ class AuthController
         $password = (string)($_POST['password'] ?? '');
 
         if ($token === '' || $password === '' || !sm_password_is_valid($password)) {
+<<<<<<< HEAD
             header('Location: ' . sm_url('reset?token=' . urlencode((string)$token) . '&error=password'));
+=======
+            header('Location: reset?token=' . urlencode((string)$token) . '&error=password');
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
             exit;
         }
 
         $passwordHash = password_hash($password, PASSWORD_DEFAULT);
         if ($passwordHash === false) {
+<<<<<<< HEAD
             header('Location: ' . sm_url('reset?token=' . urlencode((string)$token) . '&error=password'));
+=======
+            header('Location: reset?token=' . urlencode((string)$token) . '&error=password');
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
             exit;
         }
 

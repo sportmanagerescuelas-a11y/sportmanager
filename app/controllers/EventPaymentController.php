@@ -9,10 +9,13 @@ use PDO;
 use PHPMailer\PHPMailer\PHPMailer;
 use Throwable;
 
+<<<<<<< HEAD
 if (!defined('APP_BASE_PATH')) {
     require_once dirname(__DIR__) . '/bootstrap.php';
 }
 
+=======
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
 final class EventPaymentController
 {
     private const MAX_RECEIPT_SIZE = 5242880;
@@ -20,7 +23,11 @@ final class EventPaymentController
     public function handle(): void
     {
         if (!isset($_SESSION['usuario']) || !isset($_SESSION['id_usuario'])) {
+<<<<<<< HEAD
             header('Location: ' . sm_url('login'));
+=======
+            header('Location: login');
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
             exit();
         }
 
@@ -126,7 +133,11 @@ final class EventPaymentController
             if (!$notificationSent) {
                 $_SESSION['flash_payment_notice'] = 'La factura quedó guardada, pero no fue posible enviar la notificación por correo.';
             }
+<<<<<<< HEAD
             header('Location: ' . sm_url('pagos'));
+=======
+            header('Location: pagos');
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
             exit();
         } catch (Throwable $e) {
             if (is_string($receiptPath) && $receiptPath !== '') {
@@ -729,7 +740,11 @@ HTML;
 
     private function renderStatusError(string $code, string $title, string $message): void
     {
+<<<<<<< HEAD
         $backUrl = sm_url('eventos');
+=======
+        $backUrl = 'eventos';
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
         $backLabel = 'Volver a eventos';
         require APP_PATH . '/views/layout/header.php';
         require APP_PATH . '/views/pages/error_status.php';

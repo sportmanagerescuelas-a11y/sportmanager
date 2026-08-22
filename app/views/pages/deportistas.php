@@ -38,7 +38,11 @@ $athleteAccessMessage = (string)($viewData['athleteAccessMessage'] ?? '');
                         <td><?= htmlspecialchars((string)$row->nombre) ?></td>
                         <td>
                             <?php if ($rol === 3): ?>
+<<<<<<< HEAD
                                 <form action="<?= htmlspecialchars(sm_url('app/controllers/cambiarEstadoDeportista.php'), ENT_QUOTES, 'UTF-8') ?>" method="POST">
+=======
+                                <form action="controllers/cambiarEstadoDeportista.php" method="POST">
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
                                     <input type="hidden" name="id_deportista" value="<?= htmlspecialchars((string)$row->id_deportista) ?>">
                                     <select name="id_estado" class="form-select form-select-sm" onchange="this.form.submit()">
                                         <option value="1" <?= (int)$row->id_estado === 1 ? 'selected' : '' ?>>Activo</option>
@@ -56,7 +60,11 @@ $athleteAccessMessage = (string)($viewData['athleteAccessMessage'] ?? '');
                         <td>
                             <a href="editar_deportista&id=<?= urlencode((string)$row->id_deportista) ?>" class="btn btn-warning btn-sm">Editar</a>
                             <?php if ($rol === 3): ?>
+<<<<<<< HEAD
                                 <form action="<?= htmlspecialchars(sm_url('app/controllers/cambiarEstadoDeportista.php'), ENT_QUOTES, 'UTF-8') ?>" method="POST" class="d-inline-block">
+=======
+                                <form action="controllers/cambiarEstadoDeportista.php" method="POST" class="d-inline-block">
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
                                     <input type="hidden" name="id_deportista" value="<?= htmlspecialchars((string)$row->id_deportista) ?>">
                                     <input type="hidden" name="id_estado" value="2">
                                     <button type="submit" class="btn btn-danger btn-sm">Deshabilitar</button>

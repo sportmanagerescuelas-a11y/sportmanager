@@ -7,6 +7,7 @@ namespace App\Controllers;
 use App\Core\View;
 use App\Models\Uniforme;
 
+<<<<<<< HEAD
 if (!defined('APP_BASE_PATH')) {
     require_once dirname(__DIR__) . '/bootstrap.php';
 }
@@ -14,6 +15,8 @@ if (!defined('APP_BASE_PATH')) {
 require_once dirname(__DIR__) . '/core/View.php';
 require_once dirname(__DIR__) . '/models/Uniforme.php';
 
+=======
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
 final class UniformesController
 {
     private const TYPES = [
@@ -50,7 +53,11 @@ final class UniformesController
             $error = $this->validate($formData, null);
 
             if ($error === '' && $this->model()->create($formData)) {
+<<<<<<< HEAD
                 $this->redirect('uniformes?created=1');
+=======
+                $this->redirect('uniformes&created=1');
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
             }
 
             if ($error === '') {
@@ -73,7 +80,11 @@ final class UniformesController
         $id = $this->uniformIdFromRequest();
         $uniforme = $id > 0 ? $this->model()->findById($id, $this->role(), $this->userId(), $this->schoolId()) : null;
         if (!$uniforme) {
+<<<<<<< HEAD
             $this->redirect('uniformes?error=notfound');
+=======
+            $this->redirect('uniformes&error=notfound');
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
         }
 
         $error = '';
@@ -84,7 +95,11 @@ final class UniformesController
             $error = $this->validate($formData, $id);
 
             if ($error === '' && $this->model()->update($id, $formData)) {
+<<<<<<< HEAD
                 $this->redirect('uniformes?updated=1');
+=======
+                $this->redirect('uniformes&updated=1');
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
             }
 
             if ($error === '') {
@@ -111,6 +126,7 @@ final class UniformesController
 
         $id = $this->uniformIdFromRequest();
         if ($id <= 0 || !$this->model()->findById($id, $this->role(), $this->userId(), $this->schoolId())) {
+<<<<<<< HEAD
             $this->redirect('uniformes?error=notfound');
         }
 
@@ -119,6 +135,16 @@ final class UniformesController
         }
 
         $this->redirect('uniformes?error=delete');
+=======
+            $this->redirect('uniformes&error=notfound');
+        }
+
+        if ($this->model()->delete($id)) {
+            $this->redirect('uniformes&deleted=1');
+        }
+
+        $this->redirect('uniformes&error=delete');
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
     }
 
     private function model(): Uniforme
@@ -273,7 +299,15 @@ final class UniformesController
 
     private function redirect(string $url): void
     {
+<<<<<<< HEAD
         header('Location: ' . sm_url($url));
         exit();
     }
 }
+=======
+        header('Location: ' . $url);
+        exit();
+    }
+}
+
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac

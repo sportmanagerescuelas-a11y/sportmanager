@@ -5,7 +5,11 @@ require_once __DIR__ . '/../../config/conexion.php';
 
 // Solo superadmin
 if (!isset($_SESSION["rol"]) || (int)$_SESSION["rol"] !== 4) {
+<<<<<<< HEAD
     header("Location: " . sm_url("dashboard"));
+=======
+    header("Location: ../dashboard");
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
     exit();
 }
 
@@ -22,7 +26,11 @@ if (isset($_POST["id_usuario"])) {
             $rol = (int)$user['id_rol'];
 
             if ($rol !== 3) {
+<<<<<<< HEAD
                 header("Location: " . sm_url("admin_usuarios?error=solo_admin"));
+=======
+                header("Location: ../admin_usuarios&error=solo_admin");
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
                 exit();
             }
 
@@ -32,7 +40,11 @@ if (isset($_POST["id_usuario"])) {
             $hasInvoice = (bool)$stmtInvoice->fetchColumn();
 
             if (!$hasInvoice) {
+<<<<<<< HEAD
                 header("Location: " . sm_url("admin_usuarios?error=sin_factura"));
+=======
+                header("Location: ../admin_usuarios&error=sin_factura");
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
                 exit();
             }
 
@@ -66,5 +78,9 @@ if (isset($_POST["id_usuario"])) {
     }
 }
 
+<<<<<<< HEAD
 header("Location: " . sm_url("admin_usuarios"));
+=======
+header("Location: ../admin_usuarios");
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
 exit();

@@ -7,7 +7,11 @@
     $styleVersion = is_file($stylePath) ? (string)filemtime($stylePath) : (string)time();
     $goldCardCssPath = __DIR__ . '/../../../Card/gold-card.css';
     $goldCardCssVersion = is_file($goldCardCssPath) ? (string)filemtime($goldCardCssPath) : (string)time();
+<<<<<<< HEAD
     $assetBase = rtrim(sm_base_path(), '/') . '/';
+=======
+    $assetBase = '/sportmanager/';
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
     $publicAssetPath = static function (string $path) use ($assetBase): string {
         $trimmed = trim($path);
         if ($trimmed === '') {
@@ -126,12 +130,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($brandTitle, ENT_QUOTES, 'UTF-8') ?></title>
+<<<<<<< HEAD
     <base href="<?= htmlspecialchars(sm_url('/'), ENT_QUOTES, 'UTF-8') ?>">
     <link rel="icon" type="image/png" href="<?= htmlspecialchars(sm_asset_url('assets/img/escudo_sportmanager.png'), ENT_QUOTES, 'UTF-8') ?>">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="<?= htmlspecialchars(sm_asset_url('assets/css/style.css'), ENT_QUOTES, 'UTF-8') ?>?v=<?= urlencode($styleVersion) ?>">
     <link rel="stylesheet" href="<?= htmlspecialchars(sm_asset_url('Card/gold-card.css'), ENT_QUOTES, 'UTF-8') ?>?v=<?= urlencode($goldCardCssVersion) ?>">
+=======
+    <link rel="icon" type="image/png" href="<?= htmlspecialchars($assetBase . 'assets/img/escudo_sportmanager.png', ENT_QUOTES, 'UTF-8') ?>">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/style.css?v=<?= urlencode($styleVersion) ?>">
+    <link rel="stylesheet" href="Card/gold-card.css?v=<?= urlencode($goldCardCssVersion) ?>">
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
 </head>
 
     <body style="--school-primary-color: <?= htmlspecialchars($schoolPrimaryColor, ENT_QUOTES, 'UTF-8') ?>; --school-secondary-color: <?= htmlspecialchars($schoolSecondaryColor, ENT_QUOTES, 'UTF-8') ?>; --school-primary-rgb: <?= (int)$primaryRgb[0] ?>, <?= (int)$primaryRgb[1] ?>, <?= (int)$primaryRgb[2] ?>; --school-secondary-rgb: <?= (int)$secondaryRgb[0] ?>, <?= (int)$secondaryRgb[1] ?>, <?= (int)$secondaryRgb[2] ?>; --school-btn-primary-bg: <?= htmlspecialchars($buttonPrimaryBg, ENT_QUOTES, 'UTF-8') ?>; --school-btn-primary-hover: <?= htmlspecialchars($buttonPrimaryHover, ENT_QUOTES, 'UTF-8') ?>; --school-btn-secondary-bg: <?= htmlspecialchars($buttonSecondaryBg, ENT_QUOTES, 'UTF-8') ?>; --school-btn-secondary-hover: <?= htmlspecialchars($buttonSecondaryHover, ENT_QUOTES, 'UTF-8') ?>; --school-btn-success-bg: <?= htmlspecialchars($buttonSuccessBg, ENT_QUOTES, 'UTF-8') ?>; --school-btn-success-hover: <?= htmlspecialchars($buttonSuccessHover, ENT_QUOTES, 'UTF-8') ?>; --school-btn-info-bg: <?= htmlspecialchars($buttonInfoBg, ENT_QUOTES, 'UTF-8') ?>; --school-btn-info-hover: <?= htmlspecialchars($buttonInfoHover, ENT_QUOTES, 'UTF-8') ?>; --school-btn-warning-bg: <?= htmlspecialchars($buttonWarningBg, ENT_QUOTES, 'UTF-8') ?>; --school-btn-warning-hover: <?= htmlspecialchars($buttonWarningHover, ENT_QUOTES, 'UTF-8') ?>; --school-btn-danger-bg: <?= htmlspecialchars($buttonDangerBg, ENT_QUOTES, 'UTF-8') ?>; --school-btn-danger-hover: <?= htmlspecialchars($buttonDangerHover, ENT_QUOTES, 'UTF-8') ?>; --bs-primary: <?= htmlspecialchars($schoolPrimaryColor, ENT_QUOTES, 'UTF-8') ?>; --bs-secondary: <?= htmlspecialchars($schoolSecondaryColor, ENT_QUOTES, 'UTF-8') ?>; --bs-success: <?= htmlspecialchars($buttonSuccessBg, ENT_QUOTES, 'UTF-8') ?>; --bs-info: <?= htmlspecialchars($buttonInfoBg, ENT_QUOTES, 'UTF-8') ?>; --bs-warning: <?= htmlspecialchars($buttonWarningBg, ENT_QUOTES, 'UTF-8') ?>; --bs-danger: <?= htmlspecialchars($buttonDangerBg, ENT_QUOTES, 'UTF-8') ?>; --bs-primary-rgb: <?= (int)$primaryRgb[0] ?>, <?= (int)$primaryRgb[1] ?>, <?= (int)$primaryRgb[2] ?>; --bs-secondary-rgb: <?= (int)$secondaryRgb[0] ?>, <?= (int)$secondaryRgb[1] ?>, <?= (int)$secondaryRgb[2] ?>; --school-shield-image: <?= htmlspecialchars($schoolShieldCssImage, ENT_QUOTES, 'UTF-8') ?>;">

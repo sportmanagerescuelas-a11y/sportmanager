@@ -1,4 +1,8 @@
 <?php
+<<<<<<< HEAD
+=======
+$assetBase = '/sportmanager/';
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
 $modalManagerPath = __DIR__ . '/../../../assets/js/modal-manager.js';
 $modalManagerVersion = is_file($modalManagerPath) ? (string)filemtime($modalManagerPath) : (string)time();
 $messageMode = (string)($messageMode ?? 'reset_sent');
@@ -58,8 +62,12 @@ $current = $config[$messageMode] ?? $config['reset_sent'];
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<<<<<<< HEAD
 <base href="<?= htmlspecialchars(sm_url('/'), ENT_QUOTES, 'UTF-8') ?>">
 <link rel="icon" type="image/png" href="<?= htmlspecialchars(sm_asset_url('assets/img/escudo_sportmanager.png'), ENT_QUOTES, 'UTF-8') ?>">
+=======
+<link rel="icon" type="image/png" href="<?= htmlspecialchars($assetBase . 'assets/img/escudo_sportmanager.png', ENT_QUOTES, 'UTF-8') ?>">
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <style>
     body.recover-message-page {
@@ -110,7 +118,11 @@ $current = $config[$messageMode] ?? $config['reset_sent'];
           <?= htmlspecialchars($current['kicker'], ENT_QUOTES, 'UTF-8') ?>
         </div>
         <h2 class="h4 mb-3"><?= htmlspecialchars($current['subtitle'], ENT_QUOTES, 'UTF-8') ?></h2>
+<<<<<<< HEAD
         <img src="<?= htmlspecialchars(sm_asset_url('assets/img/' . $current['image']), ENT_QUOTES, 'UTF-8') ?>" alt="<?= htmlspecialchars($current['title'], ENT_QUOTES, 'UTF-8') ?>" class="img-fluid mb-3" style="max-height: 180px;">
+=======
+        <img src="<?= htmlspecialchars($assetBase . 'assets/img/' . $current['image'], ENT_QUOTES, 'UTF-8') ?>" alt="<?= htmlspecialchars($current['title'], ENT_QUOTES, 'UTF-8') ?>" class="img-fluid mb-3" style="max-height: 180px;">
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
         <p class="mb-0 fs-6"><?= htmlspecialchars($current['body'], ENT_QUOTES, 'UTF-8') ?></p>
       </div>
       <div class="modal-footer border-0 justify-content-center pb-4 pt-0">
@@ -123,7 +135,11 @@ $current = $config[$messageMode] ?? $config['reset_sent'];
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<<<<<<< HEAD
 <script src="<?= htmlspecialchars(sm_asset_url('assets/js/modal-manager.js'), ENT_QUOTES, 'UTF-8') ?>?v=<?= urlencode($modalManagerVersion) ?>"></script>
+=======
+<script src="assets/js/modal-manager.js?v=<?= urlencode($modalManagerVersion) ?>"></script>
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
 <script>
 document.addEventListener('DOMContentLoaded', function () {
   const modalElement = document.getElementById('recoverMessageModal');

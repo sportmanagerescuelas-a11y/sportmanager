@@ -175,7 +175,11 @@ $identityReadonly = $prefillDni !== '';
     }
 
     function cargarBancos() {
+<<<<<<< HEAD
         fetch(new URL('obtener_bancos', document.baseURI).toString())
+=======
+        fetch('obtener_bancos')
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
             .then(r => r.json())
             .then(data => {
                 pseBank.innerHTML = '';

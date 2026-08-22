@@ -107,10 +107,14 @@ class FacturaController {
                     }
 
                     $_SESSION['flash_receipt_saved'] = true;
+<<<<<<< HEAD
                     header('Location: ' . sm_url('index.php?action=subir_comprobante', [
                         'id' => (string)$factura['id_factura'],
                         'saved' => '1',
                     ]));
+=======
+                    header('Location: index.php?action=subir_comprobante&id=' . urlencode((string)$factura['id_factura']) . '&saved=1');
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
                     exit;
                 } catch (Throwable $e) {
                     if ($newPath !== '') {
@@ -215,3 +219,7 @@ class FacturaController {
 }
 
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac

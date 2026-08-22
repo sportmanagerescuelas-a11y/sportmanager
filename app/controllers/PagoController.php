@@ -9,10 +9,13 @@ use App\Services\PaymentTransactionService;
 use Exception;
 use PDO;
 
+<<<<<<< HEAD
 if (!defined('APP_BASE_PATH')) {
     require_once dirname(__DIR__) . '/bootstrap.php';
 }
 
+=======
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
 final class PagoController
 {
     /**
@@ -26,7 +29,11 @@ final class PagoController
 
     private function resolveReturnTo(): string
     {
+<<<<<<< HEAD
         $default = sm_url('pagos');
+=======
+        $default = 'pagos.php';
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
         $candidate = trim((string)($_POST['return_to'] ?? $default));
         if ($candidate === '') {
             return $default;
@@ -34,7 +41,11 @@ final class PagoController
         if (preg_match('/^(https?:)?\/\//i', $candidate)) {
             return $default;
         }
+<<<<<<< HEAD
         return sm_url(ltrim($candidate, '/'));
+=======
+        return ltrim($candidate, '/');
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
     }
 
     private function fail(string $message): void

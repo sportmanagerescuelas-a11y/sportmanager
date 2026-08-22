@@ -80,7 +80,11 @@ class PagesController
                             $_SESSION['usuario']['habilitado'] = 1;
                             $this->redirect('dashboard');
                         }
+<<<<<<< HEAD
                         $this->redirect('gestion_escuelas?created=1');
+=======
+                        $this->redirect('gestion_escuelas&created=1');
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
                     }
                     $dbError = $this->model()->lastError();
                     $error = $dbError !== '' ? ('No se pudo crear la escuela: ' . $dbError) : 'No se pudo crear la escuela.';
@@ -109,7 +113,11 @@ class PagesController
         $id = (string)($_GET['id'] ?? '');
         $school = $this->model()->schoolById($id);
         if (!$school) {
+<<<<<<< HEAD
             $this->redirect('gestion_escuelas?error=notfound');
+=======
+            $this->redirect('gestion_escuelas&error=notfound');
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
         }
 
         $error = null;
@@ -129,7 +137,11 @@ class PagesController
                 $payload['escudo_path'] = $this->storeSchoolShield((string)($payload['escudo_path'] ?? ''));
                 $payload['metodos_pago'] = $this->storePaymentMethodQrs(is_array($payload['metodos_pago'] ?? null) ? $payload['metodos_pago'] : []);
                 if ($this->model()->updateSchool($id, $payload)) {
+<<<<<<< HEAD
                     $this->redirect('gestion_escuelas?updated=1');
+=======
+                    $this->redirect('gestion_escuelas&updated=1');
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
                 }
                 $dbError = $this->model()->lastError();
                 $error = $dbError !== '' ? ('No se pudo actualizar la escuela: ' . $dbError) : 'No se pudo actualizar la escuela.';
@@ -152,6 +164,7 @@ class PagesController
         $this->requireCsrfToken();
         $id = $this->requestId();
         if ($id === '' || !$this->model()->schoolById($id)) {
+<<<<<<< HEAD
             $this->redirect('gestion_escuelas?error=notfound');
         }
 
@@ -160,6 +173,16 @@ class PagesController
         }
 
         $this->redirect('gestion_escuelas?deleted=1');
+=======
+            $this->redirect('gestion_escuelas&error=notfound');
+        }
+
+        if (!$this->model()->deleteSchool($id)) {
+            $this->redirect('gestion_escuelas&error=delete');
+        }
+
+        $this->redirect('gestion_escuelas&deleted=1');
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
     }
 
     public function logout(): void
@@ -527,7 +550,11 @@ class PagesController
         $this->requireReportAccess();
         $tabla = isset($_GET['tabla']) ? (string)$_GET['tabla'] : '';
         if (!$this->canAccessReportTable($tabla)) {
+<<<<<<< HEAD
             $this->redirect('reportes?error=forbidden_table');
+=======
+            $this->redirect('reportes&error=forbidden_table');
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
         }
 
         require_once __DIR__ . '/ReporteController.php';
@@ -693,7 +720,11 @@ class PagesController
 
     private function redirect(string $url): void
     {
+<<<<<<< HEAD
         header('Location: ' . sm_url($url));
+=======
+        header('Location: ' . $url);
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
         exit();
     }
 

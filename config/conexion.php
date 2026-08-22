@@ -1,7 +1,10 @@
 <?php
 
+<<<<<<< HEAD
 require_once __DIR__ . '/env.php';
 
+=======
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
 if (date_default_timezone_get() !== 'America/Bogota') {
     date_default_timezone_set('America/Bogota');
 }
@@ -12,10 +15,17 @@ class Database {
 
     public static function getConnection() {
         if (!self::$instance) {
+<<<<<<< HEAD
             $host = 'sql300.byethost14.com';
             $user = 'b14_42588174';
             $pass = 'Soy1crack123';
             $databases = ['b14_42588174_SPORTMANAGER'];
+=======
+            $host = 'localhost';
+            $user = 'root';
+            $pass = '';
+            $databases = ['sportmanager'];
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
 
             $lastException = null;
             foreach ($databases as $db) {
@@ -91,7 +101,11 @@ class Database {
                 <div class="card-body p-4 p-md-5 text-center">
                     <p class="error-code" aria-label="Error 503">
                         <span>5</span>
+<<<<<<< HEAD
                         <img src="<?= htmlspecialchars(sm_asset_url('assets/img/balonfutbol.png'), ENT_QUOTES, 'UTF-8') ?>" alt="0" class="error-ball">
+=======
+                        <img src="/sportmanager/assets/img/balonfutbol.png" alt="0" class="error-ball">
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
                         <span>3</span>
                     </p>
                     <h1 class="h2 fw-bold mb-3">Fuera de juego</h1>
@@ -99,7 +113,11 @@ class Database {
                         No pudimos conectar con la base de datos en este momento.
                         Intenta nuevamente en unos minutos.
                     </p>
+<<<<<<< HEAD
                     <a href="<?= htmlspecialchars(sm_url('home'), ENT_QUOTES, 'UTF-8') ?>" class="btn btn-primary px-4">Volver al inicio</a>
+=======
+                    <a href="../index.php" class="btn btn-primary px-4">Volver al inicio</a>
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
                 </div>
             </div>
         </body>

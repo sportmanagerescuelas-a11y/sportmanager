@@ -86,6 +86,7 @@ if (!function_exists('sm_load_env_file')) {
 $envPath = dirname(__DIR__) . DIRECTORY_SEPARATOR . '.env';
 sm_load_env_file($envPath);
 
+<<<<<<< HEAD
 if (!function_exists('sm_base_path')) {
     function sm_base_path(): string
     {
@@ -148,3 +149,5 @@ if (!function_exists('sm_asset_url')) {
         return sm_url('' . ltrim($path, '/'));
     }
 }
+=======
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac

@@ -1,7 +1,10 @@
 <?php
 require_once __DIR__ . '/config/session.php';
 require_once __DIR__ . '/config/env.php';
+<<<<<<< HEAD
 require_once __DIR__ . '/app/bootstrap.php';
+=======
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
 
 if (isset($_GET['action'])) {
     require_once __DIR__ . '/config/conexion.php';
@@ -55,7 +58,11 @@ if (
 ) {
     $requestUri = (string)($_SERVER['REQUEST_URI'] ?? '');
     if (stripos($requestUri, 'index.php') !== false) {
+<<<<<<< HEAD
         header('Location: ' . sm_url('home'), true, 302);
+=======
+        header('Location: home', true, 302);
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
         exit;
     }
 }
@@ -80,7 +87,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($canonicalFriendlyRoutes[$rout
     $query = $_GET;
     unset($query['url']);
     $queryString = http_build_query($query);
+<<<<<<< HEAD
     $target = sm_url($canonicalFriendlyRoutes[$route]);
+=======
+    $target = ($basePath === '/' ? '' : $basePath) . '/' . $canonicalFriendlyRoutes[$route];
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
     if ($queryString !== '') {
         $target .= '?' . $queryString;
     }
@@ -141,9 +152,12 @@ switch ($route) {
             $controller-> guardarPassword();
         }
         break;
+<<<<<<< HEAD
     case 'login-submit':
         require_once __DIR__ . '/app/controllers/loginController.php';
         break;
+=======
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
     case 'registro-submit':
         require_once __DIR__ . '/app/controllers/registerController.php';
         break;
@@ -234,7 +248,11 @@ switch ($route) {
         break;
     case 'productos':
         if (!isset($_SESSION['rol']) || (int)$_SESSION['rol'] !== 3) {
+<<<<<<< HEAD
             header('Location: ' . sm_url('panel'));
+=======
+            header('Location: panel');
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
             exit;
         }
 

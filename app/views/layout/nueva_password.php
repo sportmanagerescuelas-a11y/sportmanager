@@ -12,16 +12,26 @@ $passwordPolicy = [
     'Un numero',
     'Un caracter especial (@$!%*?&._-)',
 ];
+<<<<<<< HEAD
+=======
+$assetBase = '/sportmanager/';
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
 ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<<<<<<< HEAD
 <base href="<?= htmlspecialchars(sm_url('/'), ENT_QUOTES, 'UTF-8') ?>">
 <link rel="icon" type="image/png" href="<?= htmlspecialchars(sm_asset_url('assets/img/escudo_sportmanager.png'), ENT_QUOTES, 'UTF-8') ?>">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="<?= htmlspecialchars(sm_asset_url('assets/css/style.css'), ENT_QUOTES, 'UTF-8') ?>?v=<?= urlencode($styleVersion) ?>" rel="stylesheet">
+=======
+<link rel="icon" type="image/png" href="<?= htmlspecialchars($assetBase . 'assets/img/escudo_sportmanager.png', ENT_QUOTES, 'UTF-8') ?>">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="assets/css/style.css?v=<?= urlencode($styleVersion) ?>" rel="stylesheet">
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
 </head>
 <body class="auth-page">
 <div class="auth-shell container">
@@ -49,7 +59,11 @@ $passwordPolicy = [
                     La contraseña no cumple los requisitos mínimos. Intenta de nuevo.
                 </div>
             <?php endif; ?>
+<<<<<<< HEAD
             <form method="POST" action="<?= htmlspecialchars(sm_url('index.php?url=guardar'), ENT_QUOTES, 'UTF-8') ?>">
+=======
+            <form method="POST" action="index.php?url=guardar">
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
                 <input type="hidden" name="token" value="<?= htmlspecialchars($token, ENT_QUOTES, 'UTF-8') ?>">
                 <div class="mb-3">
                     <label for="password" class="form-label">Nueva contraseña</label>
@@ -78,7 +92,11 @@ $passwordPolicy = [
         </div>
     </section>
 </div>
+<<<<<<< HEAD
 <script src="<?= htmlspecialchars(sm_asset_url('assets/js/password-toggle.js'), ENT_QUOTES, 'UTF-8') ?>?v=<?= urlencode($passwordToggleVersion) ?>"></script>
+=======
+<script src="assets/js/password-toggle.js?v=<?= urlencode($passwordToggleVersion) ?>"></script>
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const input = document.getElementById('password');
