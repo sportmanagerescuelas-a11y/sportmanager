@@ -77,7 +77,11 @@ if (!function_exists('sm_load_env_file')) {
             }
 
             putenv($name . '=' . $value);
+<<<<<<< HEAD
             $_ENV[$name]    = $value;
+=======
+            $_ENV[$name] = $value;
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910
             $_SERVER[$name] = $value;
         }
     }
@@ -86,6 +90,7 @@ if (!function_exists('sm_load_env_file')) {
 $envPath = dirname(__DIR__) . DIRECTORY_SEPARATOR . '.env';
 sm_load_env_file($envPath);
 
+<<<<<<< HEAD
 if (!function_exists('sm_env')) {
     /**
      * Lee una variable de entorno usando getenv() con fallback a $_ENV.
@@ -104,6 +109,9 @@ if (!function_exists('sm_env')) {
     }
 }
 
+=======
+<<<<<<< HEAD
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910
 if (!function_exists('sm_base_path')) {
     function sm_base_path(): string
     {
@@ -166,3 +174,8 @@ if (!function_exists('sm_asset_url')) {
         return sm_url('' . ltrim($path, '/'));
     }
 }
+<<<<<<< HEAD
+=======
+=======
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910

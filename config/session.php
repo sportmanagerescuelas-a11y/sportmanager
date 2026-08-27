@@ -1,7 +1,15 @@
 <?php
 
+<<<<<<< HEAD
 require_once __DIR__ . '/env.php';
 
+=======
+<<<<<<< HEAD
+require_once __DIR__ . '/env.php';
+
+=======
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910
 if (date_default_timezone_get() !== 'America/Bogota') {
     date_default_timezone_set('America/Bogota');
 }

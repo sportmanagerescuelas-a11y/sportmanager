@@ -4,7 +4,15 @@ require_once __DIR__ . '/../../config/conexion.php';
 require_once __DIR__ . '/../helpers/password.php';
 
 if (!isset($_SESSION["rol"]) || !in_array((int)$_SESSION["rol"], [3, 4], true)) {
+<<<<<<< HEAD
     header("Location: " . sm_url("dashboard"));
+=======
+<<<<<<< HEAD
+    header("Location: " . sm_url("dashboard"));
+=======
+    header("Location: ../dashboard");
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910
     exit();
 }
 
@@ -19,7 +27,15 @@ if ($currentRole === 3) {
     $stmtTarget->execute();
     $targetSchoolId = (int)($stmtTarget->fetchColumn() ?: 0);
     if ($schoolId <= 0 || $targetSchoolId !== $schoolId) {
+<<<<<<< HEAD
         header("Location: " . sm_url("admin_usuarios"));
+=======
+<<<<<<< HEAD
+        header("Location: " . sm_url("admin_usuarios"));
+=======
+        header("Location: ../admin_usuarios");
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910
         exit();
     }
 }
@@ -53,18 +69,42 @@ if ($accion == "activar" || $accion == "deshabilitar") {
     $nueva_contrasena = $_POST["nueva_contrasena"];
 
     if (!preg_match('/^\d{10}$/', $telefono)) {
+<<<<<<< HEAD
         header("Location: " . sm_url("admin_usuarios"));
+=======
+<<<<<<< HEAD
+        header("Location: " . sm_url("admin_usuarios"));
+=======
+        header("Location: ../admin_usuarios");
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910
         exit();
     }
 
     if ($id_escuela !== '' && !ctype_digit($id_escuela)) {
+<<<<<<< HEAD
         header("Location: " . sm_url("admin_usuarios"));
+=======
+<<<<<<< HEAD
+        header("Location: " . sm_url("admin_usuarios"));
+=======
+        header("Location: ../admin_usuarios");
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910
         exit();
     }
 
     if (!empty($nueva_contrasena)) {
         if (!sm_password_is_valid((string)$nueva_contrasena)) {
+<<<<<<< HEAD
             header("Location: " . sm_url("admin_usuarios?error=password"));
+=======
+<<<<<<< HEAD
+            header("Location: " . sm_url("admin_usuarios?error=password"));
+=======
+            header("Location: ../admin_usuarios&error=password");
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910
             exit();
         }
 
@@ -113,8 +153,23 @@ if ($accion == "activar" || $accion == "deshabilitar") {
 }
 
 // ???? Redirecci??n
+<<<<<<< HEAD
 header("Location: " . sm_url("admin_usuarios"));
+=======
+<<<<<<< HEAD
+header("Location: " . sm_url("admin_usuarios"));
+=======
+header("Location: ../admin_usuarios");
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910
 exit();
 
 
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910

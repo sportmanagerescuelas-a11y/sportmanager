@@ -3,7 +3,15 @@ require_once __DIR__ . '/../../config/session.php';
 require_once __DIR__ . '/../../config/conexion.php';
 
 if (!isset($_SESSION["rol"]) || $_SESSION["rol"] != 3) {
+<<<<<<< HEAD
     header("Location: " . sm_url("panel"));
+=======
+<<<<<<< HEAD
+    header("Location: " . sm_url("panel"));
+=======
+    header("Location: ../panel");
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910
     exit();
 }
 
@@ -11,7 +19,15 @@ $id = $_POST["id_deportista"];
 $id_estado = $_POST["id_estado"];
 $schoolId = (int)($_SESSION['usuario']['id_escuela'] ?? 0);
 if ($schoolId <= 0) {
+<<<<<<< HEAD
     header("Location: " . sm_url("deportistas"));
+=======
+<<<<<<< HEAD
+    header("Location: " . sm_url("deportistas"));
+=======
+    header("Location: ../deportistas");
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910
     exit();
 }
 
@@ -29,7 +45,21 @@ $sql->bindParam(":id_escuela", $schoolId, PDO::PARAM_INT);
 $sql->execute();
 
 // ???? volver
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910
 header("Location: " . sm_url("deportistas"));
 exit();
 
 
+<<<<<<< HEAD
+=======
+=======
+header("Location: ../deportistas");
+exit();
+
+
+
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910

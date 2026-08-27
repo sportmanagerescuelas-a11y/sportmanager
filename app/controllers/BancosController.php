@@ -7,10 +7,19 @@ namespace App\Controllers;
 use App\Services\PayUService;
 use Exception;
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910
 if (!defined('APP_BASE_PATH')) {
     require_once dirname(__DIR__) . '/bootstrap.php';
 }
 
+<<<<<<< HEAD
+=======
+=======
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910
 final class BancosController
 {
     private function config(): array

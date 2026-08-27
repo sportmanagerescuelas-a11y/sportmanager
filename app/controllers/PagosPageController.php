@@ -7,12 +7,21 @@ namespace App\Controllers;
 use App\Core\View;
 use PDO;
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910
 if (!defined('APP_BASE_PATH')) {
     require_once dirname(__DIR__) . '/bootstrap.php';
 }
 
 require_once dirname(__DIR__) . '/core/View.php';
 
+<<<<<<< HEAD
+=======
+=======
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910
 final class PagosPageController
 {
     /**
@@ -29,7 +38,15 @@ final class PagosPageController
     public function show(): void
     {
         if (!isset($_SESSION['usuario']) || !isset($_SESSION['id_usuario'])) {
+<<<<<<< HEAD
             header('Location: ' . sm_url('login'));
+=======
+<<<<<<< HEAD
+            header('Location: ' . sm_url('login'));
+=======
+            header('Location: login');
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910
             exit();
         }
 
@@ -39,7 +56,15 @@ final class PagosPageController
             $code = '500';
             $title = 'Error interno';
             $message = 'No fue posible establecer conexion para cargar los pagos.';
+<<<<<<< HEAD
             $backUrl = sm_url('home');
+=======
+<<<<<<< HEAD
+            $backUrl = sm_url('home');
+=======
+            $backUrl = 'index.php';
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910
             $backLabel = 'Volver al inicio';
             require APP_PATH . '/views/layout/header.php';
             require APP_PATH . '/views/pages/error_status.php';

@@ -10,7 +10,15 @@ class DeportistasController extends Controller
     private function renderStatusCard(string $code, string $message, string $title = 'Fuera de juego'): void
     {
         http_response_code((int)$code);
+<<<<<<< HEAD
         $backUrl = sm_url('home');
+=======
+<<<<<<< HEAD
+        $backUrl = sm_url('home');
+=======
+        $backUrl = 'index.php';
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910
         $backLabel = 'Volver al inicio';
         require __DIR__ . '/../views/layout/header.php';
         require __DIR__ . '/../views/pages/error_status.php';
@@ -20,13 +28,29 @@ class DeportistasController extends Controller
     private function requireTrainerSession(): void
     {
         if (!isset($_SESSION['usuario']) || !isset($_SESSION['id_usuario'])) {
+<<<<<<< HEAD
             header('Location: ' . sm_url('login'));
+=======
+<<<<<<< HEAD
+            header('Location: ' . sm_url('login'));
+=======
+            header('Location: login');
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910
             exit();
         }
 
         $rol = (int)($_SESSION['rol'] ?? 0);
         if (!in_array($rol, [2, 3], true)) {
+<<<<<<< HEAD
             header('Location: ' . sm_url('dashboard'));
+=======
+<<<<<<< HEAD
+            header('Location: ' . sm_url('dashboard'));
+=======
+            header('Location: dashboard');
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910
             exit();
         }
     }
@@ -78,12 +102,28 @@ class DeportistasController extends Controller
     public function asistenciaHijos(): void
     {
         if (!isset($_SESSION['usuario']) || !isset($_SESSION['id_usuario'])) {
+<<<<<<< HEAD
             header('Location: ' . sm_url('login'));
+=======
+<<<<<<< HEAD
+            header('Location: ' . sm_url('login'));
+=======
+            header('Location: login');
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910
             exit();
         }
 
         if ((int)($_SESSION['rol'] ?? 0) !== 1) {
+<<<<<<< HEAD
             header('Location: ' . sm_url('dashboard'));
+=======
+<<<<<<< HEAD
+            header('Location: ' . sm_url('dashboard'));
+=======
+            header('Location: dashboard');
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910
             exit();
         }
 
@@ -173,6 +213,19 @@ class DeportistasController extends Controller
             return;
         }
 
+<<<<<<< HEAD
         header('Location: ' . sm_url('registrar-asistencia', ['ok' => 1, 'fecha' => $fecha]));
     }
 }
+=======
+<<<<<<< HEAD
+        header('Location: ' . sm_url('registrar-asistencia', ['ok' => 1, 'fecha' => $fecha]));
+    }
+}
+=======
+        header('Location: registrar-asistencia&ok=1&fecha=' . urlencode($fecha));
+    }
+}
+
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910

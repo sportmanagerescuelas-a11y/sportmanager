@@ -1,6 +1,14 @@
 </main>
 <?php
+<<<<<<< HEAD
 $assetBase = rtrim(sm_base_path(), '/') . '/';
+=======
+<<<<<<< HEAD
+$assetBase = rtrim(sm_base_path(), '/') . '/';
+=======
+$assetBase = '/sportmanager/';
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910
 $indexControllerPath = __DIR__ . '/../../../assets/js/indexcontroller.js';
 $passwordTogglePath = __DIR__ . '/../../../assets/js/password-toggle.js';
 $modalManagerPath = __DIR__ . '/../../../assets/js/modal-manager.js';
@@ -10,9 +18,21 @@ $modalManagerVersion = is_file($modalManagerPath) ? (string)filemtime($modalMana
 ?>
 <footer class="site-footer">
     <div class="container site-footer__grid">
+<<<<<<< HEAD
     <div class="site-footer__brand">
         <div class="site-footer__brand-row">
                 <img src="<?= htmlspecialchars(sm_asset_url('assets/img/escudo_sportmanager.png'), ENT_QUOTES, 'UTF-8') ?>" alt="Sport Manager" class="site-footer__logo">
+=======
+<<<<<<< HEAD
+    <div class="site-footer__brand">
+        <div class="site-footer__brand-row">
+                <img src="<?= htmlspecialchars(sm_asset_url('assets/img/escudo_sportmanager.png'), ENT_QUOTES, 'UTF-8') ?>" alt="Sport Manager" class="site-footer__logo">
+=======
+        <div class="site-footer__brand">
+            <div class="site-footer__brand-row">
+                <img src="<?= htmlspecialchars($assetBase . 'assets/img/escudo_sportmanager.png', ENT_QUOTES, 'UTF-8') ?>" alt="Sport Manager" class="site-footer__logo">
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910
                 <div>
                     <h2>Sport Manager</h2>
                     <p>Gestión deportiva con estilo, control y cercanía.</p>
@@ -75,7 +95,15 @@ $modalManagerVersion = is_file($modalManagerPath) ? (string)filemtime($modalMana
                     clearTimeout(idleTimer);
                 }
                 idleTimer = setTimeout(function () {
+<<<<<<< HEAD
                     window.location.href = '<?= htmlspecialchars(sm_url('logout?reason=inactive'), ENT_QUOTES, 'UTF-8') ?>';
+=======
+<<<<<<< HEAD
+                    window.location.href = '<?= htmlspecialchars(sm_url('logout?reason=inactive'), ENT_QUOTES, 'UTF-8') ?>';
+=======
+                    window.location.href = 'logout?reason=inactive';
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910
                 }, IDLE_TIMEOUT_MS);
             }
 
@@ -95,9 +123,21 @@ $modalManagerVersion = is_file($modalManagerPath) ? (string)filemtime($modalMana
 </button>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<<<<<<< HEAD
 <script src="<?= htmlspecialchars(sm_asset_url('assets/js/modal-manager.js'), ENT_QUOTES, 'UTF-8') ?>?v=<?= urlencode($modalManagerVersion) ?>"></script>
 <script src="<?= htmlspecialchars(sm_asset_url('assets/js/password-toggle.js'), ENT_QUOTES, 'UTF-8') ?>?v=<?= urlencode($passwordToggleVersion) ?>"></script>
 <script src="<?= htmlspecialchars(sm_asset_url('assets/js/indexcontroller.js'), ENT_QUOTES, 'UTF-8') ?>?v=<?= urlencode($indexControllerVersion) ?>"></script>
+=======
+<<<<<<< HEAD
+<script src="<?= htmlspecialchars(sm_asset_url('assets/js/modal-manager.js'), ENT_QUOTES, 'UTF-8') ?>?v=<?= urlencode($modalManagerVersion) ?>"></script>
+<script src="<?= htmlspecialchars(sm_asset_url('assets/js/password-toggle.js'), ENT_QUOTES, 'UTF-8') ?>?v=<?= urlencode($passwordToggleVersion) ?>"></script>
+<script src="<?= htmlspecialchars(sm_asset_url('assets/js/indexcontroller.js'), ENT_QUOTES, 'UTF-8') ?>?v=<?= urlencode($indexControllerVersion) ?>"></script>
+=======
+<script src="assets/js/modal-manager.js?v=<?= urlencode($modalManagerVersion) ?>"></script>
+<script src="assets/js/password-toggle.js?v=<?= urlencode($passwordToggleVersion) ?>"></script>
+<script src="assets/js/indexcontroller.js?v=<?= urlencode($indexControllerVersion) ?>"></script>
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910
 <script>
     (function () {
         const numericLimits = {
@@ -149,3 +189,10 @@ $modalManagerVersion = is_file($modalManagerPath) ? (string)filemtime($modalMana
 </script>
 </body>
 </html>
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910

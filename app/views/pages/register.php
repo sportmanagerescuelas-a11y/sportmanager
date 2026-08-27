@@ -108,7 +108,15 @@ if ($registerErrorText !== '' && $activeFieldError['field'] === '') {
     $modalMessage = 'Aun no hay escuelas registradas. Puedes registrarte como administrador para que, tras aprobacion, crees la primera escuela.';
     $modalType = 'warning';
 }
+<<<<<<< HEAD
 $assetBase = rtrim(sm_base_path(), '/') . '/';
+=======
+<<<<<<< HEAD
+$assetBase = rtrim(sm_base_path(), '/') . '/';
+=======
+$assetBase = '/sportmanager/';
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910
 ?>
 <div class="auth-page auth-page--register py-2 py-lg-3">
 <div class="auth-shell auth-shell--register container">
@@ -652,3 +660,10 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>
 
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910

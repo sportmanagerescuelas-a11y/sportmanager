@@ -16,7 +16,15 @@ $schools = is_array($viewData['schools'] ?? null) ? $viewData['schools'] : [];
 <br>
 <div class="container mt-5">
     <h2>Editar Usuario</h2>
+<<<<<<< HEAD
     <form action="<?= htmlspecialchars(sm_url('app/controllers/editarUsuarioController.php'), ENT_QUOTES, 'UTF-8') ?>" method="POST">
+=======
+<<<<<<< HEAD
+    <form action="<?= htmlspecialchars(sm_url('app/controllers/editarUsuarioController.php'), ENT_QUOTES, 'UTF-8') ?>" method="POST">
+=======
+    <form action="controllers/editarUsuarioController.php" method="POST">
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910
         <input type="hidden" name="id_usuario" value="<?= htmlspecialchars((string)$user['id_usuario']) ?>">
         <input type="text" name="nombres" value="<?= htmlspecialchars((string)$user['nombres']) ?>" class="form-control mb-2">
         <input type="text" name="apellidos" value="<?= htmlspecialchars((string)$user['apellidos']) ?>" class="form-control mb-2">

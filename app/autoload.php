@@ -8,6 +8,10 @@ spl_autoload_register(function (string $class): void {
 
     $relative = substr($class, strlen($prefix));
     $relativePath = str_replace('\\', DIRECTORY_SEPARATOR, $relative) . '.php';
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910
     $directFile = __DIR__ . DIRECTORY_SEPARATOR . $relativePath;
 
     if (is_file($directFile)) {
@@ -42,3 +46,15 @@ spl_autoload_register(function (string $class): void {
         return;
     }
 });
+<<<<<<< HEAD
+=======
+=======
+    $file = __DIR__ . DIRECTORY_SEPARATOR . $relativePath;
+
+    if (is_file($file)) {
+        require_once $file;
+    }
+});
+
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910

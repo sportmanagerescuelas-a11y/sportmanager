@@ -68,7 +68,15 @@ if (!empty($_SESSION['flash_session_expired'])) {
                 <?php if ($loginInlineAlert['message'] !== ''): ?>
                     <?php sm_render_alert($loginInlineAlert['message'], $loginInlineAlert['title'], $loginInlineAlert['variant'], true); ?>
                 <?php endif; ?>
+<<<<<<< HEAD
                 <form action="<?= htmlspecialchars(sm_url('login-submit'), ENT_QUOTES, 'UTF-8') ?>" method="POST">
+=======
+<<<<<<< HEAD
+                <form action="<?= htmlspecialchars(sm_url('login-submit'), ENT_QUOTES, 'UTF-8') ?>" method="POST">
+=======
+                <form action="controllers/loginController.php" method="POST">
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910
                     <div class="mb-3">
                         <label for="email" class="form-label">Correo Electrónico</label>
                         <input type="email" class="form-control auth-input" id="email" name="email" placeholder="tu@correo.com" required>
@@ -109,3 +117,10 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 </script>
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910

@@ -30,7 +30,15 @@
         params.set('url', 'registrar-asistencia');
         params.set('page', '1');
         params.set('per_page', String(size));
+<<<<<<< HEAD
         window.location.href = new URL('index.php?' + params.toString(), document.baseURI).toString();
+=======
+<<<<<<< HEAD
+        window.location.href = new URL('index.php?' + params.toString(), document.baseURI).toString();
+=======
+        window.location.href = 'index.php?' + params.toString();
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910
     });
 
     function getToday() {
@@ -86,7 +94,15 @@
                 const jornada = document.querySelector('select[name="jornada"]').value.trim();
                 if (jornada !== '') params.set('jornada', jornada);
             }
+<<<<<<< HEAD
             window.location.href = new URL('index.php?' + params.toString(), document.baseURI).toString();
+=======
+<<<<<<< HEAD
+            window.location.href = new URL('index.php?' + params.toString(), document.baseURI).toString();
+=======
+            window.location.href = 'index.php?' + params.toString();
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910
         });
     }
 
@@ -238,7 +254,15 @@
                 }
             }
             keysToRemove.forEach((key) => sessionStorage.removeItem(key));
+<<<<<<< HEAD
             window.location.href = new URL(window.location.pathname + window.location.search, window.location.origin).toString();
+=======
+<<<<<<< HEAD
+            window.location.href = new URL(window.location.pathname + window.location.search, window.location.origin).toString();
+=======
+            window.location.href = window.location.pathname + window.location.search;
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910
         });
     }
 

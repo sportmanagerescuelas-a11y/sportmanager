@@ -9,7 +9,15 @@ if ($rolLabel === '') {
 }
 $dashboardShieldPath = isset($schoolShieldPath) && is_string($schoolShieldPath) && trim($schoolShieldPath) !== ''
     ? trim($schoolShieldPath)
+<<<<<<< HEAD
     : sm_asset_url('assets/img/escudo_sportmanager.png');
+=======
+<<<<<<< HEAD
+    : sm_asset_url('assets/img/escudo_sportmanager.png');
+=======
+    : '/sportmanager/assets/img/escudo_sportmanager.png';
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910
 $dashboardShieldPath = str_replace('\\', '/', $dashboardShieldPath);
 $dashboardShieldPath = str_replace(['"', "'", ' '], ['%22', '%27', '%20'], $dashboardShieldPath);
 
@@ -267,7 +275,15 @@ $dashboardActionChunks = array_chunk($dashboardActions, $rol === 3 ? 3 : 2);
             payload.set("id_evento", idEventoSeguro);
             payload.set("id_deportista", String(id_deportista || "").trim());
 
+<<<<<<< HEAD
             fetch(new URL("inscribirse", document.baseURI).toString(), {
+=======
+<<<<<<< HEAD
+            fetch(new URL("inscribirse", document.baseURI).toString(), {
+=======
+            fetch("inscribirse", {
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910
                 method: "POST",
                 headers: {
                     "Content-Type": "application/x-www-form-urlencoded"

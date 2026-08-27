@@ -3,7 +3,15 @@ require_once __DIR__ . '/../../config/session.php';
 require_once __DIR__ . '/../../config/conexion.php';
 
 if (!isset($_SESSION["rol"]) || $_SESSION["rol"] != 3) {
+<<<<<<< HEAD
     header("Location: " . sm_url("panel"));
+=======
+<<<<<<< HEAD
+    header("Location: " . sm_url("panel"));
+=======
+    header("Location: ../panel");
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910
     exit();
 }
 
@@ -15,7 +23,15 @@ $costo = $_POST["costo"];
 $cuotas = $_POST["cuotas"];
 $schoolId = (int)($_SESSION['usuario']['id_escuela'] ?? 0);
 if ($schoolId <= 0) {
+<<<<<<< HEAD
     header("Location: " . sm_url("gestion-eventos"));
+=======
+<<<<<<< HEAD
+    header("Location: " . sm_url("gestion-eventos"));
+=======
+    header("Location: ../gestion-eventos");
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910
     exit();
 }
 
@@ -40,7 +56,21 @@ $sql->bindParam(":id_escuela", $schoolId, PDO::PARAM_INT);
 
 $sql->execute();
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910
 header("Location: " . sm_url("eventos"));
 exit();
 
 
+<<<<<<< HEAD
+=======
+=======
+header("Location: ../eventos");
+exit();
+
+
+
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910

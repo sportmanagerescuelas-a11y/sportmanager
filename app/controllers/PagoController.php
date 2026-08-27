@@ -9,10 +9,19 @@ use App\Services\PaymentTransactionService;
 use Exception;
 use PDO;
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910
 if (!defined('APP_BASE_PATH')) {
     require_once dirname(__DIR__) . '/bootstrap.php';
 }
 
+<<<<<<< HEAD
+=======
+=======
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910
 final class PagoController
 {
     /**
@@ -26,7 +35,15 @@ final class PagoController
 
     private function resolveReturnTo(): string
     {
+<<<<<<< HEAD
         $default = sm_url('pagos');
+=======
+<<<<<<< HEAD
+        $default = sm_url('pagos');
+=======
+        $default = 'pagos.php';
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910
         $candidate = trim((string)($_POST['return_to'] ?? $default));
         if ($candidate === '') {
             return $default;
@@ -34,7 +51,15 @@ final class PagoController
         if (preg_match('/^(https?:)?\/\//i', $candidate)) {
             return $default;
         }
+<<<<<<< HEAD
         return sm_url(ltrim($candidate, '/'));
+=======
+<<<<<<< HEAD
+        return sm_url(ltrim($candidate, '/'));
+=======
+        return ltrim($candidate, '/');
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910
     }
 
     private function fail(string $message): void

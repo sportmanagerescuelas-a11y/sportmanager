@@ -162,7 +162,15 @@ document.addEventListener("DOMContentLoaded", function() {
         const formData = new FormData();
         formData.append('id_usuario', id_usuario);
 
+<<<<<<< HEAD
         fetch(new URL('check-document', document.baseURI).toString(), {
+=======
+<<<<<<< HEAD
+        fetch(new URL('check-document', document.baseURI).toString(), {
+=======
+        fetch('check-document', {
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910
             method: 'POST',
             body: formData
         })
@@ -240,7 +248,15 @@ document.addEventListener("DOMContentLoaded", function() {
         const formData = new FormData();
         formData.append('email', email);
 
+<<<<<<< HEAD
         fetch(new URL('check-email', document.baseURI).toString(), {
+=======
+<<<<<<< HEAD
+        fetch(new URL('check-email', document.baseURI).toString(), {
+=======
+        fetch('check-email', {
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910
             method: 'POST',
             body: formData
         })

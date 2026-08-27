@@ -10,7 +10,15 @@ const SM_REGISTER_MAX_RECEIPT_SIZE = 5242880;
 
 function sm_register_redirect_error(string $code, string $debug = ''): void
 {
+<<<<<<< HEAD
     $url = sm_url('register?error=' . urlencode($code));
+=======
+<<<<<<< HEAD
+    $url = sm_url('register?error=' . urlencode($code));
+=======
+    $url = 'register?error=' . urlencode($code);
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910
     if ($debug !== '') {
         $url .= '&debug=' . urlencode(substr($debug, 0, 220));
     }
@@ -237,54 +245,126 @@ if (isset($_POST["register"])) {
     }
 
     if (empty($id_usuario) || empty($tipo_documento) || empty($nombres) || empty($apellidos) || empty($email) || empty($password) || empty($telefono) || empty($id_rol)) {
+<<<<<<< HEAD
         header("Location: " . sm_url("register?error=empty"));
+=======
+<<<<<<< HEAD
+        header("Location: " . sm_url("register?error=empty"));
+=======
+        header("Location: register?error=empty");
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910
         exit();
     }
 
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+<<<<<<< HEAD
         header("Location: " . sm_url("register?error=invalidemail"));
+=======
+<<<<<<< HEAD
+        header("Location: " . sm_url("register?error=invalidemail"));
+=======
+        header("Location: register?error=invalidemail");
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910
         exit();
     }
 
     if (!preg_match('/^\d{1,11}$/', $id_usuario)) {
+<<<<<<< HEAD
         header("Location: " . sm_url("register?error=empty"));
+=======
+<<<<<<< HEAD
+        header("Location: " . sm_url("register?error=empty"));
+=======
+        header("Location: register?error=empty");
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910
         exit();
     }
 
     // La columna id_usuario en BD es INT firmado (maximo 2147483647).
     if ((int)$id_usuario > 2147483647) {
+<<<<<<< HEAD
         header("Location: " . sm_url("register?error=idrange"));
+=======
+<<<<<<< HEAD
+        header("Location: " . sm_url("register?error=idrange"));
+=======
+        header("Location: register?error=idrange");
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910
         exit();
     }
 
     $usuarioModel = new Usuario($conexion);
 
     if (!preg_match('/^\d{10}$/', $telefono)) {
+<<<<<<< HEAD
         header("Location: " . sm_url("register?error=phone"));
+=======
+<<<<<<< HEAD
+        header("Location: " . sm_url("register?error=phone"));
+=======
+        header("Location: register?error=phone");
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910
         exit();
     }
 
     if (!sm_password_is_valid($password)) {
+<<<<<<< HEAD
         header("Location: " . sm_url("register?error=password"));
+=======
+<<<<<<< HEAD
+        header("Location: " . sm_url("register?error=password"));
+=======
+        header("Location: register?error=password");
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910
         exit();
     }
 
     $stmtUserId = $conexion->prepare("SELECT 1 FROM usuarios WHERE id_usuario = ? LIMIT 1");
     $stmtUserId->execute([$id_usuario]);
     if ($stmtUserId->fetchColumn()) {
+<<<<<<< HEAD
         header("Location: " . sm_url("register?error=duplicateid"));
+=======
+<<<<<<< HEAD
+        header("Location: " . sm_url("register?error=duplicateid"));
+=======
+        header("Location: register?error=duplicateid");
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910
         exit();
     }
 
     $stmtEmail = $conexion->prepare("SELECT 1 FROM usuarios WHERE email = ? LIMIT 1");
     $stmtEmail->execute([$email]);
     if ($stmtEmail->fetchColumn()) {
+<<<<<<< HEAD
         header("Location: " . sm_url("register?error=duplicateemail"));
+=======
+<<<<<<< HEAD
+        header("Location: " . sm_url("register?error=duplicateemail"));
+=======
+        header("Location: register?error=duplicateemail");
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910
         exit();
     }
 
     if ($id_rol !== 3 && !$usuarioModel->escuelaExiste($id_escuela)) {
+<<<<<<< HEAD
         header("Location: " . sm_url("register?error=school"));
+=======
+<<<<<<< HEAD
+        header("Location: " . sm_url("register?error=school"));
+=======
+        header("Location: register?error=school");
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910
         exit();
     }
 
@@ -340,15 +420,35 @@ if (isset($_POST["register"])) {
                     $eventoTitulo = urlencode('Pago registro acudiente');
                     $amountParam = urlencode((string)$amount);
                     $returnTo = urlencode('register?success=payment_registered');
+<<<<<<< HEAD
                     header("Location: " . sm_url("iniciar?evento={$eventoTitulo}&monto={$amountParam}&cantidad=1&return_to={$returnTo}"));
+=======
+<<<<<<< HEAD
+                    header("Location: " . sm_url("iniciar?evento={$eventoTitulo}&monto={$amountParam}&cantidad=1&return_to={$returnTo}"));
+=======
+                    header("Location: iniciar?evento={$eventoTitulo}&monto={$amountParam}&cantidad=1&return_to={$returnTo}");
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910
                     exit();
                 }
             }
 
             if ($id_rol === 2) {
+<<<<<<< HEAD
                 header('Location: ' . sm_url('register?success=pending_approval'));
             } else {
                 header('Location: ' . sm_url('register?success=registered'));
+=======
+<<<<<<< HEAD
+                header('Location: ' . sm_url('register?success=pending_approval'));
+            } else {
+                header('Location: ' . sm_url('register?success=registered'));
+=======
+                header('Location: register?success=pending_approval');
+            } else {
+                header('Location: register?success=registered');
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910
             }
             exit();
         } catch (Throwable $e) {
@@ -403,7 +503,15 @@ if (isset($_POST["register"])) {
         $_SESSION['rol'] = 3;
 
         $returnTo = urlencode('iniciar?evento=Pago registro administrador&monto=35000&cantidad=1');
+<<<<<<< HEAD
         header("Location: " . sm_url("iniciar?evento=Pago%20registro%20administrador&monto=35000&cantidad=1&return_to={$returnTo}"));
+=======
+<<<<<<< HEAD
+        header("Location: " . sm_url("iniciar?evento=Pago%20registro%20administrador&monto=35000&cantidad=1&return_to={$returnTo}"));
+=======
+        header("Location: iniciar?evento=Pago%20registro%20administrador&monto=35000&cantidad=1&return_to={$returnTo}");
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910
         exit();
     }
 
@@ -442,7 +550,15 @@ if (isset($_POST["register"])) {
         sm_register_insert_invoice($conexion, $id_usuario, (int)$paymentMethod['id_metodo'], $amount, $receiptPath);
         $conexion->commit();
 
+<<<<<<< HEAD
         header("Location: " . sm_url("register?success=payment_registered"));
+=======
+<<<<<<< HEAD
+        header("Location: " . sm_url("register?success=payment_registered"));
+=======
+        header("Location: register?success=payment_registered");
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910
         exit();
     } catch (Throwable $e) {
         if ($conexion->inTransaction()) {
@@ -454,5 +570,13 @@ if (isset($_POST["register"])) {
     }
 }
 
+<<<<<<< HEAD
 header("Location: " . sm_url("register"));
+=======
+<<<<<<< HEAD
+header("Location: " . sm_url("register"));
+=======
+header("Location: register");
+>>>>>>> 4d7093d966a860ecc3ca8870582adf6f7b82deac
+>>>>>>> 430b67eaf5868b6d60404776773cbcc2505b3910
 exit();
