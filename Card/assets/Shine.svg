@@ -1,0 +1,52 @@
+<svg width="480" height="680" viewBox="0 0 480 680" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <defs>
+    <!-- Main shine band — diagonal white-to-transparent gradient -->
+    <linearGradient id="shineBand" x1="0" y1="0" x2="0.7" y2="1" gradientUnits="objectBoundingBox">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="30%" stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="38%" stop-color="#ffffff" stop-opacity="0.04"/>
+      <stop offset="44%" stop-color="#ffffff" stop-opacity="0.06"/>
+      <stop offset="48%" stop-color="#ffffff" stop-opacity="0.72"/>
+      <stop offset="52%" stop-color="#ffffff" stop-opacity="0.16"/>
+      <stop offset="56%" stop-color="#ffffff" stop-opacity="0.06"/>
+      <stop offset="62%" stop-color="#ffffff" stop-opacity="0.04"/>
+      <stop offset="70%" stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+
+    <!-- Secondary softer sweep -->
+    <linearGradient id="shineSoft" x1="0" y1="0" x2="0.7" y2="1" gradientUnits="objectBoundingBox">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="28%" stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="36%" stop-color="#ffffff" stop-opacity="0.0"/>
+      <stop offset="44%" stop-color="#ffffff" stop-opacity="0.12"/>
+      <stop offset="47%" stop-color="#ffffff" stop-opacity="0.12"/>
+      <stop offset="50%" stop-color="#ffffff" stop-opacity="0.0"/>
+      <stop offset="58%" stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+
+    <!-- Warm gold tint for the primary shine -->
+    <linearGradient id="shineGold" x1="0" y1="0" x2="0.7" y2="1" gradientUnits="objectBoundingBox">
+      <stop offset="0%" stop-color="#FFF8D6" stop-opacity="0"/>
+      <stop offset="38%" stop-color="#FFF8D6" stop-opacity="0"/>
+      <stop offset="46%" stop-color="#FFF8D6" stop-opacity="0.22"/>
+      <stop offset="50%" stop-color="#F7E5A5" stop-opacity="0.48"/>
+      <stop offset="54%" stop-color="#E8C96C" stop-opacity="0.18"/>
+      <stop offset="62%" stop-color="#FFF8D6" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#FFF8D6" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Primary shine band — rotated 12deg to sweep diagonally -->
+  <rect x="-40" y="-120" width="560" height="920"
+        fill="url(#shineBand)" transform="rotate(12 240 340)"/>
+
+  <!-- Warm gold tint overlay -->
+  <rect x="-40" y="-120" width="560" height="920"
+        fill="url(#shineGold)" transform="rotate(12 240 340)" opacity="0.52"/>
+
+  <!-- Secondary softer sweep -->
+  <rect x="-40" y="-120" width="560" height="920"
+        fill="url(#shineSoft)" transform="rotate(12 240 340)" opacity="0.35"/>
+</svg>

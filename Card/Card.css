@@ -1,0 +1,425 @@
+/* ============================================================
+   FIFA 18 CARD ENGINE — Card.css
+   Professional layered card component.
+   Background is CSS-only (no images).
+   Only --color1 and --color2 change dynamically via setCardTheme().
+   Frame, lines, bottom-panel, and shine SVGs NEVER change color.
+
+   The card shape uses clip-path: polygon() with ~31 percentage-based
+   points that closely approximate the bezier curve silhouette,
+   ensuring responsive scaling and universal browser compatibility.
+   ============================================================ */
+
+/* ---- CSS Custom Properties ---- */
+.fifa-card {
+  /* Dynamic school colors (set by setCardTheme or inherited from school vars) */
+  --color1: #243b73;
+  --color2: #1a2b56;
+  --color1-rgb: 36, 59, 115;
+  --color2-rgb: 26, 43, 86;
+
+  /* Gold frame constants (NEVER changed by setCardTheme) */
+  --gold-light: #FFF8D6;
+  --gold-medium: #D4AF37;
+  --gold-dark: #8A6415;
+  --shadow: rgba(21, 17, 8, 0.26);
+  --highlight: rgba(255, 251, 228, 0.36);
+  --gold-lines: rgba(190, 160, 72, 0.72);
+}
+
+/* ---- Root Card Container ---- */
+.fifa-card {
+  position: relative;
+  width: min(100%, 330px);
+  aspect-ratio: 2 / 3;
+  isolation: isolate;
+  background: #0a0e1a;
+  /* Responsive polygon clip-path — percentage coordinates scale with any card size.
+     ~31 points closely approximate the bezier curve silhouette:
+     hex notch at top, ear bumps, curved upper corners, straight sides,
+     and smooth convergence to the pointed bottom tip.
+     Points computed by sampling the original 320×480 bezier path at key intervals. */
+  clip-path: polygon(
+    50% 0%,
+    54.1% 0.75%,
+    56.9% 2.3%,
+    59.9% 3.9%,
+    65% 5.2%,
+    71.7% 4.8%,
+    77.2% 2.7%,
+    84.4% 1%,
+    91.6% 2.3%,
+    96.3% 5.3%,
+    99.4% 9.2%,
+    99.4% 72.9%,
+    96.9% 81.2%,
+    88.5% 88.3%,
+    73.3% 94.6%,
+    50% 100%,
+    26.7% 94.6%,
+    11.5% 88.3%,
+    3.1% 81.2%,
+    0.6% 72.9%,
+    0.6% 9.2%,
+    3.7% 5.3%,
+    8.4% 2.3%,
+    15.6% 1%,
+    22.8% 2.7%,
+    28.3% 4.8%,
+    35% 5.2%,
+    40.1% 3.9%,
+    43.1% 2.3%,
+    45.9% 0.75%
+  );
+  -webkit-clip-path: polygon(
+    50% 0%,
+    54.1% 0.75%,
+    56.9% 2.3%,
+    59.9% 3.9%,
+    65% 5.2%,
+    71.7% 4.8%,
+    77.2% 2.7%,
+    84.4% 1%,
+    91.6% 2.3%,
+    96.3% 5.3%,
+    99.4% 9.2%,
+    99.4% 72.9%,
+    96.9% 81.2%,
+    88.5% 88.3%,
+    73.3% 94.6%,
+    50% 100%,
+    26.7% 94.6%,
+    11.5% 88.3%,
+    3.1% 81.2%,
+    0.6% 72.9%,
+    0.6% 9.2%,
+    3.7% 5.3%,
+    8.4% 2.3%,
+    15.6% 1%,
+    22.8% 2.7%,
+    28.3% 4.8%,
+    35% 5.2%,
+    40.1% 3.9%,
+    43.1% 2.3%,
+    45.9% 0.75%
+  );
+  /* drop-shadow follows the clip-path shape (box-shadow is invisible with clip-path) */
+  filter:
+    drop-shadow(0 26px 55px rgba(53, 40, 10, 0.18))
+    drop-shadow(0 10px 24px rgba(53, 40, 10, 0.1));
+}
+
+/* ---- Card pseudo-elements: left color strip + separator band ---- */
+.fifa-card::before,
+.fifa-card::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+}
+
+/* Left color strip — 20% width, school color gradient with angled top.
+   z-index 2 = above background (z:1), below bg-mask (z:3). */
+.fifa-card::before {
+  width: 20.4%;
+  inset: 0;
+  z-index: 2;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0) 16%),
+    linear-gradient(180deg,
+      rgba(var(--color2-rgb), 0.56) 0%,
+      rgba(var(--color2-rgb), 0.70) 18%,
+      rgba(var(--color2-rgb), 0.82) 42%,
+      rgba(var(--color2-rgb), 0.88) 76%,
+      rgba(var(--color2-rgb), 0.72) 100%);
+  clip-path: polygon(0 0, 74% 0, 100% 6.2%, 100% 100%, 0 100%);
+  -webkit-clip-path: polygon(0 0, 74% 0, 100% 6.2%, 100% 100%, 0 100%);
+  box-shadow:
+    inset -1px 0 0 rgba(92, 71, 21, 0.45),
+    inset 1px 0 0 rgba(255, 248, 218, 0.28);
+}
+
+/* Separator band — diagonal gold transition between dark top and cream bottom.
+   z-index 4 = above bg-mask (z:3), below diag-lines (z:5). */
+.fifa-card::after {
+  left: 20.4%;
+  top: 52.8%;
+  height: 6.8%;
+  width: 79.6%;
+  z-index: 4;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0) 50%),
+    linear-gradient(180deg,
+      rgba(var(--color2-rgb), 0.36) 0%,
+      rgba(var(--color2-rgb), 0.52) 48%,
+      rgba(var(--color1-rgb), 0.34) 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    inset 0 -1px 0 rgba(99, 78, 31, 0.22);
+}
+
+/* ---- Layer Base Styles ---- */
+.fifa-card__bg,
+.fifa-card__bg-mask,
+.fifa-card__diag-lines,
+.fifa-card__shine,
+.fifa-card__bottom-panel,
+.fifa-card__frame,
+.fifa-card__player,
+.fifa-card__stats,
+.fifa-card__name,
+.fifa-card__meta {
+  position: absolute;
+  inset: 0;
+}
+
+/* ---- Z-index Stack (bottom to top) ----
+   1  __bg            — Background gradient
+   2  ::before        — Left color strip
+   3  __bg-mask       — Background mask overlay
+   4  ::after         — Separator band
+   5  __diag-lines    — Diagonal gold lines
+   6  __shine         — Animated shine sweep
+   7  __bottom-panel  — Dark diagonal bottom panel
+   9  __stats         — Rating + Position text
+   10 __player        — Player photo
+   11 __name          — Player name
+   12 __meta          — Category/Level/Gender badges
+   20 __frame         — Gold metallic frame (always on top)
+   ---- */
+.fifa-card__bg            { z-index: 1; }
+.fifa-card__bg-mask       { z-index: 3; object-fit: cover; }
+.fifa-card__diag-lines    { z-index: 5; object-fit: cover; }
+.fifa-card__shine         { z-index: 6; }
+.fifa-card__bottom-panel  { z-index: 7; object-fit: cover; }
+.fifa-card__frame         { z-index: 20; object-fit: cover; pointer-events: none;
+                            filter: drop-shadow(0 0 10px rgba(181, 143, 43, 0.18)); }
+.fifa-card__stats         { z-index: 9; }
+.fifa-card__player        { z-index: 10; }
+.fifa-card__name          { z-index: 11; }
+.fifa-card__meta          { z-index: 12; }
+
+/* ============================================================
+   LAYER 1: BACKGROUND (CSS-only, no images)
+   KEY composition from card1.jpeg reference:
+   - Top zone (0–52.8%): dark school color (var(--color1))
+   - Separator zone (52.8%–60.3%): gold/cream (#d9ccb0)
+   - Bottom zone (60.3%–100%): cream (#f8f2df)
+   - Subtle white spotlights in upper area
+   - Vignette + color highlights via pseudo-elements
+   ============================================================ */
+.fifa-card__bg {
+  background:
+    /* White highlights in upper area */
+    radial-gradient(circle at 78% 14%, rgba(255, 255, 255, 0.16) 0 18%, transparent 33%),
+    radial-gradient(circle at 18% 18%, rgba(255, 255, 255, 0.08) 0 10%, transparent 24%),
+    /* KEY: dark colored top → gold separator → cream bottom */
+    linear-gradient(180deg,
+      var(--color1) 0 52.8%,
+      #d9ccb0 52.8% 60.3%,
+      #f8f2df 60.3% 100%);
+}
+
+/* Background vignette + dynamic color spotlights */
+.fifa-card__bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    /* Top-left color1 spotlight */
+    radial-gradient(circle at 67% 18%, rgba(var(--color1-rgb), 0.72) 0 20%, transparent 54%),
+    /* Top-center color2 spotlight */
+    radial-gradient(circle at 56% 30%, rgba(var(--color2-rgb), 0.62) 0 18%, transparent 50%);
+  mix-blend-mode: screen;
+  opacity: 0.35;
+}
+
+/* Background texture + bottom vignette */
+.fifa-card__bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    /* Light spots in upper area */
+    radial-gradient(circle at 18% 14%, rgba(255, 255, 255, 0.18), transparent 24%),
+    radial-gradient(circle at 84% 18%, rgba(255, 255, 255, 0.12), transparent 20%),
+    /* Darkening center bottom */
+    radial-gradient(circle at 48% 56%, rgba(0, 0, 0, 0.18), transparent 44%),
+    /* Fine diagonal texture lines */
+    repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0 2px, transparent 2px 14px);
+  opacity: 0.42;
+  mix-blend-mode: overlay;
+}
+
+/* ---- Layer 2: BackgroundMask ---- */
+.fifa-card__bg-mask {
+  opacity: 0.58;
+  mix-blend-mode: overlay;
+}
+
+/* ---- Layer 3: DiagonalLines ---- */
+.fifa-card__diag-lines {
+  mix-blend-mode: screen;
+  opacity: 0.93;
+}
+
+/* ---- Layer 4: Shine (SVG image + CSS animated sweep) ---- */
+.fifa-card__shine {
+  inset: -20% -18%;
+  object-fit: cover;
+  pointer-events: none;
+  opacity: 0.42;
+  mix-blend-mode: screen;
+  animation: fifaCardShineSweep 12s linear infinite;
+}
+
+/* ---- Layer 5: BottomPanel ---- */
+.fifa-card__bottom-panel {
+  opacity: 0.88;
+  mix-blend-mode: multiply;
+}
+
+/* ---- Layer 6: Frame ---- */
+.fifa-card__frame {
+  /* Frame sits on top as solid metallic element — no opacity, no blend */
+}
+
+/* ============================================================
+   CONTENT STYLES
+   ============================================================ */
+
+/* Stats: Rating + Position */
+.fifa-card__stats {
+  inset: 0;
+  padding: 30px 30px 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  pointer-events: none;
+}
+
+.fifa-card__rating {
+  display: inline-flex;
+  min-width: 54px;
+  justify-content: center;
+  align-items: center;
+  color: #fff;
+  font-weight: 900;
+  font-size: 2rem;
+  line-height: 1;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.55);
+}
+
+.fifa-card__position {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 14px;
+  border-radius: 999px;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+/* Player photo */
+.fifa-card__player {
+  inset: auto 50% 28% auto;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 30%;
+  height: auto;
+  max-height: 24%;
+  object-fit: contain;
+  filter:
+    drop-shadow(0 14px 22px rgba(0, 0, 0, 0.5))
+    drop-shadow(0 0 16px rgba(111, 198, 255, 0.18));
+}
+
+/* Name */
+.fifa-card__name {
+  inset: auto 0 18%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 54px;
+  padding: 0 30px;
+  color: #fff;
+  font-weight: 900;
+  font-size: clamp(1.1rem, 3vw, 1.9rem);
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-shadow:
+    0 2px 0 rgba(0, 0, 0, 0.45),
+    0 8px 16px rgba(0, 0, 0, 0.45);
+}
+
+.fifa-card__name::before {
+  content: "";
+  position: absolute;
+  inset: 0 18% auto;
+  top: 50%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent);
+  opacity: 0.75;
+}
+
+/* Meta badges (Category, Level, Gender) */
+.fifa-card__meta {
+  inset: auto 0 5%;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  padding: 0 24px;
+}
+
+.fifa-card__meta > div {
+  display: grid;
+  place-items: center;
+  min-height: 40px;
+  padding: 8px 10px;
+  border-radius: 14px;
+  color: rgba(120, 93, 21, 0.94);
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-align: center;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: rgba(255, 255, 255, 0.64);
+  border: 1px solid rgba(194, 168, 95, 0.34);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(7px);
+  -webkit-backdrop-filter: blur(7px);
+}
+
+/* Hover: shine intensifies slightly */
+.fifa-card:hover .fifa-card__shine {
+  opacity: 0.72;
+}
+
+/* ============================================================
+   ANIMATIONS
+   ============================================================ */
+
+@keyframes fifaCardShineSweep {
+  0% {
+    transform: translateX(-72%) rotate(12deg);
+  }
+  100% {
+    transform: translateX(72%) rotate(12deg);
+  }
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .fifa-card__shine {
+    animation: none;
+  }
+}

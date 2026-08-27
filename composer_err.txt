@@ -1,0 +1,21 @@
+Cannot use sendgrid/sendgrid's latest version 8.1.11 as it requires ext-gmp * which is missing from your platform.
+./composer.json has been updated
+Running composer update sendgrid/sendgrid
+Loading composer repositories with package information
+Updating dependencies
+Your requirements could not be resolved to an installable set of packages.
+
+  Problem 1
+    - phpoffice/phpspreadsheet is locked to version 1.30.4 and an update of this package was not requested.
+    - phpoffice/phpspreadsheet 1.30.4 requires ext-gd * -> it is missing from your system. Install or enable PHP's gd extension.
+  Problem 2
+    - mpdf/mpdf is locked to version v8.3.1 and an update of this package was not requested.
+    - mpdf/mpdf v8.3.1 requires ext-gd * -> it is missing from your system. Install or enable PHP's gd extension.
+
+To enable extensions, verify that they are enabled in your .ini files:
+    - C:\xampp\php\php.ini
+You can also run `php --ini` in a terminal to see which files are used by PHP in CLI mode.
+Alternatively, you can run Composer with `--ignore-platform-req=ext-gd` to temporarily ignore these required extensions.
+You can also try re-running composer require with an explicit version constraint, e.g. "composer require sendgrid/sendgrid:*" to figure out if any version is installable, or "composer require sendgrid/sendgrid:^2.1" if you know which you need.
+
+Installation failed, reverting ./composer.json and ./composer.lock to their original content.

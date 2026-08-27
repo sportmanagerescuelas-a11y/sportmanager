@@ -1,0 +1,97 @@
+<?php
+class Producto {
+    private PDO $db;
+    private string $lastError = '';
+
+    public function __construct(PDO $conexion) {
+        $this->db = $conexion;
+        $this->ensureSchoolColumn();
+    }
+
+    public function listar(?int $schoolId = null): array {
+        if ($schoolId !== null && $schoolId > 0) {
+            $sql = "SELECT * FROM productos WHERE id_escuela = ? ORDER BY id_producto DESC";
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute([$schoolId]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        }
+
+        $sql = "SELECT * FROM productos ORDER BY id_producto DESC";
+        return $this->db->query($sql)->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function crear(?string $nombre, $precio, ?string $descripcion, ?string $imagen, ?int $schoolId): bool {
+        try {
+            $this->db->beginTransaction();
+            $nextId = (int)$this->db->query('SELECT COALESCE(MAX(id_producto), 0) + 1 FROM productos')->fetchColumn();
+            $sql = "INSERT INTO productos (id_producto, nombre, precio, descripcion, imagen, id_escuela) VALUES (?, ?, ?, ?, ?, ?)";
+            $stmt = $this->db->prepare($sql);
+            $ok = $stmt->execute([$nextId, $nombre, $precio, $descripcion, $imagen ?? '', $schoolId]);
+            $this->db->commit();
+            $this->lastError = '';
+            return $ok;
+        } catch (Throwable $e) {
+            if ($this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
+            $this->lastError = 'No se pudo crear el producto.';
+            error_log('Error creando producto: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function obtenerPorId($id, ?int $schoolId = null) {
+        $sql = "SELECT * FROM productos WHERE id_producto = ?";
+        $params = [$id];
+        if ($schoolId !== null && $schoolId > 0) {
+            $sql .= " AND id_escuela = ?";
+            $params[] = $schoolId;
+        }
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function actualizar($id, ?string $nombre, $precio, ?string $descripcion, ?string $imagen, ?int $schoolId): bool {
+        try {
+            $sql = "UPDATE productos SET nombre=?, precio=?, descripcion=?, imagen=? WHERE id_producto=? AND id_escuela=?";
+            $ok = $this->db->prepare($sql)->execute([$nombre, $precio, $descripcion, $imagen ?? '', $id, $schoolId]);
+            $this->lastError = '';
+            return $ok;
+        } catch (Throwable $e) {
+            $this->lastError = 'No se pudo actualizar el producto.';
+            error_log('Error actualizando producto: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function eliminar($id, ?int $schoolId): bool {
+        try {
+            $sql = "DELETE FROM productos WHERE id_producto = ? AND id_escuela = ?";
+            $ok = $this->db->prepare($sql)->execute([$id, $schoolId]);
+            $this->lastError = '';
+            return $ok;
+        } catch (Throwable $e) {
+            $this->lastError = 'No se pudo eliminar el producto porque tiene información relacionada.';
+            error_log('Error eliminando producto: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function lastError(): string {
+        return $this->lastError;
+    }
+
+    private function ensureSchoolColumn(): void {
+        try {
+            $existsStmt = $this->db->query("SHOW COLUMNS FROM productos LIKE 'id_escuela'");
+            $exists = $existsStmt !== false && $existsStmt->fetch(PDO::FETCH_ASSOC) !== false;
+            if (!$exists) {
+                $this->db->exec("ALTER TABLE productos ADD COLUMN id_escuela INT(11) NULL AFTER imagen");
+            }
+        } catch (Throwable $e) {
+            // Mantener compatibilidad sin romper flujo en entornos restringidos.
+        }
+    }
+}
+?>

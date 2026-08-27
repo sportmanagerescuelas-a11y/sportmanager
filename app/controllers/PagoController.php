@@ -1,0 +1,271 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Controllers;
+
+use App\Services\PayUService;
+use App\Services\PaymentTransactionService;
+use Exception;
+use PDO;
+
+if (!defined('APP_BASE_PATH')) {
+    require_once dirname(__DIR__) . '/bootstrap.php';
+}
+
+final class PagoController
+{
+    /**
+     * @param array<string,mixed> $params
+     */
+    private function buildConfirmationUrl(string $returnUrlBase, array $params): string
+    {
+        $qs = http_build_query($params, '', '&', PHP_QUERY_RFC3986);
+        return rtrim($returnUrlBase, '/') . '/confirmacion-pago-isn' . ($qs !== '' ? ('?' . $qs) : '');
+    }
+
+    private function resolveReturnTo(): string
+    {
+        $default = sm_url('pagos');
+        $candidate = trim((string)($_POST['return_to'] ?? $default));
+        if ($candidate === '') {
+            return $default;
+        }
+        if (preg_match('/^(https?:)?\/\//i', $candidate)) {
+            return $default;
+        }
+        return sm_url(ltrim($candidate, '/'));
+    }
+
+    private function fail(string $message): void
+    {
+        $_SESSION['error'] = $message;
+        header('Location: ' . $this->resolveReturnTo());
+        exit();
+    }
+
+    public function inscripcion(): void
+    {
+        if (empty($_POST['cantidad']) || empty($_SESSION['registro_temporal']) || empty($_POST['metodo_pago'])) {
+            $this->fail('Datos insuficientes para realizar el pago.');
+        }
+
+        $payu = new PayUService();
+        $config = $payu->boot();
+
+        $cantidad = (int)$_POST['cantidad'];
+        if ($cantidad <= 0) {
+            $this->fail('La cantidad debe ser mayor a cero.');
+        }
+
+        $direccion = (string)filter_var($_POST['direccion'] ?? '', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        $ciudad = (string)filter_var($_POST['ciudad'] ?? '', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        $departamento = (string)filter_var($_POST['departamento'] ?? '', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        $codigoPostal = (string)filter_var($_POST['codigo_postal'] ?? '', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        $pais = strtoupper((string)filter_var($_POST['pais'] ?? '', FILTER_SANITIZE_FULL_SPECIAL_CHARS));
+        $dni = preg_replace('/\D+/', '', (string)($_POST['dni'] ?? '')) ?? '';
+        $metodoPago = (string)filter_var($_POST['metodo_pago'] ?? '', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        $payerPersonType = (string)filter_var($_POST['tipo_persona'] ?? '', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        $payerDocumentType = (string)filter_var($_POST['tipo_documento'] ?? '', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        $pseBank = isset($_POST['pseBank']) ? (string)filter_var($_POST['pseBank'], FILTER_SANITIZE_FULL_SPECIAL_CHARS) : null;
+
+        if ($direccion === '' || $ciudad === '' || $departamento === '' || $codigoPostal === '') {
+            $this->fail('Debes completar direccion, ciudad, departamento y codigo postal.');
+        }
+        if (!preg_match('/^[A-Z]{2}$/', $pais)) {
+            $this->fail('El pais debe ser una abreviatura ISO2 (ejemplo CO).');
+        }
+        if (!preg_match('/^\d{1,11}$/', $dni)) {
+            $this->fail('El documento debe tener maximo 11 digitos numericos.');
+        }
+        if (!preg_match('/^\d+$/', $codigoPostal)) {
+            $this->fail('El codigo postal debe ser numerico.');
+        }
+
+        $numeroTarjeta = isset($_POST['numero_tarjeta']) ? (string)filter_var($_POST['numero_tarjeta'], FILTER_SANITIZE_FULL_SPECIAL_CHARS) : null;
+        $cardName = (string)filter_var($_POST['cardName'] ?? '', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        $cvvTarjeta = isset($_POST['cardCVV']) ? (string)filter_var($_POST['cardCVV'], FILTER_SANITIZE_FULL_SPECIAL_CHARS) : null;
+        $expiracionMes = isset($_POST['expiracion_mes']) ? (string)filter_var($_POST['expiracion_mes'], FILTER_SANITIZE_FULL_SPECIAL_CHARS) : null;
+        $expiracionAno = isset($_POST['expiracion_ano']) ? (string)filter_var($_POST['expiracion_ano'], FILTER_SANITIZE_FULL_SPECIAL_CHARS) : null;
+
+        $usuario = $_SESSION['registro_temporal'];
+        $email = isset($usuario['email']) ? (string)$usuario['email'] : '';
+        if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $this->fail('El correo es invalido.');
+        }
+
+        $usuario['dni'] = $dni;
+        $usuario['tipo_documento'] = $payerDocumentType;
+        $usuario['cantidad'] = $cantidad;
+        $_SESSION['registro_temporal'] = $usuario;
+
+        $idEvento = isset($_POST['id_evento']) ? (int)$_POST['id_evento'] : 0;
+        $montoPost = isset($_POST['monto']) ? (float)$_POST['monto'] : 0.0;
+        $concepto = trim((string)($_POST['concepto'] ?? 'Pago de inscripcion'));
+
+        // Prioriza siempre el costo real del evento para evitar inconsistencias.
+        $total = 0.0;
+        if ($idEvento > 0) {
+            require APP_BASE_PATH . '/config/conexion.php';
+            if (isset($conexion) && $conexion instanceof PDO) {
+                $stmtEvento = $conexion->prepare('SELECT titulo, costo FROM eventos WHERE id_evento = :id_evento LIMIT 1');
+                $stmtEvento->execute([':id_evento' => $idEvento]);
+                $evento = $stmtEvento->fetch(PDO::FETCH_ASSOC) ?: null;
+                if ($evento) {
+                    $costoUnitario = (float)($evento['costo'] ?? 0);
+                    $total = $costoUnitario * $cantidad;
+                    if ($concepto === 'Pago de inscripcion' && !empty($evento['titulo'])) {
+                        $concepto = (string)$evento['titulo'];
+                    }
+                }
+            }
+        }
+
+        if ($total <= 0) {
+            $total = $montoPost > 0 ? $montoPost : ($cantidad * 35000);
+        }
+        if ($total <= 0) {
+            $this->fail('El monto a pagar no es valido.');
+        }
+
+        $referenceCode = 'PAGO_' . uniqid();
+        $signature = md5($config['apiKey'] . '~' . $config['merchantId'] . '~' . $referenceCode . '~' . $total . '~COP');
+        $returnUrlBase = (string)$config['returnUrlBase'];
+        $idUsuarioSesion = (int)($_SESSION['id_usuario'] ?? ($_SESSION['usuario']['id_usuario'] ?? ($_SESSION['registro_temporal']['id_usuario'] ?? 0)));
+        $idEscuelaSesion = (int)($_SESSION['usuario']['id_escuela'] ?? 1);
+        $idRolTemporal = (int)($_SESSION['registro_temporal']['id_rol'] ?? ($_SESSION['rol'] ?? 0));
+        $flujoPago = trim((string)($_SESSION['registro_temporal']['flujo'] ?? ''));
+        $idDeportista = isset($_POST['id_deportista']) ? (int)$_POST['id_deportista'] : 0;
+
+        $paymentFlow = new PaymentTransactionService();
+        $paymentContext = [
+            'id_usuario' => $idUsuarioSesion,
+            'id_escuela' => $idEscuelaSesion,
+            'id_evento' => $idEvento > 0 ? $idEvento : null,
+            'id_deportista' => $idDeportista > 0 ? $idDeportista : null,
+            'monto' => $total,
+            'concepto' => $concepto,
+            'metodo_pago' => $metodoPago,
+            'cantidad' => $cantidad,
+            'id_rol' => $idRolTemporal,
+            'flujo' => $flujoPago,
+        ];
+        $encodedContext = $paymentFlow->encodeContext($paymentContext);
+        $paymentFlow->storeContext($referenceCode, $paymentContext);
+        $responseUrl = $this->buildConfirmationUrl($returnUrlBase, [
+            'cantidad' => $cantidad,
+            'ctx' => $encodedContext,
+        ]);
+
+        $parameters = [
+            \PayUParameters::ACCOUNT_ID => $config['accountId'],
+            \PayUParameters::REFERENCE_CODE => $referenceCode,
+            \PayUParameters::DESCRIPTION => $concepto,
+            \PayUParameters::VALUE => $total,
+            \PayUParameters::CURRENCY => 'COP',
+            \PayUParameters::BUYER_EMAIL => $usuario['email'],
+            \PayUParameters::BUYER_NAME => $usuario['nombre'],
+            \PayUParameters::BUYER_CONTACT_PHONE => $usuario['telefono'],
+            \PayUParameters::BUYER_DNI => $dni,
+            \PayUParameters::BUYER_STREET => $direccion,
+            \PayUParameters::BUYER_CITY => $ciudad,
+            \PayUParameters::BUYER_STATE => $departamento,
+            \PayUParameters::BUYER_COUNTRY => $pais,
+            \PayUParameters::BUYER_POSTAL_CODE => $codigoPostal,
+            \PayUParameters::RESPONSE_URL => $responseUrl,
+            \PayUParameters::PAYMENT_METHOD => $metodoPago,
+            \PayUParameters::COUNTRY => \PayUCountries::CO,
+            \PayUParameters::IP_ADDRESS => $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1',
+            \PayUParameters::USER_AGENT => $_SERVER['HTTP_USER_AGENT'] ?? 'unknown',
+            \PayUParameters::PAYER_COOKIE => session_id(),
+            \PayUParameters::PAYER_PERSON_TYPE => $payerPersonType,
+            \PayUParameters::PAYER_CONTACT_PHONE => $usuario['telefono'],
+            \PayUParameters::PAYER_EMAIL => $usuario['email'],
+            \PayUParameters::PAYER_DOCUMENT_TYPE => $payerDocumentType,
+            \PayUParameters::PAYER_NAME => $usuario['nombre'],
+            \PayUParameters::SIGNATURE => $signature,
+        ];
+
+        if ($metodoPago === 'PSE') {
+            if (!empty($config['isTest']) && !empty($config['pseTestBankCode'])) {
+                $parameters[\PayUParameters::PSE_FINANCIAL_INSTITUTION_CODE] = (string)$config['pseTestBankCode'];
+            } else {
+                if (empty($pseBank)) {
+                    $this->fail('Debe seleccionar un banco para continuar con el pago.');
+                }
+                $parameters[\PayUParameters::PSE_FINANCIAL_INSTITUTION_CODE] = $pseBank;
+            }
+        }
+
+        if ($metodoPago === 'MASTERCARD' || $metodoPago === 'VISA') {
+            if (empty($numeroTarjeta) || empty($cvvTarjeta) || empty($expiracionMes) || empty($expiracionAno)) {
+                $this->fail('Debe proporcionar todos los datos de la tarjeta para continuar con el pago.');
+            }
+            $parameters[\PayUParameters::CREDIT_CARD_NUMBER] = $numeroTarjeta;
+            $parameters[\PayUParameters::CREDIT_CARD_SECURITY_CODE] = $cvvTarjeta;
+            $parameters[\PayUParameters::CREDIT_CARD_EXPIRATION_DATE] = "{$expiracionAno}/{$expiracionMes}";
+            $parameters[\PayUParameters::INSTALLMENTS_NUMBER] = '1';
+            $parameters[\PayUParameters::PAYER_NAME] = $cardName !== '' ? $cardName : $usuario['nombre'];
+        }
+
+        try {
+            $response = $payu->authorizeAndCapture($parameters);
+            if ($response && isset($response->transactionResponse->state)) {
+                $transactionState = $response->transactionResponse->state;
+                $transactionId = $response->transactionResponse->transactionId ?? null;
+                $responseCode = $response->transactionResponse->responseCode ?? null;
+
+                if ($transactionState === 'APPROVED') {
+                    $successUrl = $this->buildConfirmationUrl($returnUrlBase, [
+                        'transactionState' => 4,
+                        'referenceCode' => $referenceCode,
+                        'transactionId' => (string)$transactionId,
+                        'responseCode' => (string)$responseCode,
+                        'cantidad' => $cantidad,
+                        'ctx' => $encodedContext,
+                    ]);
+                    header('Location: ' . $successUrl);
+                    exit();
+                }
+
+                if ($transactionState === 'PENDING') {
+                    $redirectUrl = $response->transactionResponse->extraParameters->BANK_URL ?? null;
+                    if ($redirectUrl) {
+                        header("Location: {$redirectUrl}");
+                        exit();
+                    }
+
+                    $pendingUrl = $this->buildConfirmationUrl($returnUrlBase, [
+                        'transactionState' => 7,
+                        'referenceCode' => $referenceCode,
+                        'transactionId' => (string)$transactionId,
+                        'responseCode' => (string)$responseCode,
+                        'cantidad' => $cantidad,
+                        'ctx' => $encodedContext,
+                    ]);
+                    header('Location: ' . $pendingUrl);
+                    exit();
+                }
+
+                $failUrl = $this->buildConfirmationUrl($returnUrlBase, [
+                    'transactionState' => 6,
+                    'referenceCode' => $referenceCode,
+                    'transactionId' => (string)$transactionId,
+                    'responseCode' => (string)$responseCode,
+                    'cantidad' => $cantidad,
+                    'ctx' => $encodedContext,
+                ]);
+                header('Location: ' . $failUrl);
+                exit();
+            }
+
+            error_log('Respuesta inesperada: ' . print_r($response, true));
+            $this->fail('Respuesta inesperada del servidor de pagos.');
+        } catch (Exception $e) {
+            $msg = $e->getMessage();
+            error_log('Excepcion capturada: ' . $msg);
+            error_log('Trace: ' . $e->getTraceAsString());
+            $this->fail('PayU devolvio un error: ' . $msg);
+        }
+    }
+}
