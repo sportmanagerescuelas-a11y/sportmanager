@@ -1,0 +1,2434 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manual de Usuario — Sport Manager</title>
+  <link rel="icon" type="image/png" href="../assets/img/escudo_sportmanager.png">
+  <link rel="shortcut icon" type="image/png" href="../assets/img/escudo_sportmanager.png">
+  <style>
+    /* ── Reset & Base ── */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      font-size: 16px;
+      line-height: 1.7;
+      color: #1a1a2e;
+      background: #f5f7fa;
+    }
+
+    section[id],
+    .subsection {
+      scroll-margin-top: 100px;
+    }
+
+    /* ── Typography ── */
+    h1,
+    h2,
+    h3,
+    h4 {
+      line-height: 1.25;
+      font-weight: 700;
+    }
+
+    p {
+      margin-bottom: 1rem;
+    }
+
+    a {
+      color: #2563eb;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    /* ── Cover ── */
+    .cover {
+      background: linear-gradient(135deg, #1d3f5f 0%, #0d6efd 60%, #414141bb 100%);
+      color: #fff;
+      padding: 72px 24px 18px;
+      text-align: center;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      overflow: hidden;
+      --cover-progress: 0;
+      --cover-height: 340px;
+      height: var(--cover-height);
+      transition:
+        height .22s ease,
+        box-shadow .28s ease,
+        backdrop-filter .28s ease;
+    }
+
+    .cover.is-compact {
+      padding: 0 18px;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, .22);
+      backdrop-filter: blur(10px);
+    }
+
+    .cover__badge {
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.18);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      border-radius: 999px;
+      font-size: .78rem;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      padding: 4px 16px;
+      margin-bottom: 24px;
+    }
+
+    .cover__title {
+      font-size: clamp(2.2rem, 6vw, 3.8rem);
+      font-weight: 800;
+      letter-spacing: -.02em;
+      margin-bottom: 12px;
+    }
+
+    .cover__subtitle {
+      font-size: 1.18rem;
+      opacity: .88;
+      max-width: 600px;
+      margin: 0 auto 32px;
+    }
+
+    .cover__meta {
+      font-size: .88rem;
+      opacity: .72;
+      display: flex;
+      gap: 24px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .cover__meta span::before {
+      content: '· ';
+    }
+
+    .cover__meta span:first-child::before {
+      content: '';
+    }
+
+    .cover__hero {
+      transition:
+        opacity .26s ease,
+        max-height .26s ease,
+        margin .26s ease,
+        padding .26s ease;
+      max-height: 260px;
+      overflow: hidden;
+      transform-origin: center top;
+      opacity: calc(1 - var(--cover-progress));
+      margin-bottom: 0;
+    }
+
+    .cover.is-compact .cover__hero {
+      pointer-events: none;
+      max-height: 0;
+      margin: 0;
+      padding: 0;
+    }
+
+    .cover__toolbar {
+      display: grid;
+      align-items: center;
+      gap: 16px;
+      height: 76px;
+      max-width: 1180px;
+      margin: 0 auto;
+      width: 100%;
+      grid-template-columns: auto 1fr auto;
+      opacity: calc(.68 + (var(--cover-progress) * .32));
+      pointer-events: auto;
+      transition: opacity .18s ease;
+    }
+
+    .cover__toolbar-left {
+      justify-self: start;
+    }
+
+    .cover__toolbar-center {
+      justify-self: center;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      font-size: 1rem;
+      font-weight: 800;
+      opacity: 1;
+      white-space: nowrap;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, .22);
+    }
+
+    .cover__toolbar-right {
+      justify-self: end;
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: .01em;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, .22);
+    }
+
+    .cover__brand-logo {
+      width: 38px;
+      height: 38px;
+      object-fit: contain;
+      flex-shrink: 0;
+      filter: drop-shadow(0 2px 8px rgba(0, 0, 0, .22));
+    }
+
+    .cover__brand-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      white-space: nowrap;
+    }
+
+    .cover__brand-label span {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: .01em;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, .22);
+    }
+
+    .cover-spacer {
+      height: var(--cover-height, 340px);
+      transition: height .22s ease;
+    }
+
+    .cover__home-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 40px;
+      padding: 0 16px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, .42);
+      background: rgba(255, 255, 255, .2);
+      color: #fff;
+      font-size: .92rem;
+      font-weight: 800;
+      letter-spacing: .03em;
+      text-decoration: none;
+      white-space: nowrap;
+      transition: background .2s ease, transform .2s ease, border-color .2s ease, color .2s ease;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, .12);
+    }
+
+    .cover__home-btn span {
+      display: inline-block;
+      transform: translateY(-1px);
+    }
+
+    .cover__home-btn:hover {
+      background: rgba(255, 255, 255, .22);
+      border-color: rgba(255, 255, 255, .65);
+      text-decoration: none;
+      transform: translateY(-1px);
+    }
+
+    /* ── Layout ── */
+    .page-wrap {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 0 20px 80px;
+    }
+
+    /* ── TOC ── */
+    .toc {
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 2px 16px rgba(0, 0, 0, .08);
+      padding: 36px 40px;
+      margin: 48px 0 56px;
+    }
+
+    .toc__title {
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: #0d6efd;
+      margin-bottom: 20px;
+    }
+
+    .toc__list {
+      list-style: none;
+      padding: 0;
+      columns: 2;
+      column-gap: 32px;
+    }
+
+    @media (max-width: 640px) {
+      .toc__list {
+        columns: 1;
+      }
+    }
+
+    .toc__list li {
+      margin-bottom: 6px;
+      break-inside: avoid;
+    }
+
+    .toc__list a {
+      color: #1a1a2e;
+      font-size: .95rem;
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+    }
+
+    .toc__list a:hover {
+      color: #0d6efd;
+    }
+
+    .toc__num {
+      font-size: .78rem;
+      font-weight: 700;
+      color: #0d6efd;
+      min-width: 22px;
+      flex-shrink: 0;
+    }
+
+    .toc__section-label {
+      font-size: .72rem;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: #6b7280;
+      margin: 16px 0 4px;
+      font-weight: 700;
+    }
+
+    /* ── Section headers ── */
+    .section {
+      margin-bottom: 72px;
+    }
+
+    .section__header {
+      border-left: 5px solid #0d6efd;
+      padding: 16px 20px;
+      background: #fff;
+      border-radius: 0 10px 10px 0;
+      margin-bottom: 32px;
+      box-shadow: 0 1px 8px rgba(0, 0, 0, .06);
+    }
+
+    .section__header--green {
+      border-left-color: #198754;
+    }
+
+    .section__header--purple {
+      border-left-color: #7c3aed;
+    }
+
+    .section__header--orange {
+      border-left-color: #d97706;
+    }
+
+    .section__header--red {
+      border-left-color: #dc3545;
+    }
+
+    .section__label {
+      font-size: .72rem;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: #6b7280;
+      margin-bottom: 4px;
+    }
+
+    .section__title {
+      font-size: 1.55rem;
+    }
+
+    .section__desc {
+      font-size: .95rem;
+      color: #4b5563;
+      margin-top: 4px;
+      margin-bottom: 0;
+    }
+
+    /* ── Role badges ── */
+    .role-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+
+    .role-tag {
+      font-size: .75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      padding: 3px 12px;
+      border-radius: 999px;
+      border: 1.5px solid;
+    }
+
+    .role-tag--admin {
+      color: #7c3aed;
+      border-color: #7c3aed;
+      background: #f5f3ff;
+    }
+
+    .role-tag--acudiente {
+      color: #0d6efd;
+      border-color: #0d6efd;
+      background: #eff6ff;
+    }
+
+    .role-tag--formador {
+      color: #198754;
+      border-color: #198754;
+      background: #f0fdf4;
+    }
+
+    .role-tag--super {
+      color: #dc3545;
+      border-color: #dc3545;
+      background: #fff1f2;
+    }
+
+    /* ── Steps ── */
+    .steps {
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    .step {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, .07);
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: 64px 1fr;
+    }
+
+    .step__num {
+      background: #0d6efd;
+      color: #fff;
+      font-size: 1.45rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      letter-spacing: -.03em;
+      flex-shrink: 0;
+    }
+
+    .step--green .step__num {
+      background: #198754;
+    }
+
+    .step--purple .step__num {
+      background: #7c3aed;
+    }
+
+    .step--orange .step__num {
+      background: #d97706;
+    }
+
+    .step--red .step__num {
+      background: #dc3545;
+    }
+
+    .step__body {
+      padding: 20px 24px;
+    }
+
+    .step__title {
+      font-size: 1.05rem;
+      margin-bottom: 6px;
+    }
+
+    .step__desc {
+      font-size: .93rem;
+      color: #374151;
+      margin-bottom: 0;
+    }
+
+    .step__img-wrap {
+      margin-top: 16px;
+      background: #f1f5f9;
+      border: 2px dashed #cbd5e1;
+      border-radius: 8px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .step__img-wrap img {
+      max-width: 100%;
+      border-radius: 6px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, .10);
+    }
+
+    .step__img-placeholder {
+      color: #94a3b8;
+      font-size: .82rem;
+      padding: 12px 0;
+    }
+
+    /* ── Notes & Warnings ── */
+    .note,
+    .warn,
+    .tip {
+      border-radius: 8px;
+      padding: 14px 18px 14px 48px;
+      font-size: .9rem;
+      margin: 12px 0;
+      position: relative;
+      line-height: 1.6;
+    }
+
+    .note+.note,
+    .note+.warn,
+    .note+.tip,
+    .warn+.note,
+    .warn+.warn,
+    .warn+.tip,
+    .tip+.note,
+    .tip+.warn,
+    .tip+.tip {
+      margin-top: 8px;
+    }
+
+    .note {
+      background: #eff6ff;
+      border-left: 4px solid #3b82f6;
+      color: #1e40af;
+    }
+
+    .warn {
+      background: #fefce8;
+      border-left: 4px solid #eab308;
+      color: #854d0e;
+    }
+
+    .tip {
+      background: #f0fdf4;
+      border-left: 4px solid #22c55e;
+      color: #166534;
+    }
+
+    .note__icon,
+    .warn__icon,
+    .tip__icon {
+      position: absolute;
+      left: 16px;
+      top: 14px;
+      font-size: 1.1rem;
+      line-height: 1.6;
+    }
+
+    .note__text,
+    .warn__text,
+    .tip__text {
+      display: inline;
+    }
+
+    .note--intro {
+      margin: 0 0 32px;
+    }
+
+    /* ── Sub-sections ── */
+    .subsection {
+      margin: 36px 0 20px;
+    }
+
+    .subsection__title {
+      font-size: 1.1rem;
+      color: #1a1a2e;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #e5e7eb;
+      margin-bottom: 20px;
+    }
+
+    /* ── Permission table ── */
+    .perm-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .88rem;
+      background: #fff;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, .07);
+    }
+
+    .perm-table th,
+    .perm-table td {
+      padding: 10px 14px;
+      border-bottom: 1px solid #f1f5f9;
+      text-align: center;
+    }
+
+    .perm-table th {
+      background: #1d3f5f;
+      color: #fff;
+      font-weight: 600;
+    }
+
+    .perm-table td:first-child {
+      text-align: left;
+      font-weight: 500;
+    }
+
+    .perm-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .perm-table tr:hover td {
+      background: #f8faff;
+    }
+
+    .ok {
+      color: #198754;
+      font-weight: 700;
+    }
+
+    .no {
+      color: #9ca3af;
+    }
+
+    .partial {
+      color: #d97706;
+      font-weight: 700;
+    }
+
+    /* ── Intro box ── */
+    .intro-box {
+      background: #fff;
+      border-radius: 12px;
+      padding: 32px 36px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, .07);
+      margin-bottom: 48px;
+    }
+
+    .intro-box h2 {
+      font-size: 1.2rem;
+      margin-bottom: 12px;
+    }
+
+    /* ── Requirements ── */
+    .req-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .req-list li {
+      padding: 8px 0;
+      border-bottom: 1px solid #f1f5f9;
+      font-size: .93rem;
+      display: flex;
+      gap: 10px;
+    }
+
+    .req-list li:last-child {
+      border-bottom: none;
+    }
+
+    .req-list li::before {
+      content: '✓';
+      color: #198754;
+      font-weight: 700;
+    }
+
+    /* ── Divider ── */
+    .divider {
+      border: none;
+      border-top: 2px solid #e5e7eb;
+      margin: 48px 0;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      .step {
+        grid-template-columns: 48px 1fr;
+      }
+
+      .step__num {
+        font-size: 1.1rem;
+      }
+
+      .intro-box,
+      .toc {
+        padding: 20px;
+      }
+
+      .section__title {
+        font-size: 1.25rem;
+      }
+
+      .cover.is-compact {
+        box-shadow: 0 10px 28px rgba(0, 0, 0, .22);
+      }
+
+      .cover__toolbar {
+        gap: 10px;
+        grid-template-columns: auto 1fr auto;
+      }
+
+      .cover__toolbar-center {
+        font-size: .88rem;
+        letter-spacing: .1em;
+      }
+
+      .cover__toolbar-right {
+        font-size: .92rem;
+      }
+
+      .cover__brand-logo {
+        width: 28px;
+        height: 28px;
+      }
+
+      .cover__brand-label span {
+        font-size: 18px;
+      }
+
+      .cover-spacer {
+        height: var(--cover-height, 340px);
+      }
+
+      .cover__home-btn {
+        padding: 0 12px;
+        min-height: 34px;
+        font-size: .76rem;
+      }
+    }
+  </style>
+</head>
+
+<body id="top">
+
+  <!-- ══════════════════════════════════════ PORTADA ══════════════════════════════════════ -->
+  <div class="cover">
+    <div class="cover__hero">
+      <div class="cover__badge">Manual de Usuario</div>
+      <h1 class="cover__title">Sport Manager</h1>
+      <p class="cover__subtitle">Guía completa para el uso del sistema de gestión de escuelas deportivas</p>
+      <div class="cover__meta">
+        <span>Versión 1.0</span>
+        <span>Agosto 2026</span>
+        <span>Roles: Administrador · Acudiente · Formador</span>
+      </div>
+    </div>
+    <div class="cover__toolbar" aria-label="Navegación rápida del manual">
+      <div class="cover__toolbar-left">
+        <span class="cover__brand-label">
+          <img class="cover__brand-logo" src="../assets/img/escudo_sportmanager.png" alt="Logo de Sport Manager">
+          <span>Sport Manager</span>
+        </span>
+      </div>
+      <div class="cover__toolbar-center">Manual de Usuario</div>
+      <div class="cover__toolbar-right">
+        <a class="cover__home-btn" href="#top"><span>Inicio</span></a>
+      </div>
+    </div>
+  </div>
+
+  <div class="cover-spacer" aria-hidden="true"></div>
+
+  <div class="page-wrap">
+
+    <!-- ══════════════════════════════════════ ÍNDICE ══════════════════════════════════════ -->
+    <nav class="toc" aria-label="Tabla de contenidos">
+      <p class="toc__title">Índice de contenidos</p>
+      <ul class="toc__list">
+        <li><a href="#intro"><span class="toc__num">00</span>Introducción y alcance</a></li>
+        <li><a href="#requisitos"><span class="toc__num">01</span>Requisitos previos</a></li>
+        <li><a href="#roles"><span class="toc__num">02</span>Roles del sistema</a></li>
+        <li><a href="#registro"><span class="toc__num">03</span>Registro de usuario</a></li>
+        <li><a href="#login"><span class="toc__num">04</span>Inicio de sesión</a></li>
+        <li><a href="#recuperar"><span class="toc__num">05</span>Recuperar contraseña</a></li>
+        <li><a href="#escuelas"><span class="toc__num">06</span>Gestión de escuelas</a></li>
+        <li><a href="#dashboard"><span class="toc__num">07</span>Panel principal (Dashboard)</a></li>
+        <li><a href="#dashboard-acudiente"><span class="toc__num" style="color:#0d6efd">↳</span>Panel del Acudiente</a>
+        </li>
+        <li><a href="#dashboard-formador"><span class="toc__num" style="color:#198754">↳</span>Panel del Formador</a>
+        </li>
+        <li><a href="#dashboard-admin"><span class="toc__num" style="color:#7c3aed">↳</span>Panel del Administrador</a>
+        </li>
+        <li><a href="#deportistas"><span class="toc__num">08</span>Gestión de deportistas</a></li>
+        <li><a href="#deportistas-acudiente"><span class="toc__num" style="color:#0d6efd">↳</span>Vista del
+            Acudiente</a></li>
+        <li><a href="#deportistas-formador"><span class="toc__num" style="color:#198754">↳</span>Vista del Formador</a>
+        </li>
+        <li><a href="#deportistas-admin"><span class="toc__num" style="color:#7c3aed">↳</span>Vista del
+            Administrador</a></li>
+        <li><a href="#asistencia"><span class="toc__num">09</span>Registro de asistencia</a></li>
+        <li><a href="#asistencia-acudiente"><span class="toc__num" style="color:#0d6efd">↳</span>Consultar
+            (Acudiente)</a></li>
+        <li><a href="#asistencia-formador"><span class="toc__num" style="color:#198754">↳</span>Registrar (Formador)</a>
+        </li>
+        <li><a href="#asistencia-admin"><span class="toc__num" style="color:#7c3aed">↳</span>Registrar y supervisar
+            (Admin)</a></li>
+        <li><a href="#eventos"><span class="toc__num">10</span>Eventos</a></li>
+        <li><a href="#pagos"><span class="toc__num">11</span>Pagos e inscripciones</a></li>
+        <li><a href="#Pagos"><span class="toc__num">12</span>Pagos y comprobantes</a></li>
+        <li><a href="#uniformes"><span class="toc__num">13</span>Uniformes</a></li>
+    <li><a href="#uniformes-acudiente"><span class="toc__num" style="color:#0d6efd">↳</span>Vista del Acudiente</a></li>
+    <li><a href="#uniformes-formador"><span class="toc__num" style="color:#198754">↳</span>Vista del Formador</a></li>
+    <li><a href="#uniformes-admin"><span class="toc__num" style="color:#7c3aed">↳</span>Vista del Administrador</a></li>
+        <li><a href="#productos"><span class="toc__num">14</span>Productos</a></li>
+        <li><a href="#reportes"><span class="toc__num">15</span>Reportes</a></li>
+        <li><a href="#admin-usuarios"><span class="toc__num">16</span>Administración de usuarios</a></li>
+        <li><a href="#permisos"><span class="toc__num">17</span>Tabla de permisos</a></li>
+      </ul>
+    </nav>
+
+    <!-- ══ 00 · INTRODUCCIÓN ══ -->
+    <section class="section" id="intro">
+      <div class="section__header">
+        <p class="section__label">Sección 00</p>
+        <h2 class="section__title">Introducción y alcance</h2>
+      </div>
+      <div class="intro-box">
+        <h2>¿Qué es Sport Manager?</h2>
+        <p>Sport Manager es una plataforma web para la administración integral de escuelas deportivas. Permite gestionar
+          deportistas, registrar asistencias, controlar pagos, emitir Pagos, gestionar uniformes y productos, y
+          generar reportes, todo desde un navegador.</p>
+        <p>Este manual cubre todas las funcionalidades del sistema organizadas por módulo. Cada sección indica qué roles
+          tienen acceso a cada función.</p>
+        <p style="margin-bottom:0"><strong>Audiencia:</strong> Usuarios con los roles de <strong>Administrador de
+            escuela</strong>, <strong>Acudiente</strong> y <strong>Formador (Entrenador)</strong>. Las funciones
+          exclusivas del Superadministrador se documentan donde corresponde.</p>
+      </div>
+    </section>
+
+    <!-- ══ 01 · REQUISITOS ══ -->
+    <section class="section" id="requisitos">
+      <div class="section__header">
+        <p class="section__label">Sección 01</p>
+        <h2 class="section__title">Requisitos previos</h2>
+      </div>
+      <ul class="req-list">
+        <li>Navegador web actualizado: Google Chrome 110+, Firefox 115+, Edge 110+ o Safari 16+.</li>
+        <li>Conexión a internet estable (requerida para pagos con PayU).</li>
+        <li>Credenciales de acceso: correo electrónico y contraseña registrados en el sistema.</li>
+        <li>Para acudientes: si la escuela cobra inscripción, deberás contar con tarjeta de crédito/débito o acceso a
+          PSE para el pago inicial.</li>
+        <li>Para subir comprobantes o fotos: archivos en formato JPG, PNG, WEBP o PDF, tamaño máximo 5 MB.</li>
+      </ul>
+    </section>
+
+    <!-- ══ 02 · ROLES ══ -->
+    <section class="section" id="roles">
+      <div class="section__header">
+        <p class="section__label">Sección 02</p>
+        <h2 class="section__title">Roles del sistema</h2>
+        <p class="section__desc">El sistema maneja cuatro roles. Cada uno tiene un menú y permisos diferentes.</p>
+      </div>
+      <div class="steps">
+        <div class="step">
+          <div class="step__num" style="background:#0d6efd">1</div>
+          <div class="step__body">
+            <h3 class="step__title">Acudiente</h3>
+            <p class="step__desc">Padre, madre o responsable de uno o más deportistas. Puede registrar deportistas, ver
+              asistencias, inscribirse a eventos, realizar pagos y consultar sus Pagos.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step__num" style="background:#198754">2</div>
+          <div class="step__body">
+            <h3 class="step__title">Formador (Entrenador)</h3>
+            <p class="step__desc">Entrenador o formador deportivo. Puede ver los deportistas de su escuela, registrar
+              asistencias, gestionar uniformes y generar reportes de asistencia y deportistas.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step__num" style="background:#7c3aed">3</div>
+          <div class="step__body">
+            <h3 class="step__title">Administrador de escuela</h3>
+            <p class="step__desc">Gestiona todos los aspectos de su escuela: usuarios, deportistas, eventos, Pagos,
+              productos, uniformes, reportes y configuración de la escuela.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step__num" style="background:#dc3545">4</div>
+          <div class="step__body">
+            <h3 class="step__title">Superadministrador</h3>
+            <p class="step__desc">Acceso global al sistema. Aprueba administradores de escuela, gestiona todas las
+              escuelas y tiene visibilidad total de Pagos y usuarios.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- ══ 03 · REGISTRO ══ -->
+    <section class="section" id="registro">
+      <div class="section__header">
+        <p class="section__label">Sección 03</p>
+        <h2 class="section__title">Registro de usuario nuevo</h2>
+        <p class="section__desc">Cómo crear una cuenta en Sport Manager según tu rol.</p>
+      </div>
+
+      <div class="role-tags">
+        <span class="role-tag role-tag--acudiente">Acudiente</span>
+        <span class="role-tag role-tag--formador">Formador</span>
+        <span class="role-tag role-tag--admin">Administrador</span>
+      </div>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step__num">1</div>
+          <div class="step__body">
+            <h3 class="step__title">Ingresa a la página de registro</h3>
+            <p class="step__desc">Desde la página principal o la pantalla de inicio de sesión, haz clic en el botón
+              <strong>Registrarse</strong>. Serás llevado al formulario de creación de cuenta.</p>
+            <div class="step__img-wrap">
+              <!-- CAPTURA AQUÍ: pantalla de inicio con botón "Registrarse" visible -->
+              <img src="./Inicio.png" alt="Pantalla de inicio con botón Registrarse">
+              <!-- <p class="step__img-placeholder">📸 Captura de pantalla: página de inicio con botón "Registrarse"</p> -->
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step__num">2</div>
+          <div class="step__body">
+            <h3 class="step__title">Completa tus datos personales</h3>
+            <p class="step__desc">Ingresa la siguiente información: número y tipo de documento (CC, TI, CE, PAS o PEP),
+              nombres y apellidos, correo electrónico, teléfono (10 dígitos) y contraseña.</p>
+            <div class="warn"><span class="warn__icon">⚠️</span>La contraseña debe tener al menos 8 caracteres e incluir
+              una mayúscula, una minúscula, un número y un carácter especial. El sistema te mostrará en tiempo real si
+              los requisitos se cumplen.</div>
+            <div class="step__img-wrap">
+              <!-- CAPTURA AQUÍ: formulario de registro con campos de datos personales -->
+              <img src="./Registro.png" alt="Formulario de registro con campos personales">
+              <!-- <p class="step__img-placeholder">📸 Captura de pantalla: formulario de registro completo</p> -->
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step__num">3</div>
+          <div class="step__body">
+            <h3 class="step__title">Selecciona tu rol</h3>
+            <p class="step__desc">En el formulario, elige el rol que te corresponde: <strong>Acudiente</strong>
+              (responsable de un deportista), <strong>Formador</strong> (entrenador) o <strong>Administrador</strong>
+              (responsable de una escuela).</p>
+            <div class="note"><span class="note__icon">ℹ️</span>El rol determina qué puedes hacer dentro del sistema y
+              qué proceso de aprobación aplica a tu cuenta.</div>
+          </div>
+
+        </div>
+        <div class="step">
+          <div class="step__num">4</div>
+          <div class="step__body">
+            <h3 class="step__title">Selecciona tu escuela (Acudiente y Formador)</h3>
+            <p class="step__desc">Si eres Acudiente o Formador, selecciona la escuela deportiva a la que perteneces en
+              el selector desplegable. Los Administradores no seleccionan escuela en este paso.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step__num">5</div>
+          <div class="step__body">
+            <h3 class="step__title">Realiza el pago de inscripción (si aplica)</h3>
+            <p class="step__desc">
+              Dependiendo de tu rol y la escuela elegida:
+              <br>• <strong>Acudiente:</strong> si la escuela cobra inscripción, serás redirigido al formulario de pago
+              con tarjeta (VISA/Mastercard) o PSE. Una vez aprobado el pago, tu cuenta queda activa.
+              <br>• <strong>Formador:</strong> tu solicitud queda en estado <em>pendiente</em> hasta que el
+              Administrador de la escuela la apruebe. No hay pago.
+              <br>• <strong>Administrador:</strong> debes pagar una cuota de registro, que será verificada por el
+              Superadministrador.
+            </p>
+            <div class="step__img-wrap">
+              <!-- CAPTURA AQUÍ: pantalla de pago de inscripción con métodos de pago disponibles -->
+              <img src="./Formulario de pago.png" alt="Formulario de pago de inscripción">
+              <!-- <p class="step__img-placeholder">📸 Captura de pantalla: formulario de pago de inscripción</p> -->
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step__num">6</div>
+          <div class="step__body">
+            <h3 class="step__title">Espera confirmación y accede al sistema</h3>
+            <p class="step__desc">Recibirás retroalimentación en pantalla sobre el estado de tu registro. Una vez tu
+              cuenta esté aprobada, podrás iniciar sesión normalmente.</p>
+            <div class="tip"><span class="tip__icon">✅</span>Si ves el mensaje "Tu cuenta está pendiente de aprobación",
+              significa que el administrador aún no ha revisado tu solicitud. Intenta iniciar sesión después de unas
+              horas.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- ══ 04 · INICIO DE SESIÓN ══ -->
+    <section class="section" id="login">
+      <div class="section__header">
+        <p class="section__label">Sección 04</p>
+        <h2 class="section__title">Inicio de sesión</h2>
+        <p class="section__desc">Cómo acceder a tu cuenta.</p>
+      </div>
+      <div class="role-tags">
+        <span class="role-tag role-tag--acudiente">Acudiente</span>
+        <span class="role-tag role-tag--formador">Formador</span>
+        <span class="role-tag role-tag--admin">Administrador</span>
+      </div>
+      <div class="steps">
+        <div class="step">
+          <div class="step__num">1</div>
+          <div class="step__body">
+            <h3 class="step__title">Abre la página de inicio de sesión</h3>
+            <p class="step__desc">Navega a la dirección del sistema en tu navegador. Verás el formulario de login con
+              los campos de correo y contraseña.</p>
+            <div class="step__img-wrap">
+              <!-- CAPTURA AQUÍ: pantalla de inicio de sesión -->
+              <img src="./Inicio de sesion.png" alt="Pantalla de inicio de sesión">
+              <!-- <p class="step__img-placeholder">📸 Captura de pantalla: formulario de inicio de sesión</p> -->
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step__num">2</div>
+          <div class="step__body">
+            <h3 class="step__title">Ingresa tu correo y contraseña</h3>
+            <p class="step__desc">Escribe tu dirección de correo electrónico registrada y tu contraseña, luego haz clic
+              en <strong>Ingresar</strong>.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step__num">3</div>
+          <div class="step__body">
+            <h3 class="step__title">Accede a tu panel</h3>
+            <p class="step__desc">Si los datos son correctos y tu cuenta está activa, serás redirigido al
+              <strong>Dashboard</strong> correspondiente a tu rol.</p>
+            <div class="warn"><span class="warn__icon">⚠️</span>Si el sistema muestra el error "Cuenta pendiente de
+              aprobación" o "Pago pendiente de verificación", tu cuenta aún no ha sido activada por el administrador. Si
+              el error dice "Cuenta deshabilitada", contacta al administrador de tu escuela.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- ══ 05 · RECUPERAR CONTRASEÑA ══ -->
+    <section class="section" id="recuperar">
+      <div class="section__header">
+        <p class="section__label">Sección 05</p>
+        <h2 class="section__title">Recuperar contraseña</h2>
+      </div>
+      <div class="role-tags">
+        <span class="role-tag role-tag--acudiente">Acudiente</span>
+        <span class="role-tag role-tag--formador">Formador</span>
+        <span class="role-tag role-tag--admin">Administrador</span>
+      </div>
+      <div class="steps">
+        <div class="step">
+          <div class="step__num">1</div>
+          <div class="step__body">
+            <h3 class="step__title">Haz clic en "¿Olvidaste tu contraseña?"</h3>
+            <p class="step__desc">En la pantalla de inicio de sesión, haz clic en el enlace de recuperación de
+              contraseña.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step__num">2</div>
+          <div class="step__body">
+            <h3 class="step__title">Ingresa tu correo registrado</h3>
+            <p class="step__desc">Escribe la dirección de correo con la que te registraste y haz clic en <strong>Enviar
+                enlace</strong>.</p>
+            <div class="step__img-wrap">
+              <!-- CAPTURA AQUÍ: formulario de recuperación de contraseña -->
+              <img src="./Recuperar contraseña.png" alt="Formulario de recuperación de contraseña">
+              <!-- <p class="step__img-placeholder">📸 Captura de pantalla: formulario de recuperación de contraseña</p> -->
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step__num">3</div>
+          <div class="step__body">
+            <h3 class="step__title">Revisa tu correo y abre el enlace</h3>
+            <p class="step__desc">Recibirás un correo con un enlace de recuperación válido por 5 minutos. Haz clic en
+              ese enlace para ir al formulario de nueva contraseña.</p>
+            <div class="warn"><span class="warn__icon">⚠️</span>El enlace expira en 5 minutos. Si no llega el correo,
+              revisa la carpeta de spam. Si el problema persiste, contacta al administrador.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step__num">4</div>
+          <div class="step__body">
+            <h3 class="step__title">Establece tu nueva contraseña</h3>
+            <p class="step__desc">En la página que se abre, escribe y confirma tu nueva contraseña (debe cumplir los
+              mismos requisitos de seguridad). Haz clic en <strong>Guardar</strong>.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- ══ 06 · ESCUELAS ══ -->
+    <section class="section" id="escuelas">
+      <div class="section__header section__header--purple">
+        <p class="section__label">Sección 06</p>
+        <h2 class="section__title">Gestión de escuelas</h2>
+        <p class="section__desc">Configuración de la escuela, branding, métodos de pago y datos generales.</p>
+      </div>
+      <div class="role-tags">
+        <span class="role-tag role-tag--admin">Administrador (crear/configurar la propia)</span>        
+      </div>
+      <div class="steps">
+        <div class="step step--purple">
+          <div class="step__num">1</div>
+          <div class="step__body">
+            <h3 class="step__title">Crea tu escuela (primer inicio de sesión como Administrador)</h3>
+            <p class="step__desc">Al iniciar sesión por primera vez después de ser aprobado, el sistema te redirigirá
+              automáticamente al formulario de creación de escuela. Es obligatorio completar este paso para poder usar
+              el sistema.</p>
+            <div class="step__img-wrap">
+              <!-- CAPTURA AQUÍ: formulario de creación de escuela con todos los campos -->
+              <img src="./crear escuela.png" alt="Formulario de creación de escuela deportiva">
+              <!-- <p class="step__img-placeholder">📸 Captura de pantalla: formulario de creación de escuela</p> -->
+            </div>
+          </div>
+        </div>
+        <div class="step step--purple">
+          <div class="step__num">2</div>
+          <div class="step__body">
+            <h3 class="step__title">Completa los datos de la escuela</h3>
+            <p class="step__desc">Ingresa: nombre de la escuela, disciplina deportiva, día de pago mensual (1 al 31),
+              valor de inscripción, valor de mensualidad, correo oficial, teléfono (10 dígitos) y dirección.</p>
+          </div>
+        </div>
+        <div class="step step--purple">
+          <div class="step__num">3</div>
+          <div class="step__body">
+            <h3 class="step__title">Configura el branding (logo, colores y firma)</h3>
+            <p class="step__desc">Sube el escudo o logo de la escuela (imagen). Selecciona el <strong>color
+                primario</strong> y el <strong>color secundario</strong> usando el selector de color. Estos colores se
+              aplicarán a toda la interfaz del sistema para los usuarios de tu escuela. Opcionalmente, sube la imagen
+              de la firma del responsable para los documentos.</p>
+            <div class="tip"><span class="tip__icon">✅</span>Los colores elegidos se aplican en tiempo real a los
+              botones, bordes y encabezados de toda la plataforma para tu escuela.</div>
+          </div>
+        </div>
+        <div class="step step--purple">
+          <div class="step__num">4</div>
+          <div class="step__body">
+            <h3 class="step__title">Configura los métodos de pago</h3>
+            <p class="step__desc">Agrega al menos un método de pago para tu escuela. Para cada método ingresa: nombre
+              de la entidad, tipo de método y, opcionalmente, una imagen del código QR. Puedes agregar múltiples
+              métodos. Estos serán los que verán los acudientes al registrarse o pagar.</p>
+            <div class="warn"><span class="warn__icon">⚠️</span>Es obligatorio configurar al menos un método de pago
+              para poder guardar la escuela.</div>
+          </div>
+        </div>
+        <div class="step step--purple">
+          <div class="step__num">5</div>
+          <div class="step__body">
+            <h3 class="step__title">Guarda la escuela</h3>
+            <p class="step__desc">Haz clic en <strong>Guardar</strong>. Serás redirigido automáticamente al Dashboard,
+              donde ya tendrás acceso a todas las funciones del Administrador.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- ══ 07 · DASHBOARD ══ -->
+    <section class="section" id="dashboard">
+      <div class="section__header section__header--green">
+        <p class="section__label">Sección 07</p>
+        <h2 class="section__title">Panel principal (Dashboard)</h2>
+        <p class="section__desc">La pantalla central desde la que accedes a todas las funciones del sistema. Su
+          contenido varía según tu rol.</p>
+      </div>
+
+      <div class="note note--intro"><span class="note__icon">ℹ️</span>Al iniciar sesión eres redirigido automáticamente
+        a tu panel. También puedes volver a él en cualquier momento desde el menú superior → <strong>Mi panel</strong>.
+      </div>
+
+      <!-- ── ACUDIENTE ── -->
+      <div class="subsection" id="dashboard-acudiente">
+        <h3 class="subsection__title" style="border-left:4px solid #0d6efd; padding-left:12px; border-bottom:none;">
+          Panel del Acudiente</h3>
+        <div class="role-tags"><span class="role-tag role-tag--acudiente">Acudiente</div>
+        <div class="steps">
+          <div class="step">
+            <div class="step__num" style="background:#0d6efd;">1</div>
+            <div class="step__body">
+              <h3 class="step__title">Accesos disponibles en tu panel</h3>
+              <p class="step__desc">Como Acudiente tu panel muestra cuatro accesos directos:</p>
+              <ul style="margin:8px 0 0 16px; font-size:.93rem; color:#374151; line-height:2;">
+                <li><strong>Registrar Deportista</strong> — inscribe a un nuevo deportista a tu cargo.</li>
+                <li><strong>Ver Asistencias</strong> — consulta el historial de asistencia de tus deportistas.</li>
+                <li><strong>Mis Pagos</strong> — revisa tus Pagos y comprobantes.</li>
+                <li><strong>Uniformes</strong> — consulta los uniformes asignados a tus deportistas.</li>
+              </ul>
+              <div class="step__img-wrap">
+                <!-- CAPTURA AQUÍ: dashboard del acudiente con los 4 accesos -->
+                <img src="./Acudiente.png" alt="Dashboard del Acudiente con accesos rápidos">
+                <p class="step__img-placeholder">📸 Captura de pantalla: panel principal del Acudiente</p>
+              </div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step__num" style="background:#0d6efd;">2</div>
+            <div class="step__body">
+              <h3 class="step__title">Banner de eventos disponibles</h3>
+              <p class="step__desc">Si tu escuela tiene eventos activos, aparece un banner en la parte superior del
+                panel con el número de eventos. Haz clic en <strong>Ver</strong> para abrir el modal y seleccionar el
+                evento al que deseas inscribir un deportista.</p>
+              <div class="note"><span class="note__icon">ℹ️</span>Si el evento tiene costo y ya tienes un deportista
+                inscrito, el botón <strong>Pagar</strong> aparece directamente en el modal de selección.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step__num" style="background:#0d6efd;">3</div>
+            <div class="step__body">
+              <h3 class="step__title">Indicador de tu rol</h3>
+              <p class="step__desc">En la barra superior del panel verás el badge <strong>ROL: Acudiente</strong>. Esto
+                te confirma con qué perfil estás navegando el sistema en ese momento.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── FORMADOR ── -->
+      <div class="subsection" id="dashboard-formador">
+        <h3 class="subsection__title" style="border-left:4px solid #198754; padding-left:12px; border-bottom:none;">
+          Panel del Formador</h3>
+        <div class="role-tags"><span class="role-tag role-tag--formador">Formador</div>
+        <div class="steps">
+          <div class="step step--green">
+            <div class="step__num">1</div>
+            <div class="step__body">
+              <h3 class="step__title">Accesos disponibles en tu panel</h3>
+              <p class="step__desc">Como Formador tu panel muestra cuatro accesos directos:</p>
+              <ul style="margin:8px 0 0 16px; font-size:.93rem; color:#374151; line-height:2;">
+                <li><strong>Ver Deportistas</strong> — consulta el listado de deportistas de tu escuela.</li>
+                <li><strong>Registrar Asistencia</strong> — registra o edita la asistencia del día.</li>
+                <li><strong>Reportes</strong> — exporta reportes de asistencia, deportistas y uniformes.</li>
+                <li><strong>Uniformes</strong> — gestiona los uniformes asignados a los deportistas.</li>
+              </ul>
+              <div class="step__img-wrap">
+                <!-- CAPTURA AQUÍ: dashboard del formador con sus 4 accesos -->
+                <img src="./formador.png" alt="Dashboard del Formador con accesos rápidos">
+                <!-- <p class="step__img-placeholder">📸 Captura de pantalla: panel principal del Formador</p> -->
+              </div>
+            </div>
+          </div>
+          <div class="step step--green">
+            <div class="step__num">2</div>
+            <div class="step__body">
+              <h3 class="step__title">Indicador de tu rol</h3>
+              <p class="step__desc">En la barra superior verás el badge <strong>ROL: Entrenador</strong>. Si ves un rol
+                diferente al esperado, cierra sesión y vuelve a ingresar.</p>
+            </div>
+          </div>
+          <div class="step step--green">
+            <div class="step__num">3</div>
+            <div class="step__body">
+              <h3 class="step__title">Acceso rápido desde el menú superior</h3>
+              <p class="step__desc">El menú desplegable <strong>Menu del rol</strong> en la barra de navegación te da
+                acceso directo a Deportistas, Registrar asistencia, Reportes, Eventos y Uniformes desde cualquier página
+                del sistema.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── ADMINISTRADOR ── -->
+      <div class="subsection" id="dashboard-admin">
+        <h3 class="subsection__title" style="border-left:4px solid #7c3aed; padding-left:12px; border-bottom:none;">
+          Panel del Administrador</h3>
+        <div class="role-tags"><span class="role-tag role-tag--admin">Administrador</div>
+        <div class="steps">
+          <div class="step step--purple">
+            <div class="step__num">1</div>
+            <div class="step__body">
+              <h3 class="step__title">Accesos disponibles en tu panel</h3>
+              <p class="step__desc">Como Administrador tu panel muestra siete accesos directos organizados en filas de
+                tres:</p>
+              <ul style="margin:8px 0 0 16px; font-size:.93rem; color:#374151; line-height:2;">
+                <li><strong>Gestionar Usuarios</strong> — aprueba, rechaza o edita los usuarios de tu escuela.</li>
+                <li><strong>Gestionar Deportistas</strong> — administra todos los deportistas inscritos en tu escuela.
+                </li>
+                <li><strong>Reporte de Pago</strong> — revisa el listado completo de Pagos de tu escuela.</li>
+                <li><strong>Productos</strong> — administra el catálogo de productos de tu escuela.</li>
+                <li><strong>Reportes Generales</strong> — exporta datos del sistema en Excel, CSV o PDF.</li>
+                <li><strong>Eventos</strong> — crea, edita y activa eventos para tu escuela.</li>
+                <li><strong>Uniformes</strong> — gestión completa de uniformes (crear, editar, eliminar).</li>
+              </ul>
+              <div class="step__img-wrap">
+                <!-- CAPTURA AQUÍ: dashboard del administrador con los 7 accesos -->
+                <img src="./administrador.png" alt="Dashboard del Administrador con accesos rápidos">
+                <!-- <p class="step__img-placeholder">📸 Captura de pantalla: panel principal del Administrador</p> -->
+              </div>
+            </div>
+          </div>
+          <div class="step step--purple">
+            <div class="step__num">2</div>
+            <div class="step__body">
+              <h3 class="step__title">Banner de eventos activos</h3>
+              <p class="step__desc">Si tu escuela tiene eventos activos, verás el mismo banner informativo de la parte
+                superior. Desde ahí puedes consultar cuántos eventos están disponibles actualmente para los usuarios.
+              </p>
+            </div>
+          </div>
+          <div class="step step--purple">
+            <div class="step__num">3</div>
+            <div class="step__body">
+              <h3 class="step__title">Primer inicio de sesión: crear tu escuela</h3>
+              <p class="step__desc">Si tu cuenta fue aprobada recientemente por el Superadministrador y aún no tienes
+                escuela creada, el sistema te redirigirá automáticamente al formulario de creación de escuela antes de
+                mostrarte el panel. Este paso es obligatorio para activar todas las funciones de Administrador.</p>
+              <div class="warn"><span class="warn__icon">⚠️</span>Hasta que no completes la creación de tu escuela, no
+                podrás acceder al panel ni a ningún otro módulo.</div>
+            </div>
+          </div>
+          <div class="step step--purple">
+            <div class="step__num">4</div>
+            <div class="step__body">
+              <h3 class="step__title">Menú completo en la barra de navegación</h3>
+              <p class="step__desc">El menú desplegable <strong>Menu del rol</strong> te da acceso completo a: Gestionar
+                escuelas, Gestionar usuarios, Gestionar deportistas, Gestionar eventos, Crear evento, Productos,
+                Reportes generales, Pagos y Uniformes, desde cualquier página del sistema.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <hr class="divider">
+
+    <!-- ══ 08 · DEPORTISTAS ══ -->
+    <section class="section" id="deportistas">
+      <div class="section__header section__header--purple">
+        <p class="section__label">Sección 08</p>
+        <h2 class="section__title">Gestión de deportistas</h2>
+        <p class="section__desc">Registrar, consultar y actualizar la información de los deportistas.</p>
+      </div>
+
+      <div class="subsection">
+        <h3 class="subsection__title">Registrar un deportista nuevo</h3>
+        <div class="role-tags">
+          <span class="role-tag role-tag--acudiente">Acudiente</span>
+          <span class="role-tag role-tag--admin">Administrador</span>
+        </div>
+        <div class="steps">
+          <div class="step step--purple">
+            <div class="step__num">1</div>
+            <div class="step__body">
+              <h3 class="step__title">Ve a "Registrar deportista"</h3>
+              <p class="step__desc">En el menú superior o desde el Dashboard, selecciona <strong>Registrar
+                  deportista</strong> (Acudiente) o <strong>Gestionar deportistas → Agregar</strong> (Administrador).
+              </p>
+            </div>
+          </div>
+          <div class="step step--purple">
+            <div class="step__num">2</div>
+            <div class="step__body">
+              <h3 class="step__title">Completa el formulario</h3>
+              <p class="step__desc">Ingresa: tipo y número de documento, nombres, apellidos, fecha de nacimiento,
+                jornada, nivel deportivo, género y foto (opcional). La categoría se calcula automáticamente según la
+                fecha de nacimiento.</p>
+              <div class="step__img-wrap">
+                <!-- CAPTURA AQUÍ: formulario de registro de deportista con todos los campos -->
+                <img src="./crear deportista.png" alt="Formulario de registro de deportista">
+                <!-- <p class="step__img-placeholder">📸 Captura de pantalla: formulario de registro de deportista</p> -->
+              </div>
+            </div>
+          </div>
+          <div class="step step--purple">
+            <div class="step__num">3</div>
+            <div class="step__body">
+              <h3 class="step__title">Guarda y realiza el pago si aplica</h3>
+              <p class="step__desc">Haz clic en <strong>Registrar</strong>. Si eres Acudiente y la escuela tiene un
+                valor de inscripción, el sistema te redirigirá al formulario de pago para completar la inscripción del
+                deportista.</p>
+              <div class="tip"><span class="tip__icon">✅</span>Una vez pagado o si la escuela no cobra inscripción, el
+                deportista quedará registrado y podrá aparecer en los listados de asistencia y eventos.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="subsection" id="deportistas-acudiente">
+        <h3 class="subsection__title" style="border-left:4px solid #0d6efd; padding-left:12px; border-bottom:none;">
+          Vista del Acudiente — Mis deportistas</h3>
+        <div class="role-tags"><span class="role-tag role-tag--acudiente">Acudiente</div>
+        <div class="steps">
+          <div class="step">
+            <div class="step__num" style="background:#0d6efd;">1</div>
+            <div class="step__body">
+              <h3 class="step__title">Accede a "Mis deportistas"</h3>
+              <p class="step__desc">Desde el menú superior selecciona <strong>Mis deportistas</strong>. Solo verás los
+                deportistas que tú has registrado; no tienes visibilidad sobre los deportistas de otros acudientes.</p>
+              <div class="step__img-wrap">
+                <!-- CAPTURA AQUÍ: listado de deportistas del acudiente -->
+                <img src="./deportistas acudiente.png" alt="Listado de deportistas del Acudiente">
+                <!-- <p class="step__img-placeholder">📸 Captura de pantalla: listado de mis deportistas (Acudiente)</p> -->
+              </div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step__num" style="background:#0d6efd;">2</div>
+            <div class="step__body">
+              <h3 class="step__title">Edita la información de un deportista</h3>
+              <p class="step__desc">Haz clic en <strong>Editar</strong> en la fila del deportista que deseas modificar.
+                Puedes actualizar los datos personales, la foto y la jornada. Al guardar, los cambios quedan registrados
+                de inmediato.</p>
+              <div class="note"><span class="note__icon">ℹ️</span>Si cambias la fecha de nacimiento, la categoría se
+                recalcula automáticamente. Si subes una nueva foto, la anterior se eliminará del sistema.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step__num" style="background:#0d6efd;">3</div>
+            <div class="step__body">
+              <h3 class="step__title">Consulta el estado del deportista</h3>
+              <p class="step__desc">En la columna <strong>Estado</strong> verás un badge de color que indica si el
+                deportista está <strong>Activo</strong>, <strong>Suspendido</strong> o <strong>Retirado</strong>. Como
+                Acudiente solo puedes <em>consultar</em> el estado; para cambiarlo debes contactar al Administrador de
+                tu escuela.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="subsection" id="deportistas-formador">
+        <h3 class="subsection__title" style="border-left:4px solid #198754; padding-left:12px; border-bottom:none;">
+          Vista del Formador — Deportistas de la escuela</h3>
+        <div class="role-tags"><span class="role-tag role-tag--formador">Formador</div>
+        <div class="steps">
+          <div class="step step--green">
+            <div class="step__num">1</div>
+            <div class="step__body">
+              <h3 class="step__title">Accede a "Deportistas"</h3>
+              <p class="step__desc">Desde el menú superior selecciona <strong>Deportistas</strong>. Verás el listado
+                completo de todos los deportistas activos de tu escuela, sin importar qué acudiente los registró.</p>
+              <div class="step__img-wrap">
+                <!-- CAPTURA AQUÍ: listado de deportistas visto por el formador -->
+                <img src="./deportistas formador.png" alt="Listado de deportistas de la escuela visto por el Formador">
+                <!-- <p class="step__img-placeholder">📸 Captura de pantalla: listado de deportistas (Formador)</p> -->
+              </div>
+            </div>
+          </div>
+          <div class="step step--green">
+            <div class="step__num">2</div>
+            <div class="step__body">
+              <h3 class="step__title">Consulta la información de un deportista</h3>
+              <p class="step__desc">La tabla muestra foto, documento, nombres, apellidos, categoría, nivel, jornada y el
+                acudiente responsable. Esta información es de solo lectura para el Formador; no dispones de botones de
+                edición ni de cambio de estado.</p>
+              <div class="note"><span class="note__icon">ℹ️</span>Si necesitas corregir un dato de un deportista,
+                comunícalo al Administrador de la escuela para que haga el ajuste.</div>
+            </div>
+          </div>
+          <div class="step step--green">
+            <div class="step__num">3</div>
+            <div class="step__body">
+              <h3 class="step__title">Usa los filtros de búsqueda</h3>
+              <p class="step__desc">Puedes filtrar el listado por nombre o número de documento usando el campo de
+                búsqueda. Esto es útil para localizar rápidamente a un deportista antes de registrar asistencia o
+                asignarle un uniforme.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="subsection" id="deportistas-admin">
+        <h3 class="subsection__title" style="border-left:4px solid #7c3aed; padding-left:12px; border-bottom:none;">
+          Vista del Administrador — Gestión completa de deportistas</h3>
+        <div class="role-tags"><span class="role-tag role-tag--admin">Administrador</div>
+        <div class="steps">
+          <div class="step step--purple">
+            <div class="step__num">1</div>
+            <div class="step__body">
+              <h3 class="step__title">Accede a "Gestionar deportistas"</h3>
+              <p class="step__desc">Desde el menú selecciona <strong>Gestionar deportistas</strong>. Verás todos los
+                deportistas de tu escuela con información completa: foto, documento, nombres, categoría, nivel, estado,
+                jornada y el acudiente que los registró.</p>
+              <div class="step__img-wrap">
+                <!-- CAPTURA AQUÍ: listado de deportistas con columna de estado editable y acciones de admin -->
+                <img src="./deportistas admin.png"
+                  alt="Listado de deportistas con opciones de gestión del Administrador">
+                <!-- <p class="step__img-placeholder">📸 Captura de pantalla: gestión de deportistas (Administrador)</p> -->
+              </div>
+            </div>
+          </div>
+          <div class="step step--purple">
+            <div class="step__num">2</div>
+            <div class="step__body">
+              <h3 class="step__title">Edita la información de cualquier deportista</h3>
+              <p class="step__desc">Haz clic en <strong>Editar</strong> en la fila del deportista. Puedes modificar
+                todos los campos: datos personales, fecha de nacimiento (la categoría se recalcula sola), jornada, nivel
+                y foto. Si subes una nueva foto, la anterior se elimina automáticamente del servidor.</p>
+            </div>
+          </div>
+          <div class="step step--purple">
+            <div class="step__num">3</div>
+            <div class="step__body">
+              <h3 class="step__title">Cambia el estado de un deportista</h3>
+              <p class="step__desc">En la columna <strong>Estado</strong> cada deportista tiene un selector desplegable
+                con tres opciones: <strong>Activo</strong>, <strong>Suspendido</strong> y <strong>Retirado</strong>.
+                Solo tienes que cambiar el valor en el selector y el sistema lo guarda automáticamente sin necesidad de
+                hacer clic en "Guardar".</p>
+              <div class="warn"><span class="warn__icon">⚠️</span>Un deportista en estado <strong>Retirado</strong> o
+                <strong>Suspendido</strong> no aparecerá en los listados de asistencia ni podrá inscribirse a nuevos
+                eventos.</div>
+            </div>
+          </div>
+          <div class="step step--purple">
+            <div class="step__num">4</div>
+            <div class="step__body">
+              <h3 class="step__title">Deshabilita un deportista</h3>
+              <p class="step__desc">Si un deportista debe ser retirado permanentemente del sistema, haz clic en
+                <strong>Deshabilitar</strong>. El sistema pedirá confirmación antes de proceder. Esta acción retira al
+                deportista de todos los listados activos de la escuela.</p>
+              <div class="warn"><span class="warn__icon">⚠️</span>La acción de deshabilitar es difícil de revertir.
+                Úsala solo cuando el deportista no vaya a tener más actividad en la escuela.</div>
+            </div>
+          </div>
+          <div class="step step--purple">
+            <div class="step__num">5</div>
+            <div class="step__body">
+              <h3 class="step__title">Consulta los deportistas de un acudiente específico</h3>
+              <p class="step__desc">Desde el módulo <strong>Gestionar usuarios</strong>, en la fila de cualquier
+                acudiente aprobado, haz clic en <strong>Ver Deportistas</strong>. Esto te muestra exclusivamente los
+                deportistas vinculados a ese usuario, útil para resolver dudas o verificar inscripciones.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- ══ 09 · ASISTENCIA ══ -->
+    <section class="section" id="asistencia">
+      <div class="section__header section__header--orange">
+        <p class="section__label">Sección 09</p>
+        <h2 class="section__title">Registro de asistencia</h2>
+        <p class="section__desc">El acceso y las acciones disponibles en este módulo varían según el rol.</p>
+      </div>
+
+      <div class="note note--intro"><span class="note__icon">ℹ️</span>Solo los <strong>Formadores</strong> y
+        <strong>Administradores</strong> pueden registrar o editar asistencias. Los <strong>Acudientes</strong> tienen
+        acceso de solo lectura para consultar el historial de sus deportistas.</div>
+
+      <!-- ── ACUDIENTE ── -->
+      <div class="subsection" id="asistencia-acudiente">
+        <h3 class="subsection__title" style="border-left:4px solid #0d6efd; padding-left:12px; border-bottom:none;">
+          Vista del Acudiente — Consultar asistencias</h3>
+        <div class="role-tags"><span class="role-tag role-tag--acudiente">Acudiente</div>
+        <div class="steps">
+          <div class="step">
+            <div class="step__num" style="background:#0d6efd;">1</div>
+            <div class="step__body">
+              <h3 class="step__title">Accede a "Ver Asistencias"</h3>
+              <p class="step__desc">Desde el Dashboard o el menú selecciona <strong>Ver Asistencias</strong>. Solo verás
+                las asistencias de los deportistas que tú has registrado; no tienes acceso a las de otros acudientes.
+              </p>
+              <div class="step__img-wrap">
+                <!-- CAPTURA AQUÍ: pantalla de asistencias del acudiente con listado por fecha -->
+                <img src="./asistencia acudiente.png" alt="Historial de asistencias visto por el Acudiente">
+                <!-- <p class="step__img-placeholder">📸 Captura de pantalla: historial de asistencias (Acudiente)</p> -->
+              </div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step__num" style="background:#0d6efd;">2</div>
+            <div class="step__body">
+              <h3 class="step__title">Filtra por fecha para consultar un día específico</h3>
+              <p class="step__desc">Usa el selector de fecha para elegir el día que deseas consultar. Cada registro
+                muestra: nombre del deportista, categoría, jornada, estado (con badge de color) y el comentario del
+                formador si fue registrado.</p>
+              <div style="margin-top:12px; display:flex; flex-wrap:wrap; gap:8px; font-size:.85rem;">
+                <span style="background:#d1fae5; color:#065f46; border-radius:6px; padding:3px 10px; font-weight:600;">●
+                  Presente</span>
+                <span style="background:#fee2e2; color:#991b1b; border-radius:6px; padding:3px 10px; font-weight:600;">●
+                  Ausente</span>
+                <span style="background:#fef9c3; color:#854d0e; border-radius:6px; padding:3px 10px; font-weight:600;">●
+                  Tarde</span>
+                <span style="background:#f3f4f6; color:#374151; border-radius:6px; padding:3px 10px; font-weight:600;">●
+                  Excusado</span>
+              </div>
+              <div class="note"><span class="note__icon">ℹ️</span>Esta vista es de <strong>solo lectura</strong>. No
+                puedes crear ni modificar registros de asistencia.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── FORMADOR ── -->
+      <div class="subsection" id="asistencia-formador">
+        <h3 class="subsection__title" style="border-left:4px solid #198754; padding-left:12px; border-bottom:none;">
+          Vista del Formador — Registrar asistencia</h3>
+        <div class="role-tags"><span class="role-tag role-tag--formador">Formador</div>
+        <div class="steps">
+          <div class="step step--green">
+            <div class="step__num">1</div>
+            <div class="step__body">
+              <h3 class="step__title">Accede a "Registrar asistencia"</h3>
+              <p class="step__desc">Desde el menú superior selecciona <strong>Registrar asistencia</strong>. Verás el
+                listado de todos los deportistas <strong>activos</strong> de tu escuela, con filtros por nombre,
+                categoría y jornada para ubicarlos rápidamente.</p>
+              <div class="step__img-wrap">
+                <!-- CAPTURA AQUÍ: pantalla de registro de asistencia con listado de deportistas (formador) -->
+                <img src="./asistencia formador.png" alt="Pantalla de registro de asistencia vista por el Formador">
+                <!-- <p class="step__img-placeholder">📸 Captura de pantalla: registro de asistencia (Formador)</p> -->
+              </div>
+            </div>
+          </div>
+          <div class="step step--green">
+            <div class="step__num">2</div>
+            <div class="step__body">
+              <h3 class="step__title">Selecciona la fecha de la sesión</h3>
+              <p class="step__desc">Elige la fecha en el selector (por defecto aparece la fecha de hoy). Si ya existe
+                asistencia registrada para esa fecha, los estados anteriores se cargarán automáticamente para que puedas
+                revisarlos o corregirlos.</p>
+              <div class="warn"><span class="warn__icon">⚠️</span>Si ya existe asistencia para la fecha elegida, guardar
+                de nuevo <strong>reemplazará</strong> todos los registros de ese día. El sistema te lo avisará antes de
+                guardar.</div>
+            </div>
+          </div>
+          <div class="step step--green">
+            <div class="step__num">3</div>
+            <div class="step__body">
+              <h3 class="step__title">Marca el estado de cada deportista</h3>
+              <p class="step__desc">En la tarjeta de cada deportista haz clic en uno de los cuatro botones de estado.
+                Opcionalmente escribe un comentario en el campo de texto de esa tarjeta.</p>
+              <div style="margin-top:12px; display:flex; flex-wrap:wrap; gap:8px; font-size:.85rem;">
+                <span
+                  style="background:#d1fae5; color:#065f46; border-radius:6px; padding:3px 10px; font-weight:600;">Presente</span>
+                <span
+                  style="background:#fee2e2; color:#991b1b; border-radius:6px; padding:3px 10px; font-weight:600;">Ausente</span>
+                <span
+                  style="background:#fef9c3; color:#854d0e; border-radius:6px; padding:3px 10px; font-weight:600;">Tarde</span>
+                <span
+                  style="background:#f3f4f6; color:#374151; border-radius:6px; padding:3px 10px; font-weight:600;">Excusado</span>
+              </div>
+              <div class="step__img-wrap">
+                <!-- CAPTURA AQUÍ: tarjeta individual de asistencia con los 4 botones de estado -->
+                <img src="./asistencia formador1.png"
+                  alt="Tarjeta de deportista con los 4 botones de estado de asistencia">
+                <!-- <p class="step__img-placeholder">📸 Captura de pantalla: tarjeta de asistencia individual</p> -->
+              </div>
+            </div>
+          </div>
+          <div class="step step--green">
+            <div class="step__num">4</div>
+            <div class="step__body">
+              <h3 class="step__title">Guarda el registro</h3>
+              <p class="step__desc">Una vez marcado el estado de todos los deportistas, haz clic en <strong>Guardar
+                  asistencia</strong>. El sistema confirmará que los registros fueron guardados correctamente.</p>
+              <div class="tip"><span class="tip__icon">✅</span>No es obligatorio marcar a todos los deportistas antes de
+                guardar; los que queden sin estado simplemente no tendrán registro para esa fecha.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ 10 · EVENTOS ══ -->
+      <section class="section" id="eventos">
+        <div class="section__header">
+          <p class="section__label">Sección 10</p>
+          <h2 class="section__title">Eventos</h2>
+        </div>
+
+        <div class="subsection">
+          <h3 class="subsection__title">Ver e inscribirse a eventos (Acudiente / Formador)</h3>
+          <div class="role-tags">
+            <span class="role-tag role-tag--acudiente">Acudiente</span>
+            <span class="role-tag role-tag--formador">Formador</span>
+          </div>
+          <div class="steps">
+            <div class="step">
+              <div class="step__num">1</div>
+              <div class="step__body">
+                <h3 class="step__title">Accede al listado de eventos</h3>
+                <p class="step__desc">Desde el menú superior selecciona <strong>Eventos</strong>. Verás todos los
+                  eventos activos de tu escuela con su título, fecha, tipo y costo.</p>
+                <div class="step__img-wrap">
+                  <!-- CAPTURA AQUÍ: listado de eventos disponibles con botones de inscripción -->
+                  <img src="./eventos.png" alt="Listado de eventos deportivos">
+                  <!-- <p class="step__img-placeholder">📸 Captura de pantalla: listado de eventos disponibles</p> -->
+                </div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step__num">2</div>
+              <div class="step__body">
+                <h3 class="step__title">Inscribe a un deportista</h3>
+                <p class="step__desc">Si el evento tiene costo y tienes deportistas registrados, haz clic en
+                  <strong>Pagar</strong> para iniciar el proceso de pago e inscripción. Si el evento es gratuito,
+                  aparecerá el badge "Gratis". Si aún no tienes deportistas inscritos en el evento, verás "Inscríbete
+                  para pagar".</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="subsection">
+          <h3 class="subsection__title">Gestionar eventos (Administrador)</h3>
+          <div class="role-tags"><span class="role-tag role-tag--admin">Administrador</div>
+          <div class="steps">
+            <div class="step step--purple">
+              <div class="step__num">1</div>
+              <div class="step__body">
+                <h3 class="step__title">Accede a "Gestionar eventos"</h3>
+                <p class="step__desc">Desde el menú, selecciona <strong>Eventos</strong>. Verás el listado de todos los
+                  eventos de tu escuela con su estado y acciones disponibles.</p>
+                <div class="step__img-wrap">
+                  <!-- CAPTURA AQUÍ: Listado de evento -->
+                  <img src="./listado de eventos.png" alt="Listado de eventos deportivos">
+                  <!-- <p class="step__img-placeholder">📸 Captura de pantalla: formulario de creación de evento</p> -->
+                </div>
+              </div>
+            </div>
+            <div class="step step--purple">
+              <div class="step__num">2</div>
+              <div class="step__body">
+                <h3 class="step__title">Crea un evento nuevo</h3>
+                <p class="step__desc">Haz clic en <strong>Crear evento</strong>. Completa: título del evento, fecha (no
+                  puede ser una fecha pasada), tipo de evento, costo, cuotas y rol al que va dirigido. Guarda para
+                  publicarlo.</p>
+                <div class="step__img-wrap">
+                  <!-- CAPTURA AQUÍ: formulario de creación de evento -->
+                  <img src="./crear eventos.png" alt="Formulario de creación de evento deportivo">
+                  <!-- <p class="step__img-placeholder">📸 Captura de pantalla: formulario de creación de evento</p> -->
+                </div>
+              </div>
+            </div>
+            <div class="step step--purple">
+              <div class="step__num">3</div>
+              <div class="step__body">
+                <h3 class="step__title">Activa o desactiva un evento</h3>
+                <p class="step__desc">Desde el listado de gestión, usa el botón de activación/desactivación para
+                  controlar si el evento es visible para los usuarios. También puedes editar sus datos o ver los
+                  inscritos.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <hr class="divider">
+
+      <!-- ══ 11 · PAGOS ══ -->
+      <section class="section" id="pagos">
+        <div class="section__header section__header--green">
+          <p class="section__label">Sección 11</p>
+          <h2 class="section__title">Pagos e inscripciones</h2>
+          <p class="section__desc">Cómo realizar pagos en línea con tarjeta o PSE, y cómo consultar tus pagos
+            anteriores.</p>
+        </div>
+        <div class="role-tags"><span class="role-tag role-tag--acudiente">Acudiente</div>
+        <div class="steps">
+          <div class="step step--green">
+            <div class="step__num">1</div>
+            <div class="step__body">
+              <h3 class="step__title">Inicia el proceso de pago</h3>
+              <p class="step__desc">El proceso de pago comienza desde el registro (si la escuela cobra inscripción) o
+                desde el módulo de Eventos al inscribir un deportista. Serás redirigido al formulario de pago
+                automáticamente.</p>
+            </div>
+          </div>
+          <div class="step step--green">
+            <div class="step__num">2</div>
+            <div class="step__body">
+              <h3 class="step__title">Completa tus datos de facturación</h3>
+              <p class="step__desc">Ingresa tus datos de facturación: número de documento, tipo de documento y persona
+                (Natural/Jurídica), dirección, ciudad, departamento, código postal y país (ej. CO para Colombia).</p>
+              <div class="step__img-wrap">
+                <!-- CAPTURA AQUÍ: formulario de datos de facturación antes del pago -->
+                <img src="./Formulario de pago.png" alt="Formulario de datos de facturación">
+                <!-- <p class="step__img-placeholder">📸 Captura de pantalla: formulario de datos de facturación</p> -->
+              </div>
+            </div>
+          </div>
+          <div class="step step--green">
+            <div class="step__num">3</div>
+            <div class="step__body">
+              <h3 class="step__title">Selecciona el método de pago</h3>
+              <p class="step__desc">
+                El sistema ofrece los métodos habilitados por tu escuela:
+                <br>• <strong>Tarjeta de crédito/débito (VISA o Mastercard):</strong> ingresa número de tarjeta, nombre,
+                CVV y fecha de vencimiento.
+                <br>• <strong>PSE:</strong> selecciona tu banco en el listado desplegable. Serás redirigido al portal
+                del banco para completar el pago.
+              </p>
+              <div class="warn"><span class="warn__icon">⚠️</span>No cierres el navegador durante el proceso de pago. Si
+                usas PSE, espera a ser redirigido de regreso al sistema automáticamente.</div>
+            </div>
+          </div>
+          <div class="step step--green">
+            <div class="step__num">4</div>
+            <div class="step__body">
+              <h3 class="step__title">Confirma el resultado del pago</h3>
+              <p class="step__desc">Después del pago verás una pantalla de confirmación indicando si fue
+                <strong>Aprobado</strong>, <strong>Pendiente</strong> o <strong>Rechazado</strong>. Si fue aprobado, la
+                factura queda registrada automáticamente en el sistema.</p>
+              <div class="step__img-wrap">
+                <!-- CAPTURA AQUÍ: pantalla de confirmación de pago aprobado -->
+                <img src="./resultado del pago.png" alt="Pantalla de confirmación de pago aprobado">
+                <!-- <p class="step__img-placeholder">📸 Captura de pantalla: confirmación de pago exitoso</p> -->
+              </div>
+            </div>
+          </div>
+          <div class="step step--green">
+            <div class="step__num">5</div>
+            <div class="step__body">
+              <h3 class="step__title">Consulta el historial de pagos</h3>
+              <p class="step__desc">Desde el menú, selecciona <strong>Mis pagos</strong>. Verás una tabla con todos tus
+                pagos: número de factura, referencia, fecha, deportista, evento, cantidad, método de pago y monto.
+                Puedes descargar cada factura en PDF o ver el comprobante adjunto.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <hr class="divider">
+
+      <!-- ══ 12 · Pagos ══ -->
+      <section class="section" id="Pagos">
+        <div class="section__header section__header--orange">
+          <p class="section__label">Sección 12</p>
+          <h2 class="section__title">Pagos y comprobantes</h2>
+        </div>
+
+        <div class="subsection">
+          <h3 class="subsection__title">Ver el listado de pagos (Administrador)</h3>
+          <div class="role-tags"><span class="role-tag role-tag--admin">Administrador</div>
+          <div class="steps">
+            <div class="step step--orange">
+              <div class="step__num">1</div>
+              <div class="step__body">
+                <h3 class="step__title">Accede a "Pagos"</h3>
+                <p class="step__desc">Desde el menú, selecciona <strong>Reportes de Pagos</strong>. Verás todas las Pagos de
+                  tu escuela con: ID, deportista, evento, tipo de pago (badge de color) y monto.</p>
+                <div class="step__img-wrap">
+                  <!-- CAPTURA AQUÍ: listado de Pagos con tabla de pagos -->
+                  <img src="pagos admin.png" alt="Listado de Pagos de la escuela">
+                  <!-- <p class="step__img-placeholder">📸 Captura de pantalla: listado de Pagos</p> -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="subsection">
+          <h3 class="subsection__title">Ver y descargar pagos</h3>
+          <div class="role-tags">
+            <span class="role-tag role-tag--acudiente">Acudiente</span>
+            <span class="role-tag role-tag--admin">Administrador</span>
+          </div>
+          <div class="steps">
+            <div class="step step--orange">
+              <div class="step__num">1</div>
+              <div class="step__body">
+                <h3 class="step__title">Revisa el historial de pagos del usuario</h3>
+                <p class="step__desc">Dentro puedes ver todos los pagos registrados para ese usuario: número de factura, fecha de emisión, evento o concepto asociado, deportista, método de pago utilizado y monto total. Esto te permite tener una trazabilidad completa de los movimientos del usuario sin salir de la vista.</p>
+                <div class="step__img-wrap">
+                  <!-- CAPTURA AQUÍ: sección del historial de pagos dentro del detalle de factura -->
+                  <img src="./mis pagos.png" alt="Historial de pagos del usuario dentro del detalle de factura">
+                  <!-- <p class="step__img-placeholder">📸 Captura de pantalla: historial de pagos del usuario en el detalle de factura</p> -->
+                </div>
+                <div class="note"><span class="note__icon">ℹ️</span>Si el usuario tiene varios pagos registrados (inscripción, eventos, deportistas), todos aparecen listados en esta misma pantalla.</div>
+              </div>
+            </div>
+            <div class="step step--orange">
+              <div class="step__num">2</div>
+              <div class="step__body">
+                <h3 class="step__title">Haz clic en "Visualizar"</h3>
+                <p class="step__desc">Desde el listado de Pagos (Administrador) o el historial de pagos (Acudiente),
+                  haz clic en <strong>Visualizar</strong> para ver el detalle completo de la factura: datos del emisor,
+                  del deportista, concepto, cantidad y total.</p>
+              </div>
+            </div>
+            <div class="step step--orange">
+              <div class="step__num">3</div>
+              <div class="step__body">
+                <h3 class="step__title">Descarga la factura en PDF</h3>
+                <p class="step__desc">Desde la vista de detalle de la factura o desde el listado, haz clic en
+                  <strong>Descargar PDF</strong> para obtener el documento en formato PDF listo para imprimir.</p>
+                <div class="step__img-wrap">
+                  <!-- CAPTURA AQUÍ: vista detalle de una factura con botones de descarga -->
+                  <img src="./descargar pago.png" alt="Vista detalle de factura con opción de descarga PDF">
+                  <!-- <p class="step__img-placeholder">📸 Captura de pantalla: detalle de factura</p> -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="subsection">
+          <h3 class="subsection__title">Subir o reemplazar un comprobante de pago</h3>
+          <div class="role-tags">
+            <span class="role-tag role-tag--acudiente">Acudiente</span>
+            <span class="role-tag role-tag--admin">Administrador</span>
+          </div>
+          <div class="steps">
+            <div class="step step--orange">
+              <div class="step__num">1</div>
+              <div class="step__body">
+                <h3 class="step__title">Accede a la opción "Subir comprobante"</h3>
+                <p class="step__desc">Desde el listado de Pagos o el detalle, haz clic en <strong>Subir
+                    comprobante</strong>. Si ya existe un comprobante, el botón dirá "Reemplazar comprobante".</p>
+              </div>
+            </div>
+            <div class="step step--orange">
+              <div class="step__num">2</div>
+              <div class="step__body">
+                <h3 class="step__title">Selecciona y sube el archivo</h3>
+                <p class="step__desc">Haz clic en el campo de archivo, selecciona el comprobante (JPG, PNG, WEBP o PDF,
+                  máximo 5 MB) y haz clic en <strong>Guardar comprobante</strong>.</p>
+                <div class="warn"><span class="warn__icon">⚠️</span>Si ya existe un comprobante y subes uno nuevo, el
+                  anterior será reemplazado permanentemente.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <hr class="divider">
+
+      <!-- ══ 13 · UNIFORMES ══ -->
+      <section class="section" id="uniformes">
+        <div class="section__header section__header--purple">
+          <p class="section__label">Sección 13</p>
+          <h2 class="section__title">Uniformes</h2>
+          <p class="section__desc">Registro y consulta de uniformes asignados a los deportistas.</p>
+        </div>
+
+        <!-- ── ACUDIENTE ── -->
+        <div class="subsection" id="uniformes-acudiente">
+          <h3 class="subsection__title" style="border-left:4px solid #0d6efd; padding-left:12px; border-bottom:none;">Vista del Acudiente — Consultar uniformes</h3>
+          <div class="role-tags"><span class="role-tag role-tag--acudiente">Acudiente</span></div>
+          <div class="steps">
+            <div class="step">
+              <div class="step__num" style="background:#0d6efd;">1</div>
+              <div class="step__body">
+                <h3 class="step__title">Accede a "Uniformes"</h3>
+                <p class="step__desc">Desde el menú superior selecciona <strong>Uniformes</strong>. Verás la tabla con los uniformes asignados a los deportistas de tu escuela: número de camiseta, deportista, categoría, tipo, nombre y descripción.</p>
+                <div class="step__img-wrap">
+                  <!-- CAPTURA AQUÍ: listado de uniformes visto por el acudiente -->
+                  <img src="./uniformes acudiente.png" alt="Listado de uniformes visto por el Acudiente">
+                  <!-- <p class="step__img-placeholder">📸 Captura de pantalla: listado de uniformes (Acudiente)</p> -->
+                </div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step__num" style="background:#0d6efd;">2</div>
+              <div class="step__body">
+                <h3 class="step__title">Consulta el uniforme de tu deportista</h3>
+                <p class="step__desc">Busca en la tabla el nombre de tu deportista para ver qué número de camiseta tiene asignado, el tipo de uniforme (competencia, entrenamiento o extra) y su nombre. Esta vista es de solo lectura; no puedes crear ni modificar uniformes.</p>
+                <div class="note"><span class="note__icon">ℹ️</span>Si tu deportista no aparece en la lista, significa que aún no tiene un uniforme asignado. Comunícalo al Formador o Administrador de la escuela.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── FORMADOR ── -->
+        <div class="subsection" id="uniformes-formador">
+          <h3 class="subsection__title" style="border-left:4px solid #198754; padding-left:12px; border-bottom:none;">Vista del Formador — Consultar y registrar uniformes</h3>
+          <div class="role-tags"><span class="role-tag role-tag--formador">Formador</span></div>
+          <div class="steps">
+            <div class="step step--green">
+              <div class="step__num">1</div>
+              <div class="step__body">
+                <h3 class="step__title">Accede a "Uniformes"</h3>
+                <p class="step__desc">Desde el menú superior selecciona <strong>Uniformes</strong>. Verás el listado completo de uniformes de la escuela con todos sus datos.</p>
+                <div class="step__img-wrap">
+                  <!-- CAPTURA AQUÍ: listado de uniformes visto por el formador -->
+                  <img src="./uniformes formador.png" alt="Listado de uniformes visto por el Formador">
+                  <!-- <p class="step__img-placeholder">📸 Captura de pantalla: listado de uniformes (Formador)</p> -->
+                </div>
+              </div>
+            </div>
+            <div class="step step--green">
+              <div class="step__num">2</div>
+              <div class="step__body">
+                <h3 class="step__title">Registra un uniforme nuevo</h3>
+                <p class="step__desc">Haz clic en <strong>Agregar uniforme</strong>. Completa el formulario: número de camiseta (1 al 999), deportista al que se asigna, tipo de uniforme (competencia, entrenamiento o extra), nombre de la camiseta (máximo 10 caracteres) y descripción opcional. Haz clic en <strong>Guardar</strong>.</p>
+                <div class="step__img-wrap">
+                  <!-- CAPTURA AQUÍ: formulario de registro de uniforme con todos los campos -->
+                  <img src="./registrar uniforme.png" alt="Formulario de registro de uniforme nuevo (Formador)">
+                  <!-- <p class="step__img-placeholder">📸 Captura de pantalla: formulario de registro de uniforme (Formador)</p> -->
+                </div>
+                <div class="note"><span class="note__icon">ℹ️</span>Cada deportista puede tener solo un uniforme registrado. El número de camiseta debe ser único dentro de la categoría del deportista.</div>
+              </div>
+            </div>
+            <div class="step step--green">
+              <div class="step__num">3</div>
+              <div class="step__body">
+                <h3 class="step__title">Limitaciones del rol Formador</h3>
+                <p class="step__desc">Como Formador puedes crear uniformes pero <strong>no puedes editarlos ni eliminarlos</strong>. Si necesitas corregir o borrar un registro, debes solicitarlo al Administrador de la escuela.</p>
+                <div class="warn"><span class="warn__icon">⚠️</span>Los botones <strong>Editar</strong> y <strong>Borrar</strong> no están disponibles en tu vista. Solo aparecen para el Administrador.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── ADMINISTRADOR ── -->
+        <div class="subsection" id="uniformes-admin">
+          <h3 class="subsection__title" style="border-left:4px solid #7c3aed; padding-left:12px; border-bottom:none;">Vista del Administrador — Gestión completa de uniformes</h3>
+          <div class="role-tags"><span class="role-tag role-tag--admin">Administrador</span></div>
+          <div class="steps">
+            <div class="step step--purple">
+              <div class="step__num">1</div>
+              <div class="step__body">
+                <h3 class="step__title">Accede a "Uniformes"</h3>
+                <p class="step__desc">Desde el menú selecciona <strong>Uniformes</strong>. Verás el listado completo de uniformes de tu escuela. A diferencia de los otros roles, en tu vista aparecen los botones <strong>Editar</strong> y <strong>Borrar</strong> en cada fila.</p>
+                <div class="step__img-wrap">
+                  <!-- CAPTURA AQUÍ: listado de uniformes con botones Editar y Borrar visibles -->
+                  <img src="./uniformes admin.png" alt="Listado de uniformes con opciones de gestión del Administrador">
+                  <!-- <p class="step__img-placeholder">📸 Captura de pantalla: listado de uniformes (Administrador)</p> -->
+                </div>
+              </div>
+            </div>
+            <div class="step step--purple">
+              <div class="step__num">2</div>
+              <div class="step__body">
+                <h3 class="step__title">Registra un uniforme nuevo</h3>
+                <p class="step__desc">Haz clic en <strong>Agregar uniforme</strong>. Completa: número de camiseta (1 al 999), deportista, tipo (competencia, entrenamiento o extra), nombre (máximo 10 caracteres) y descripción opcional. Guarda para registrarlo.</p>
+                <div class="step__img-wrap">
+                  <!-- CAPTURA AQUÍ: formulario de registro de uniforme con todos los campos -->
+                  <img src="./registrar uniforme.png" alt="Formulario de registro de uniforme nuevo (Administrador)">
+                  <!-- <p class="step__img-placeholder">📸 Captura de pantalla: formulario de registro de uniforme (Administrador)</p> -->
+                </div>
+                <div class="note"><span class="note__icon">ℹ️</span>Cada deportista puede tener solo un uniforme. El número de camiseta debe ser único dentro de la categoría del deportista.</div>
+              </div>
+            </div>
+            <div class="step step--purple">
+              <div class="step__num">3</div>
+              <div class="step__body">
+                <h3 class="step__title">Edita un uniforme existente</h3>
+                <p class="step__desc">Haz clic en <strong>Editar</strong> en la fila del uniforme que deseas modificar.</p>
+                  <div class="step__img-wrap">
+                  <!-- CAPTURA AQUÍ: Editar uniformes -->
+                  <img src="./editar uniforme.png" alt="Listado de uniformes con opciones de gestión del Administrador">
+                  <!-- <p class="step__img-placeholder">📸 Captura de pantalla: listado de uniformes (Administrador)</p> -->
+                </div>
+                <p class="step__desc">Actualiza los campos que necesites y guarda los cambios.</p>
+                  <div class="step__img-wrap">
+                  <!-- CAPTURA AQUÍ: Formulario para Editar uniforme -->
+                  <img src="./editar uniforme1.png" alt="Formulario para Editar uniforme ">
+                  <!-- <p class="step__img-placeholder">📸 Captura de pantalla: listado de uniformes (Administrador)</p> -->
+                </div>
+              </div>
+            </div>
+            <div class="step step--purple">
+              <div class="step__num">4</div>
+              <div class="step__body">
+                <h3 class="step__title">Elimina un uniforme</h3>
+                <p class="step__desc">Haz clic en <strong>Borrar</strong> en la fila correspondiente. El sistema pedirá confirmación antes de eliminar el registro permanentemente.</p>
+                <div class="warn"><span class="warn__icon">⚠️</span>La eliminación es permanente. Si necesitas reasignar el número de camiseta a otro deportista, primero elimina el registro actual y luego crea uno nuevo.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <hr class="divider">
+
+      <!-- ══ 14 · PRODUCTOS ══ -->
+      <section class="section" id="productos">
+        <div class="section__header">
+          <p class="section__label">Sección 14</p>
+          <h2 class="section__title">Productos</h2>
+          <p class="section__desc">Catálogo de productos disponibles en la escuela.</p>
+        </div>
+        <div class="role-tags"><span class="role-tag role-tag--admin">Administrador</div>
+        <div class="steps">
+          <div class="step">
+            <div class="step__num">1</div>
+            <div class="step__body">
+              <h3 class="step__title">Accede a "Productos"</h3>
+              <p class="step__desc">Desde el menú, selecciona <strong>Productos</strong>. Verás el catálogo de productos
+                de tu escuela con nombre, precio, descripción e imagen.</p>
+              <div class="step__img-wrap">
+                <!-- CAPTURA AQUÍ: listado de productos del catálogo de la escuela -->
+                <img src="./lista productos.png" alt="Catálogo de productos de la escuela">
+                <!-- <p class="step__img-placeholder">📸 Captura de pantalla: catálogo de productos</p> -->
+              </div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step__num">2</div>
+            <div class="step__body">
+              <h3 class="step__title">Agrega un producto nuevo</h3>
+              <p class="step__desc">Haz clic en <strong>Agregar Nuevo</strong>. Completa: nombre del producto (máximo 30
+                caracteres), precio (mayor o igual a 0), descripción e imagen del producto. Guarda para añadirlo al
+                catálogo.</p>
+                <div class="step__img-wrap">
+                <!-- CAPTURA AQUÍ: Agregar productos de la escuela -->
+                <img src="./lista productos.png" alt="Agregar productos de la escuela">
+                <!-- <p class="step__img-placeholder">📸 Captura de pantalla: catálogo de productos</p> -->
+                </div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step__num">3</div>
+            <div class="step__body">
+              <h3 class="step__title">Editar o deshabilitar un producto</h3>
+              <p class="step__desc">Usa el botón <strong>Editar</strong> para actualizar los datos de un producto.</p>
+                <div class="step__img-wrap">
+                <!-- CAPTURA AQUÍ: Editar productos de la escuela -->
+                <img src="./editar producto.png" alt="Agregar productos de la escuela">
+                <!-- <p class="step__img-placeholder">📸 Captura de pantalla: catálogo de productos</p> -->
+                </div>
+                <p class="step__desc">Usa el boton <strong>Deshabilitar</strong> para retirarlo del catálogo. El sistema pedirá confirmación antes de
+                deshabilitarlo.</p>
+                <div class="step__img-wrap">
+                <!-- CAPTURA AQUÍ: Deshabilitar productos de la escuela -->
+                <img src="deshabilitar producto.png" alt="Deshabilitar productos de la escuela">
+                <!-- <p class="step__img-placeholder">📸 Captura de pantalla: catálogo de productos</p> -->
+                </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <hr class="divider">
+
+      <!-- ══ 15 · REPORTES ══ -->
+      <section class="section" id="reportes">
+        <div class="section__header section__header--green">
+          <p class="section__label">Sección 15</p>
+          <h2 class="section__title">Reportes</h2>
+          <p class="section__desc">Exportación de datos del sistema en diferentes formatos.</p>
+        </div>
+
+        <div class="subsection">
+          <h3 class="subsection__title">Vista del Formador</h3>
+          <div class="role-tags">
+            <span class="role-tag role-tag--formador">Formador</span>
+          </div>
+          <div class="steps">
+            <div class="step step--green">
+              <div class="step__num">1</div>
+              <div class="step__body">
+                <h3 class="step__title">Abre el módulo de reportes</h3>
+                <p class="step__desc">Desde el menú, selecciona <strong>Reportes</strong>. Verás únicamente las tablas permitidas para tu rol, relacionadas con asistencia, deportistas y uniformes.</p>
+                <div class="step__img-wrap">
+                  <!-- CAPTURA AQUÍ: pantalla de reportes del formador -->
+                  <img src="./reportes formador.png" alt="Pantalla de reportes del Formador">
+                  <!-- <p class="step__img-placeholder">📸 Captura de pantalla: reportes del formador</p> -->
+                </div>
+              </div>
+            </div>
+            <div class="step step--green">
+              <div class="step__num">2</div>
+              <div class="step__body">
+                <h3 class="step__title">Exporta la información disponible</h3>
+                <p class="step__desc">Para cada tabla habilitada tendrás botones de descarga en <strong>XLSX</strong>, <strong>CSV</strong> y <strong>PDF</strong>. Usa estos archivos para llevar control de asistencia, deportistas o uniformes de tu escuela.</p>
+                <div class="tip"><span class="tip__icon">✅</span>El formador solo ve reportes limitados a su escuela y a los módulos que tiene autorizados.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="subsection">
+          <h3 class="subsection__title">Vista del Administrador</h3>
+          <div class="role-tags">
+            <span class="role-tag role-tag--admin">Administrador</span>
+          </div>
+          <div class="steps">
+            <div class="step step--green">
+              <div class="step__num">1</div>
+              <div class="step__body">
+                <h3 class="step__title">Accede a "Reportes Generales"</h3>
+                <p class="step__desc">Desde el menú, selecciona <strong>Reportes Generales</strong> o <strong>Reportes</strong>. Verás todas las fuentes de datos disponibles para exportar dentro de tu escuela.</p>
+                <div class="step__img-wrap">
+                  <!-- CAPTURA AQUÍ: pantalla de reportes del administrador -->
+                  <img src="./reportes admin.png" alt="Pantalla de reportes del Administrador">
+                  <!-- <p class="step__img-placeholder">📸 Captura de pantalla: reportes del administrador</p> -->
+                </div>
+              </div>
+            </div>
+            <div class="step step--green">
+              <div class="step__num">2</div>
+              <div class="step__body">
+                <h3 class="step__title">Selecciona el formato de exportación</h3>
+                <p class="step__desc">Para cada tabla disponible, encontrarás tres botones de descarga:
+                  <br>• <strong>XLSX</strong> — Hoja de cálculo Excel con columnas formateadas y autoajuste.
+                  <br>• <strong>CSV</strong> — Archivo de texto separado por comas, compatible con cualquier hoja de cálculo.
+                  <br>• <strong>PDF</strong> — Documento PDF con tabla y encabezados, orientación horizontal.
+                </p>
+              </div>
+            </div>
+            <div class="step step--green">
+              <div class="step__num">3</div>
+              <div class="step__body">
+                <h3 class="step__title">Descarga el archivo</h3>
+                <p class="step__desc">Al hacer clic en cualquiera de los botones, el archivo se descargará automáticamente a tu equipo. Los datos del reporte corresponden únicamente a tu escuela.</p>
+                <div class="tip"><span class="tip__icon">✅</span>Los reportes en PDF incluyen el nombre de la tabla y el número de página en el encabezado.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <hr class="divider">
+
+      <!-- ══ 16 · ADMIN USUARIOS ══ -->
+      <section class="section" id="admin-usuarios">
+        <div class="section__header section__header--red">
+          <p class="section__label">Sección 16</p>
+          <h2 class="section__title">Administración de usuarios</h2>
+          <p class="section__desc">Aprobación, rechazo y gestión de cuentas de usuarios de la escuela.</p>
+        </div>
+        <div class="role-tags"><span class="role-tag role-tag--admin">Administrador</div>
+        <div class="steps">
+          <div class="step step--red">
+            <div class="step__num">1</div>
+            <div class="step__body">
+              <h3 class="step__title">Accede a "Gestionar usuarios"</h3>
+              <p class="step__desc">Desde el menú, selecciona <strong>Gestionar usuarios</strong>. Verás dos secciones:
+                <strong>Usuarios pendientes</strong> (formadores que esperan aprobación) y <strong>Usuarios
+                  registrados</strong> (todos los activos de tu escuela).</p>
+              <div class="step__img-wrap">
+                <!-- CAPTURA AQUÍ: panel de administración de usuarios con tabla de pendientes -->
+                <img src="./gestion de usuarios.png" alt="Panel de administración de usuarios con pendientes y aprobados">
+                <!-- <p class="step__img-placeholder">📸 Captura de pantalla: panel de gestión de usuarios</p> -->
+              </div>
+            </div>
+          </div>
+          <div class="step step--red">
+            <div class="step__num">2</div>
+            <div class="step__body">
+              <h3 class="step__title">Aprueba o rechaza un formador</h3>
+              <p class="step__desc">En la sección de usuarios pendientes, revisa la información del usuario (nombre,
+                email, rol). Haz clic en <strong>Aprobar</strong> para activar su cuenta o en <strong>Rechazar</strong>
+                para denegarla.</p>
+              <div class="warn"><span class="warn__icon">⚠️</span>El rechazo es irreversible: el usuario deberá
+                registrarse nuevamente si desea acceder al sistema.</div>
+            </div>
+          </div>
+          <div class="step step--red">
+            <div class="step__num">3</div>
+            <div class="step__body">
+              <h3 class="step__title">Gestiona usuarios activos</h3>
+              <p class="step__desc">En la sección de usuarios registrados puedes ver el detalle de cada uno: nombre,
+                email, rol, cantidad de deportistas y estado. Usa <strong>Editar</strong> para modificar sus datos,
+                <strong>Ver Deportistas</strong> para consultar los deportistas a su cargo o <strong>Ver
+                  factura</strong> para revisar su historial de pagos.</p>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:32px;">
+          <div class="note"><span class="note__icon">ℹ️</span><strong>Verificación de pagos de administradores
+              (Superadministrador):</strong> El Superadmin revisa en este mismo módulo a los nuevos administradores de
+            escuela. Puede ver el comprobante de pago en un modal, verificarlo y hacer clic en "Aceptar y verificar"
+            para habilitarlos. Tras la aprobación, el administrador deberá completar la creación de su escuela al
+            iniciar sesión.</div>
+        </div>
+      </section>
+
+      <hr class="divider">
+
+      <!-- ══ 17 · TABLA DE PERMISOS ══ -->
+      <section class="section" id="permisos">
+        <div class="section__header">
+          <p class="section__label">Sección 17</p>
+          <h2 class="section__title">Tabla de permisos por rol</h2>
+          <p class="section__desc">Resumen rápido de qué puede hacer cada tipo de usuario.</p>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="perm-table">
+            <thead>
+              <tr>
+                <th style="text-align:left">Funcionalidad</th>
+                <th>Acudiente</th>
+                <th>Formador</th>
+                <th>Administrador</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Dashboard</td>
+                <td class="ok">✓</td>
+                <td class="ok">✓</td>
+                <td class="ok">✓</td>
+              </tr>
+              <tr>
+                <td>Gestionar escuelas</td>
+                <td class="no">—</td>
+                <td class="no">—</td>
+                <td class="partial">Propia</td>
+              </tr>
+              <tr>
+                <td>Registrar deportistas</td>
+                <td class="partial">Propios</td>
+                <td class="no">—</td>
+                <td class="ok">Escuela</td>
+              </tr>
+              <tr>
+                <td>Ver deportistas</td>
+                <td class="partial">Propios</td>
+                <td class="ok">Escuela</td>
+                <td class="ok">Escuela</td>
+              </tr>
+              <tr>
+                <td>Editar deportistas</td>
+                <td class="partial">Propios</td>
+                <td class="no">—</td>
+                <td class="ok">✓</td>
+              </tr>
+              <tr>
+                <td>Cambiar estado deportista</td>
+                <td class="no">—</td>
+                <td class="no">—</td>
+                <td class="ok">✓</td>
+              </tr>
+              <tr>
+                <td>Registrar asistencia</td>
+                <td class="no">—</td>
+                <td class="ok">✓</td>
+                <td class="ok">✓</td>
+              </tr>
+              <tr>
+                <td>Ver asistencia hijos</td>
+                <td class="ok">✓</td>
+                <td class="no">—</td>
+                <td class="no">—</td>
+              </tr>
+              <tr>
+                <td>Ver eventos</td>
+                <td class="ok">✓</td>
+                <td class="ok">✓</td>
+                <td class="ok">✓</td>
+              </tr>
+              <tr>
+                <td>Gestionar eventos</td>
+                <td class="no">—</td>
+                <td class="no">—</td>
+                <td class="ok">✓</td>
+              </tr>
+              <tr>
+                <td>Realizar pagos</td>
+                <td class="ok">✓</td>
+                <td class="no">—</td>
+                <td class="no">—</td>
+              </tr>
+              <tr>
+                <td>Ver mis pagos / Pagos</td>
+                <td class="ok">✓</td>
+                <td class="no">—</td>
+                <td class="ok">Escuela</td>
+              </tr>
+              <tr>
+                <td>Subir comprobantes</td>
+                <td class="ok">✓</td>
+                <td class="no">—</td>
+                <td class="ok">✓</td>
+              </tr>
+              <tr>
+                <td>Ver uniformes</td>
+                <td class="ok">✓</td>
+                <td class="ok">✓</td>
+                <td class="ok">✓</td>
+              </tr>
+              <tr>
+                <td>Crear uniformes</td>
+                <td class="no">—</td>
+                <td class="ok">✓</td>
+                <td class="ok">✓</td>
+              </tr>
+              <tr>
+                <td>Editar / borrar uniformes</td>
+                <td class="no">—</td>
+                <td class="no">—</td>
+                <td class="ok">✓</td>
+              </tr>
+              <tr>
+                <td>Gestionar productos</td>
+                <td class="no">—</td>
+                <td class="no">—</td>
+                <td class="ok">✓</td>
+              </tr>
+              <tr>
+                <td>Reportes</td>
+                <td class="no">—</td>
+                <td class="partial">Limitado</td>
+                <td class="ok">✓</td>
+              </tr>
+              <tr>
+                <td>Gestionar usuarios</td>
+                <td class="no">—</td>
+                <td class="no">—</td>
+                <td class="ok">Escuela</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p style="margin-top:12px; font-size:.83rem; color:#6b7280;">✓ = acceso completo &nbsp;·&nbsp; — = sin acceso
+          &nbsp;·&nbsp; Parcial = acceso limitado según indicación &nbsp;·&nbsp; Propios/Escuela/Propia = alcance
+          según el rol</p>
+      </section>
+
+      <!-- ══ Footer ══ -->
+      <footer style="text-align:center; padding:40px 0 20px; font-size:.83rem; color:#9ca3af;">
+        <p>Sport Manager · Manual de Usuario v1.0 · Agosto 2026</p>
+        <p>Para soporte técnico: <a href="mailto:sportmanager.escuelas@gmail.com">sportmanager.escuelas@gmail.com</a>
+        </p>
+      </footer>
+
+  </div><!-- end .page-wrap -->
+  <script>
+    (function () {
+      const cover = document.querySelector('.cover');
+      const spacer = document.querySelector('.cover-spacer');
+      if (!cover) return;
+
+      const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+      const expandedHeight = 340;
+      const compactHeight = 76;
+      let ticking = false;
+
+      const updateCover = () => {
+        const progress = clamp(window.scrollY / 180, 0, 1);
+        const height = expandedHeight - ((expandedHeight - compactHeight) * progress);
+        cover.style.setProperty('--cover-progress', progress.toFixed(3));
+        cover.style.setProperty('--cover-height', `${height.toFixed(2)}px`);
+        if (spacer) {
+          spacer.style.setProperty('--cover-height', `${height.toFixed(2)}px`);
+        }
+        cover.classList.toggle('is-compact', progress > 0.55);
+        ticking = false;
+      };
+
+      const requestUpdate = () => {
+        if (ticking) return;
+        ticking = true;
+        window.requestAnimationFrame(updateCover);
+      };
+
+      requestUpdate();
+      window.addEventListener('scroll', requestUpdate, { passive: true });
+      window.addEventListener('resize', requestUpdate);
+    })();
+  </script>
+</body>
+
+</html>
